@@ -13,6 +13,11 @@ namespace Amaranth.Model.Data
 		List<string> _names;
 		List<string> _titles;
 
+		public Category()
+        {
+			_id = -1;
+        }
+
 		public int Id
 		{
 			get => _id;

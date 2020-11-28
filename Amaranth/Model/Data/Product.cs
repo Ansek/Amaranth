@@ -14,6 +14,7 @@ namespace Amaranth.Model.Data
 
 		public Product(Category category)
 		{
+			_id = -1;
 			_category = category;
 		}
 

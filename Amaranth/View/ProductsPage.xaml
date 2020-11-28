@@ -1,0 +1,65 @@
+﻿<Page x:Class="Amaranth.View.ProductsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Amaranth.View"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="ProductsPage">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <DataGrid>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Название" Width="3*"/>
+                <DataGridTextColumn Header="Категория" Width="2*"/>
+                <DataGridTextColumn Header="Цена" Width="*"/>
+                <DataGridTextColumn Header="Кол-во" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Название"/>
+            <TextBox Grid.Column="1"/>
+
+            <Label Content="Категория" Grid.Row="1"/>
+            <ComboBox Grid.Column="1" Grid.Row="1"/>
+
+            <Label Content="Цена" Grid.Row="2"/>
+            <TextBox Grid.Column="1" Grid.Row="2"/>
+
+            <Label Content="Изображение" Grid.Row="3"/>
+            <StackPanel Grid.Column="1" Grid.Row="3">
+                <Image Height="50"/>
+                <Button Content="Обзор..."/>
+            </StackPanel>
+
+            <ItemsControl Grid.ColumnSpan="2" Grid.Row="4"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                        Grid.ColumnSpan="2" Grid.Row="6">
+                <Button Content="Добавить"/>
+                <Button Content="Изменить"/>
+                <Button Content="Удалить"/>
+            </StackPanel>
+        </Grid>        
+    </Grid>
+</Page>
