@@ -18,7 +18,7 @@ namespace Amaranth.View
     /// <summary>
     /// Логика взаимодействия для ReportsPage.xaml
     /// </summary>
-    public partial class ReportsPage : Page
+    public partial class ReportsPage : UserControl
     {
         public ReportsPage()
         {

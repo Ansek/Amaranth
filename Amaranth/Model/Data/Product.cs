@@ -9,6 +9,7 @@ namespace Amaranth.Model.Data
 		int _id, _count;
 		string _title;
 		double _price;
+		bool _prescription;
 		BitmapImage _image;
 		protected Category _category;
 
@@ -46,6 +47,12 @@ namespace Amaranth.Model.Data
 		{
 			get => _count;
 			set { _count = value; OnValueChanged(); }
+		}
+
+		public bool Prescription
+		{
+			get => _prescription;
+			set { _prescription = value; OnValueChanged(); }
 		}
 
 		public Category Category

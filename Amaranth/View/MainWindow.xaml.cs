@@ -10,6 +10,7 @@ namespace Amaranth.View
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = new ViewModel.MainWindowVM();
         }
     }
 }

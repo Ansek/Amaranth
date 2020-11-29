@@ -18,7 +18,7 @@ namespace Amaranth.View
     /// <summary>
     /// Логика взаимодействия для OrderPage.xaml
     /// </summary>
-    public partial class OrderPage : Page
+    public partial class OrderPage : UserControl
     {
         public OrderPage()
         {
