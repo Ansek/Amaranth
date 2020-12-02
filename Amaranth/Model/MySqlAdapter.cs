@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using data = Amaranth.Model.Data.Data;
@@ -9,59 +10,217 @@ namespace Amaranth.Model
 	{
 		MySqlConnection _connect;
 
-        public void Delete(data data)
+        public MySqlAdapter()
         {
-            throw new NotImplementedException();
-        }
-
-        public List<data> GetQuery(string table, string condition)
-        {
-            throw new NotImplementedException();
-        }
-
-        public data GetUser(string login, string password)
-        {
-            throw new NotImplementedException();
+            string param = "datasource = localhost; port = 3306; username = root; database = amaranth; password = 123";
+            _connect = new MySqlConnection(param);
         }
 
         public int Insert(data data)
         {
-            throw new NotImplementedException();
-        }
+            _connect.Open();
+            int id = -1;
+            string idCmd;
+            string columns = string.Empty;
+            string values = string.Empty;
+            var cmd = new MySqlCommand();
+            cmd.Connection = _connect;
 
-        public bool IsColumnExists(string name, string table)
-        {
-            throw new NotImplementedException();
-        }
+            int i = 0;
+            foreach (var d in data)
+            {
+                if (i != 0)
+                {
+                    columns += ",";
+                    values += ",";
+                }
+                idCmd = $"@{i++}";
+                columns += d.Name;
+                values += idCmd;
+                var type = GetEquivalent(d.Type);
+                cmd.Parameters.Add(idCmd, type);
+                cmd.Parameters[idCmd].Value = d.Value;
+            }
 
-        public bool IsTableExists(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Load(ref data data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<data> LoadList(string table)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<data> LoadList(string table, int pos, int count)
-        {
-            throw new NotImplementedException();
+            cmd.CommandText = $"INSERT INTO {data.TableName} ({columns}) VALUES ({values});";
+            int l = cmd.ExecuteNonQuery();
+            if (l > 0)
+            {
+                cmd.CommandText = $"SELECT max({data.IdName}) FROM {data.TableName};";
+                id = Convert.ToInt32(cmd.ExecuteScalar());
+            }
+            _connect.Close();
+            return id;
         }
 
         public void Update(data data)
         {
-            throw new NotImplementedException();
+            _connect.Open();
+            string idCmd;
+            string parameters = string.Empty;
+            var cmd = new MySqlCommand();
+            cmd.Connection = _connect;
+
+            int i = 0;
+            foreach (var d in data)
+            {
+                if (i != 0)
+                    parameters += ",";
+                idCmd = $"@{i++}";
+                parameters += $"{d.Name} = {idCmd}";
+                var type = GetEquivalent(d.Type);
+                cmd.Parameters.Add(idCmd, type);
+                cmd.Parameters[idCmd].Value = d.Value;
+            }
+
+            cmd.CommandText = $"UPDATE {data.TableName} SET {parameters} WHERE {data.IdName} = {data.RecordId};";
+            cmd.ExecuteNonQuery();
+            _connect.Close();
         }
 
-        private void RunCommand(string sql)
-		{
-			throw new NotImplementedException();
-		}
-	}
+        public void Delete(data data)
+        {
+            _connect.Open();
+            string sql = $"DELETE FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
+            var cmd = new MySqlCommand(sql, _connect);
+            cmd.ExecuteNonQuery();
+            _connect.Close();
+        }
+
+        public void Load(ref data data)
+        {
+            _connect.Open();
+            string columns = string.Empty;
+            var cmd = new MySqlCommand();
+            cmd.Connection = _connect;
+
+            int i = 0;
+            foreach (var d in data)
+            {
+                if (i != 0)
+                    columns += ",";
+                columns += $"{d.Name}";
+                i++;
+            }
+
+            cmd.CommandText = $"SELECT {columns} FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
+            var reader = cmd.ExecuteReader();
+            
+            while (reader.Read())
+            {
+                i = 0;
+                foreach (var d in data)
+                    data[d.Name] = reader.GetValue(i++);
+            }
+
+            _connect.Close();
+        }
+
+        public data GetUser(string login, string password)
+        {
+            _connect.Open();
+            string sql = $"SELECT firstname, lastname FROM user WHERE login = '{login}' AND password = '{password}';";
+
+            var cmd = new MySqlCommand(sql, _connect);
+            var reader = cmd.ExecuteReader();
+            data data = null;
+
+            if (reader.Read())
+            {
+                data = new data();
+                data.Add("firstname", reader.GetValue(0));
+                data.Add("lastname", reader.GetValue(1));
+            }
+
+            _connect.Close();
+            return data;
+        }
+
+        public List<data> LoadList(string table)
+        {
+            string sql = $"SELECT * FROM {table};";
+            return GetList(table, sql);
+        }
+
+        public List<data> LoadList(string table, int pos, int count)
+        {
+            string sql = $"SELECT * FROM {table} LIMIT {pos}, {count};";
+            return GetList(table, sql);
+        }
+
+        public List<data> GetQuery(string table, string condition)
+        {
+            string sql = $"SELECT * FROM {table} WHERE {condition};";
+            return GetList(table, sql);
+        }
+
+        public bool IsTableExists(string name)
+        {
+            string sql = $"SHOW TABLES FROM amaranth LIKE '{name}';";
+            return GetScalar(sql) != null;
+        }
+
+        public bool IsColumnExists(string name, string table)
+        {
+            string sql = $"SHOW COLUMNS FROM amaranth.{table} LIKE '{name}';";
+            return GetScalar(sql) != null;
+        }
+
+        public int GetRecordsCount(string table)
+        {
+            string sql = $"SELECT count(*) FROM {table};";
+            return Convert.ToInt32(GetScalar(sql));
+        }
+
+        public int GetRecordsCount(string table, string condition)
+        {
+            string sql = $"SELECT count(*) FROM {table} WHERE {condition};";
+            return Convert.ToInt32(GetScalar(sql));
+        }
+
+        MySqlDbType GetEquivalent(Type type)
+        {
+            MySqlDbType t = MySqlDbType.Text;
+            if (type == typeof(int))
+                t = MySqlDbType.Int32;
+            else if (type == typeof(string))
+                t = MySqlDbType.VarChar;
+            else if (type == typeof(double))
+                t = MySqlDbType.Decimal;
+            else if (type == typeof(bool))
+                t = MySqlDbType.Bit;
+            return t;
+        }
+
+        List<data> GetList(string table, string sql)
+        {
+            var ds = new DataSet();
+            var cmd = new MySqlCommand(sql, _connect);
+            var msadapter = new MySqlDataAdapter(cmd);
+            msadapter.Fill(ds, table);
+
+            List<data> list = new List<data>();
+            foreach (DataRow row in ds.Tables[table].Rows)
+            {
+                var data = new data();
+                for (int i = 0; i < ds.Tables[table].Columns.Count; i++)
+                {
+                    var col = ds.Tables[table].Columns[i].ColumnName;
+                    data.Add(col, row[i]);
+                }
+                list.Add(data);
+            }
+
+            return list;
+        }
+
+        object GetScalar(string sql)
+        {
+            _connect.Open();
+            var cmd = new MySqlCommand(sql, _connect);
+            var o = cmd.ExecuteScalar();
+            _connect.Close();
+            return o;
+        }
+     }
 }

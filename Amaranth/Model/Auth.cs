@@ -8,6 +8,8 @@ namespace Amaranth.Model
 	{
 		static Auth _intance;
 		static IDBAdapter _adapter;
+		//string _salt = BCrypt.Net.BCrypt.GenerateSalt();
+		static string _salt = "$2a$11$V3BYXXhVVRwTfYT5bbGyFu";
 
 		private Auth()
 		{
@@ -29,6 +31,7 @@ namespace Amaranth.Model
 		{
 			if (_adapter != null)
 			{
+				string hash = null;
 				// TO DO
 				throw new NotImplementedException();
 				_intance.OnUserChanged();
@@ -41,6 +44,7 @@ namespace Amaranth.Model
 		{
 			if (_adapter != null)
 			{
+				string hash = BCrypt.Net.BCrypt.HashPassword(password, _salt);
 				// TO DO
 				throw new NotImplementedException();
 				_intance.OnUserChanged();

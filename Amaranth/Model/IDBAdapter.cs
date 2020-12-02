@@ -24,5 +24,9 @@ namespace Amaranth.Model
 		bool IsTableExists(string name);
 
 		bool IsColumnExists(string name, string table);
+
+		int GetRecordsCount(string table);
+
+		int GetRecordsCount(string table, string condition);
 	}
 }

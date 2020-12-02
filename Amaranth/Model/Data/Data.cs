@@ -8,7 +8,18 @@ namespace Amaranth.Model.Data
 		Dictionary<string, object> _data;
 
 		public int RecordId { get; set; }
+		public string IdName { get; set; }
 		public string TableName { get; set; }
+
+		public Data()
+        {
+			_data = new Dictionary<string, object>();
+        }
+
+		public void Add(string name)
+		{
+			_data.Add(name, null);
+		}
 
 		public void Add(string name, object value)
 		{
@@ -22,12 +33,13 @@ namespace Amaranth.Model.Data
 
 		public IEnumerator<TData> GetEnumerator()
 		{
-			foreach (var data in _data)
+			var list = new List<KeyValuePair<string, object>>(_data);
+			foreach (var data in list)
 				yield return new TData
 				{
 					Name = data.Key,
-					Value = data.Key,
-					Type = data.Key.GetType()
+					Value = data.Value,
+					Type = data.Value?.GetType()
 				};
 		}
 
@@ -35,5 +47,11 @@ namespace Amaranth.Model.Data
         {
 			return GetEnumerator();
 		}
-    }
+
+		public object this[string name]
+        {
+			get => _data[name];
+			set => _data[name] = value;
+		}
+	}
 }
