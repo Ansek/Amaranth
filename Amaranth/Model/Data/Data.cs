@@ -7,7 +7,7 @@ namespace Amaranth.Model.Data
 	{
 		Dictionary<string, object> _data;
 
-		public int RecordId { get; set; }
+		public object RecordId { get; set; }
 		public string IdName { get; set; }
 		public string TableName { get; set; }
 

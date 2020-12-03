@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using Amaranth.Model.Data;
+using data = Amaranth.Model.Data.Data;
 
 namespace Amaranth.Model
 {
@@ -63,6 +64,19 @@ namespace Amaranth.Model
 			}
 			else
 				throw new Exception("Не задан адаптер для класса Auth");
+		}
+
+		public static void ResetPassword(string login)
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса Auth");
+
+			var data = new data();
+			data.Add("Password", "");
+			data.TableName = "user";
+			data.IdName = "Login";
+			data.RecordId = $"'{login}'";
+			_adapter.Update(data);
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

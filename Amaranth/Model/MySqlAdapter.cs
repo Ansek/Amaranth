@@ -42,14 +42,20 @@ namespace Amaranth.Model
                 cmd.Parameters[idCmd].Value = d.Value;
             }
 
-            cmd.CommandText = $"INSERT INTO {data.TableName} ({columns}) VALUES ({values});";
-            int l = cmd.ExecuteNonQuery();
-            if (l > 0)
+            try
             {
-                cmd.CommandText = $"SELECT max({data.IdName}) FROM {data.TableName};";
-                id = Convert.ToInt32(cmd.ExecuteScalar());
+                cmd.CommandText = $"INSERT INTO {data.TableName} ({columns}) VALUES ({values});";
+                int l = cmd.ExecuteNonQuery();
+                if (l > 0 && data.TableName != "user")
+                {
+                    cmd.CommandText = $"SELECT max({data.IdName}) FROM {data.TableName};";
+                    id = Convert.ToInt32(cmd.ExecuteScalar());
+                }
             }
-            _connect.Close();
+            finally
+            {
+                _connect.Close();
+            }
             return id;
         }
 
@@ -74,8 +80,14 @@ namespace Amaranth.Model
             }
 
             cmd.CommandText = $"UPDATE {data.TableName} SET {parameters} WHERE {data.IdName} = {data.RecordId};";
-            cmd.ExecuteNonQuery();
-            _connect.Close();
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                _connect.Close();
+            }
         }
 
         public void Delete(data data)
@@ -83,8 +95,14 @@ namespace Amaranth.Model
             _connect.Open();
             string sql = $"DELETE FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
             var cmd = new MySqlCommand(sql, _connect);
-            cmd.ExecuteNonQuery();
-            _connect.Close();
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                _connect.Close();
+            }
         }
 
         public void Load(ref data data)
@@ -104,16 +122,21 @@ namespace Amaranth.Model
             }
 
             cmd.CommandText = $"SELECT {columns} FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
-            var reader = cmd.ExecuteReader();
-            
-            while (reader.Read())
+            try
             {
-                i = 0;
-                foreach (var d in data)
-                    data[d.Name] = reader.GetValue(i++);
-            }
+                var reader = cmd.ExecuteReader();
 
-            _connect.Close();
+                while (reader.Read())
+                {
+                    i = 0;
+                    foreach (var d in data)
+                        data[d.Name] = reader.GetValue(i++);
+                }
+            }
+            finally
+            {
+                _connect.Close();
+            }
         }
 
         public data GetUser(string login, string password)
@@ -121,18 +144,24 @@ namespace Amaranth.Model
             _connect.Open();
             string sql = $"SELECT firstname, lastname FROM user WHERE login = '{login}' AND password = '{password}';";
 
-            var cmd = new MySqlCommand(sql, _connect);
-            var reader = cmd.ExecuteReader();
             data data = null;
+            var cmd = new MySqlCommand(sql, _connect);
 
-            if (reader.Read())
+            try
             {
-                data = new data();
-                data.Add("firstname", reader.GetValue(0));
-                data.Add("lastname", reader.GetValue(1));
-            }
+                var reader = cmd.ExecuteReader();
 
-            _connect.Close();
+                if (reader.Read())
+                {
+                    data = new data();
+                    data.Add("firstname", reader.GetValue(0));
+                    data.Add("lastname", reader.GetValue(1));
+                }
+            }
+            finally
+            {
+                _connect.Close();
+            }
             return data;
         }
 

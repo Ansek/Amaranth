@@ -8,6 +8,18 @@ namespace Amaranth.Model.Data
 		string _login, _firstName, _lastName;
 		bool _isAdministrator;
 
+		public User()
+        {
+        }
+
+		public User(User user)
+        {
+			_login = user._login;
+			_firstName = user._firstName;
+			_lastName = user._lastName;
+			_isAdministrator = user._isAdministrator;
+		}
+
 		public string Login
 		{
 			get => _login;

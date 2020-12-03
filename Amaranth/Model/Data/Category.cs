@@ -16,7 +16,9 @@ namespace Amaranth.Model.Data
 		public Category()
         {
 			_id = -1;
-        }
+			_names = new List<string>();
+			_titles = new List<string>();
+		}
 
 		public int Id
 		{
