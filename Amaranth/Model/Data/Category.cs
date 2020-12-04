@@ -1,24 +1,34 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 
 namespace Amaranth.Model.Data
 {
-	public class Category : INotifyPropertyChanged, IEnumerable<Description>
+	public class Category : INotifyPropertyChanged, INotifyCollectionChanged, IEnumerable<Description>
 	{
 		int _id;
 		string _title;
-		List<string> _names;
-		List<string> _titles;
+		List<Description> _description;
 
 		public Category()
         {
 			_id = -1;
-			_names = new List<string>();
-			_titles = new List<string>();
+			_description = new List<Description>();
+			DeletedIds = new List<int>();
 		}
+
+		public Category(Category category)
+        {
+			_id = category._id;
+			_title = category._title;
+			_description = new List<Description>(category._description);
+			DeletedIds = new List<int>();
+		}
+
+		public List<int> DeletedIds { get; }
 
 		public int Id
 		{
@@ -32,42 +42,47 @@ namespace Amaranth.Model.Data
 			set { _title = value; OnValueChanged(); }
 		}
 
-        public void AddDescription(string name, string title)
+		public int Count => _description.Count;
+
+		public void AddDescription(string title, int id = -1)
 		{
-			if (_names.Contains(name))
-				throw new Exception("Имя " + name + "уже задано внутри Category");
-			else
-            {
-				_names.Add(name);
-				_titles.Add(name);
-			}
+			foreach (var desc in _description)
+				if (desc.Title == title)
+					throw new Exception("Имя '" + title + "' уже задано внутри Category");
+
+			_description.Add(new Description()
+			{
+				Id = id,
+				Title = title
+			});
+
+			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 		}
 
-		public void RemoveDescription(string name)
+		public void RemoveDescription(Description description)
 		{
-			int i = _names.IndexOf(name);
-			if (_names.Contains(name))
-            {
-				_names.RemoveAt(i);
-				_titles.RemoveAt(i);
-			}
+			for (int i = 0; i < _description.Count; i++)
+				if (_description[i].Id == description.Id && _description[i].Title == description.Title)
+                {
+					DeletedIds.Add(_description[i].Id);
+					_description.RemoveAt(i);
+					CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+					break;
+				}
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-		public void OnValueChanged([CallerMemberName] string name = "")
+        public void OnValueChanged([CallerMemberName] string name = "")
         {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 		}
 
         public IEnumerator<Description> GetEnumerator()
         {
-			for (int i = 0; i < _names.Count; i++)
-				yield return new Description()
-				{
-					Name = _names[i],
-					Title = _titles[i]
-				};
+			foreach (var desc in _description)
+				yield return new Description(desc);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

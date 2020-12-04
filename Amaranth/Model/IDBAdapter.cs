@@ -28,5 +28,17 @@ namespace Amaranth.Model
 		int GetRecordsCount(string table);
 
 		int GetRecordsCount(string table, string condition);
+
+		void CreateTable(string name, List<string> columns);
+
+		void DeleteTable(string name);
+
+		void AddColumn(string name, string table);
+
+		void DeleteColumn(string name, string table);
+
+		int GetMaxValue(string name, string table);
+
+		int GetMaxValue(string name, string table, string condition);
 	}
 }

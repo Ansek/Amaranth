@@ -6,13 +6,9 @@ namespace Amaranth.Model.Data
 {
 	public class Description : INotifyPropertyChanged
 	{
-		string _name, _title, _value;
+		string _title, _value;
 
-		public string Name
-		{
-			get => _name;
-			set { _name = value; OnValueChanged(); }
-		}
+		public int Id { get; set; }
 
 		public string Title
 		{
@@ -24,6 +20,18 @@ namespace Amaranth.Model.Data
 		{
 			get => _value;
 			set { _value = value; OnValueChanged(); }
+		}
+
+		public Description()
+        {
+			Id = -1;
+        }
+
+		public Description(Description description)
+		{
+			Id = description.Id;
+			_title = description._title;
+			_value = description._value;
 		}
 
 		public event Action<string> ValueChanged;

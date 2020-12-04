@@ -112,13 +112,11 @@ namespace Amaranth.Model
             var cmd = new MySqlCommand();
             cmd.Connection = _connect;
 
-            int i = 0;
             foreach (var d in data)
             {
-                if (i != 0)
+                if (columns != string.Empty)
                     columns += ",";
                 columns += $"{d.Name}";
-                i++;
             }
 
             cmd.CommandText = $"SELECT {columns} FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
@@ -126,9 +124,9 @@ namespace Amaranth.Model
             {
                 var reader = cmd.ExecuteReader();
 
+                int i = 0;
                 while (reader.Read())
                 {
-                    i = 0;
                     foreach (var d in data)
                         data[d.Name] = reader.GetValue(i++);
                 }
@@ -207,6 +205,86 @@ namespace Amaranth.Model
             return Convert.ToInt32(GetScalar(sql));
         }
 
+        public void CreateTable(string name, List<string> columns)
+        {
+            string field = string.Empty;
+            foreach (var column in columns)
+            {
+                if (field != string.Empty)
+                    field += ",";
+                field += $"{column} TEXT NULL";
+            }
+
+            _connect.Open();
+            string sql = $"CREATE TABLE {name} (id INT NOT NULL, {field});";
+            var cmd = new MySqlCommand(sql, _connect);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                _connect.Close();
+            }
+        }
+
+        public void DeleteTable(string name)
+        {
+            _connect.Open();
+            string sql = $"DROP TABLE {name};";
+            var cmd = new MySqlCommand(sql, _connect);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                _connect.Close();
+            }
+        }
+
+        public void AddColumn(string name, string table)
+        {
+            _connect.Open();
+            string sql = $"ALTER TABLE {table} ADD {name} TEXT NULL;";
+            var cmd = new MySqlCommand(sql, _connect);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                _connect.Close();
+            }
+        }
+
+        public void DeleteColumn(string name, string table)
+        {
+            _connect.Open();
+            string sql = $"ALTER TABLE {table} DROP COLUMN {name};";
+            var cmd = new MySqlCommand(sql, _connect);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                _connect.Close();
+            }
+        }
+
+        public int GetMaxValue(string name, string table)
+        {
+            string sql = $"SELECT max({name}) FROM {table};";
+            return Convert.ToInt32(GetScalar(sql));
+        }
+
+        public int GetMaxValue(string name, string table, string condition)
+        {
+            string sql = $"SELECT max({name}) FROM {table} WHERE {condition};";
+            return Convert.ToInt32(GetScalar(sql));
+        }
+
         MySqlDbType GetEquivalent(Type type)
         {
             MySqlDbType t = MySqlDbType.Text;
@@ -251,5 +329,5 @@ namespace Amaranth.Model
             _connect.Close();
             return o;
         }
-     }
+    }
 }

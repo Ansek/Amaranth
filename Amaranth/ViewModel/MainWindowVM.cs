@@ -32,7 +32,8 @@ namespace Amaranth.ViewModel
                 new OrderPage(),
                 new ProductsPage(),
                 new ReportsPage(),
-                new UsersPage()
+                new UsersPage(),
+                new СategoriesPage()
             };
         }
 

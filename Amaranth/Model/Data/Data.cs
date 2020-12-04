@@ -16,20 +16,13 @@ namespace Amaranth.Model.Data
 			_data = new Dictionary<string, object>();
         }
 
-		public void Add(string name)
-		{
-			_data.Add(name, null);
-		}
+		public void Add(string name) => _data.Add(name, null);
 
-		public void Add(string name, object value)
-		{
-			_data.Add(name, value);
-		}
+		public void Add(string name, object value) => _data.Add(name, value);
 
-        public void Remove(string name)
-		{
-			_data.Remove(name);
-		}
+        public void Remove(string name) => _data.Remove(name);
+
+		public void Clear() => _data.Clear();
 
 		public IEnumerator<TData> GetEnumerator()
 		{

@@ -37,13 +37,31 @@ namespace Amaranth.Model
 
 		public static void Insert(Category category)
 		{
-			if (_adapter != null)
-			{
-				// TO DO
-				throw new NotImplementedException();
-			}
-			else
+			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса Auth");
+
+			var data = new data();
+			data.Add("Title", category.Title);
+			data.IdName = "idCategory";
+			data.TableName = "category";
+			int id = _adapter.Insert(data);
+			int i = 1;
+			var columns = new List<string>();
+
+			foreach (var desc in category)
+				if (desc.Id == -1)
+				{
+					data.Clear();
+					columns.Add($"desc{i}");
+					data.Add("idDescription", i++);
+					data.Add("idCategory", id);
+					data.Add("Title", desc.Title);
+					data.TableName = "description";
+					_adapter.Insert(data);
+				}
+
+			string table = $"CategoryDescriptions{id}";
+			_adapter.CreateTable(table, columns);
 		}
 
 		public static void Insert(User user)
@@ -73,13 +91,38 @@ namespace Amaranth.Model
 
 		public static void Update(Category category)
 		{
-			if (_adapter != null)
-			{
-				// TO DO
-				throw new NotImplementedException();
-			}
-			else
+			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса Auth");
+
+			var data = new data();
+			data.Add("Title", category.Title);
+			data.TableName = "category";
+			data.IdName = "idCategory";
+			data.RecordId = category.Id;
+			_adapter.Update(data);
+
+			int i = _adapter.GetMaxValue("idDescription", "description", $"idCategory = {category.Id}") + 1;
+			foreach (var desc in category)
+				if (desc.Id == -1)
+				{
+					data.Clear();
+					_adapter.AddColumn($"desc{i}", $"CategoryDescriptions{category.Id}");
+					data.Add("idDescription", i++);
+					data.Add("idCategory", category.Id);
+					data.Add("Title", desc.Title);
+					data.TableName = "description";
+					_adapter.Insert(data);
+				}
+
+			foreach (var j in category.DeletedIds)
+            {
+				data.Clear();
+				data.TableName = "description";
+				data.IdName = "idDescription";
+				data.RecordId = $"{j} AND idCategory = {category.Id}";
+				_adapter.Delete(data);
+				_adapter.DeleteColumn($"desc{j}", $"CategoryDescriptions{category.Id}");
+			}
 		}
 
 		public static void Update(User user)
@@ -110,13 +153,19 @@ namespace Amaranth.Model
 
 		public static void Delete(Category category)
 		{
-			if (_adapter != null)
-			{
-				// TO DO
-				throw new NotImplementedException();
-			}
-			else
+			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса Auth");
+
+			var data = new data();
+			data.TableName = "description";
+			data.IdName = "idCategory";
+			data.RecordId = category.Id;
+			_adapter.Delete(data);
+
+			data.TableName = "category";
+			_adapter.Delete(data);
+
+			_adapter.DeleteTable($"CategoryDescriptions{category.Id}");
 		}
 
 		public static void Delete(User user)
@@ -155,13 +204,32 @@ namespace Amaranth.Model
 
 		public static List<Category> GetListCategory()
 		{
-			if (_adapter != null)
-			{
-				// TO DO
-				throw new NotImplementedException();
-			}
-			else
+			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса Auth");
+
+			var categories = _adapter.LoadList("category");
+			if (categories.Count > 0)
+			{
+				var list = new List<Category>();
+				foreach (var c in categories)
+				{
+					var category = new Category()
+					{
+						Id = Convert.ToInt32(c["idCategory"]),
+						Title = Convert.ToString(c["Title"])
+					};
+					var desc = _adapter.GetQuery("description", $"idCategory = {category.Id}");
+					foreach (var d in desc)
+                    {
+						int id = Convert.ToInt32(d["idDescription"]);
+						var title = Convert.ToString(d["Title"]);
+						category.AddDescription(title, id);
+					}
+					list.Add(category);
+				}
+				return list;
+			}
+			return null;
 		}
 
 		public static List<User> GetListUser()
