@@ -36,7 +36,6 @@ namespace Amaranth.ViewModel
         {
             _isSelect = false;
             ListСategories = DataBaseSinglFacade.GetListCategory();
-            Category = new Category();
         }
 
         public Command<Category> SetCategory

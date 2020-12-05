@@ -15,7 +15,12 @@
             <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
-        <DataGrid x:Name="table" ItemsSource="{Binding ListСategories}">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <DataGrid x:Name="table" ItemsSource="{Binding ListСategories}" Grid.RowSpan="2">
             <DataGrid.Columns>
                 <DataGridTextColumn Header=" Идентификатор " Binding="{Binding Id}" Width="auto"/>
                 <DataGridTextColumn Header="Наименование категории" Binding="{Binding Title}" Width="*"/>
@@ -29,62 +34,63 @@
             </i:Interaction.Triggers>
         </DataGrid>
 
-        <Grid Grid.Column="1" Margin="5, 10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="5, 10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
-            <Grid.Resources>
-                <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource baseTextBox}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Category}" Value="{x:Null}">
-                            <Setter Property="IsEnabled" Value="False"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Resources>
+                <Grid.Resources>
+                    <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource baseTextBox}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Category}" Value="{x:Null}">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Resources>
 
-            <Label Content="Наименование"/>
-            <TextBox Text="{Binding Category.Title, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1"/>
+                <Button Content="Новая категория" Command="{Binding Create}" Margin="0, 0, 0, 20"
+                    HorizontalAlignment="Right" Grid.Column="2"/>
 
-            <GroupBox Header="Описывающие поля категории" Grid.Row="1" Grid.ColumnSpan="2">
-                <StackPanel>
-                    <ItemsControl ItemsSource="{Binding Category}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <DockPanel>
-                                    <Button Content="-" DockPanel.Dock="Right" Width="30" Padding="0" CommandParameter="{Binding }"
+                <Label Content="Наименование" Grid.Row="1"/>
+                <TextBox Text="{Binding Category.Title, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1"/>
+
+                <GroupBox Header="Описывающие поля категории" Grid.Row="2" Grid.ColumnSpan="2">
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding Category}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel>
+                                        <Button Content="-" DockPanel.Dock="Right" Width="30" Padding="0" CommandParameter="{Binding }"
                                             Command="{Binding DataContext.RemoveDescription, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
-                                    <Label Content="{Binding Title}"/>
-                                </DockPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <DockPanel>
-                        <Button Content="+" Command="{Binding AddDescription}" DockPanel.Dock="Right" Width="30" Padding="0"/>
-                        <TextBox Text="{Binding DescriptionTitle, UpdateSourceTrigger=PropertyChanged}"/>
-                    </DockPanel>
-                </StackPanel>
-            </GroupBox>
-
-            <Button Content="Новая категория" Command="{Binding Create}"
-                    HorizontalAlignment="Right" Grid.Column="2" Grid.Row="2"/>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                        Grid.ColumnSpan="2" Grid.Row="4">
-                <Button Content="Добавить" Command="{Binding Add}"/>
-                <Button Content="Изменить" Command="{Binding Change}"/>
-                <Button Content="Удалить" Command="{Binding Delete}"/>
-            </StackPanel>
-        </Grid>
+                                        <Label Content="{Binding Title}"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <DockPanel>
+                            <Button Content="+" Command="{Binding AddDescription}" DockPanel.Dock="Right" Width="30" Padding="0"/>
+                            <TextBox Text="{Binding DescriptionTitle, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DockPanel>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+        </ScrollViewer>
+        
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                        Grid.ColumnSpan="2" Grid.Row="1" Margin="5, 10">
+            <Button Content="Добавить" Command="{Binding Add}"/>
+            <Button Content="Изменить" Command="{Binding Change}"/>
+            <Button Content="Удалить" Command="{Binding Delete}"/>
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -113,6 +113,7 @@
     <Compile Include="Service\Command[T].cs" />
     <Compile Include="Service\Command.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
+    <Compile Include="ViewModel\ProductsVM.cs" />
     <Compile Include="ViewModel\UsersVM.cs" />
     <Compile Include="ViewModel\СategoriesVM.cs" />
     <Compile Include="View\OrderPage.xaml.cs">

@@ -209,14 +209,10 @@ namespace Amaranth.Model
         {
             string field = string.Empty;
             foreach (var column in columns)
-            {
-                if (field != string.Empty)
-                    field += ",";
-                field += $"{column} TEXT NULL";
-            }
+                field += $", {column} TEXT NULL";
 
             _connect.Open();
-            string sql = $"CREATE TABLE {name} (id INT NOT NULL, {field});";
+            string sql = $"CREATE TABLE {name} (id INT NOT NULL{field}, PRIMARY KEY (id));";
             var cmd = new MySqlCommand(sql, _connect);
             try
             {

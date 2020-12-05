@@ -6,17 +6,18 @@ namespace Amaranth.Model.Data
 {
 	public class Product : INotifyPropertyChanged
 	{
-		int _id, _count;
-		string _title;
-		double _price;
-		bool _prescription;
-		BitmapImage _image;
+		protected int _id, _count;
+		protected string _title;
+		protected double _price;
+		protected bool _prescription;
+		protected BitmapImage _image;
 		protected Category _category;
 
 		public Product(Category category)
 		{
 			_id = -1;
 			_category = category;
+			_prescription = false;
 		}
 
 		public int Id

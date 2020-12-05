@@ -10,6 +10,8 @@ namespace Amaranth.Model.Data
 
 		public int Id { get; set; }
 
+		public int Index { get; set; }
+
 		public string Title
 		{
 			get => _title;
@@ -19,7 +21,7 @@ namespace Amaranth.Model.Data
 		public string Value
 		{
 			get => _value;
-			set { _value = value; OnValueChanged(); }
+			set { _value = value; ValueChanged?.Invoke(value, Index); OnValueChanged(); }
 		}
 
 		public Description()
@@ -32,9 +34,10 @@ namespace Amaranth.Model.Data
 			Id = description.Id;
 			_title = description._title;
 			_value = description._value;
+			ValueChanged = description.ValueChanged;
 		}
 
-		public event Action<string> ValueChanged;
+		public event Action<string, int> ValueChanged;
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
