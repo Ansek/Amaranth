@@ -4,48 +4,151 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Amaranth.View"
+      xmlns:s="clr-namespace:Amaranth.Service"
+      xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Tag="Заказ">
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition/>
+            <ColumnDefinition />
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition />
             <RowDefinition Height="auto"/>
+            
         </Grid.RowDefinitions>
 
         <DockPanel>
-            <Label Content="Наименование:"/>
-            <Button Content="Найти" DockPanel.Dock="Right"/>
-            <ComboBox />
+            <Label Content="Поиск по:" VerticalAlignment="Center"/>
+            <Button Content="Найти" DockPanel.Dock="Right" VerticalAlignment="Center"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <RadioButton Content="наименованию" />
+                <RadioButton Content="по тегам" Grid.Row="1" />
+
+                <ComboBox Grid.Column="1"/>
+                <ItemsControl Grid.Column="1" Grid.Row="1"/>
+            </Grid>
         </DockPanel>
 
-        <DataGrid Grid.Row="1">
+        <DataGrid x:Name="table" ItemsSource="{Binding ListProducts}" Grid.Row="1">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Название" Width="3*"/>
-                <DataGridTextColumn Header="Категория" Width="2*"/>
-                <DataGridTextColumn Header="Цена" Width="*"/>
-                <DataGridTextColumn Header="Кол-во" Width="*"/>
-                <DataGridTextColumn Header="Рецепт" Width="*"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="3*"/>
+                <DataGridTextColumn Header="Категория" Binding="{Binding Category.Title}" Width="2*"/>
+                <DataGridTextColumn Header="Цена (₽)" Binding="{Binding Price, StringFormat=0.00}" Width="auto">
+                    <DataGridTextColumn.CellStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextAlignment" Value="Right"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Кол-во " Binding="{Binding Count}" Width="auto"/>
+                <DataGridCheckBoxColumn Header="Рецепт " Binding="{Binding Prescription}" IsReadOnly="True" Width="auto"/>
             </DataGrid.Columns>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction
+                        Command="{Binding SetProduct}"
+                        CommandParameter="{Binding SelectedItem, ElementName=table}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
         </DataGrid>
 
         <Label Content="(Для добавления выберите запись из таблицы)" Grid.Row="2"/>
 
-        <GroupBox Header="Список заказа" Grid.RowSpan="2" Grid.Column="1">
-            <ItemsControl/>
-        </GroupBox>
+        <StackPanel Grid.Column="1">
+            <DockPanel>
+                <Label Content="Номер заказа: "/>
+                <Button Content="Найти" DockPanel.Dock="Right"
+                        Command="{Binding LoadOrder}" CommandParameter="{Binding Text, ElementName=idOrder}"/>
+                <TextBox x:Name="idOrder"/>
+            </DockPanel>
+            <Button Content="Новый заказ" Command="{Binding Create}" HorizontalAlignment="Right"/>
+        </StackPanel>
+
+        <DockPanel Grid.Row="1" Grid.Column="1">
+            <TextBlock Text="{Binding Message}" DockPanel.Dock="Top" Margin="3"/>
+            <DockPanel DockPanel.Dock="Top">
+                <DockPanel.Style>
+                    <Style TargetType="{x:Type DockPanel}">
+                        <Style.Resources>
+                            <s:NotNullConverter x:Key="NotNullConverter"/>
+                        </Style.Resources>
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedItem, ElementName=list}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Order.CompletionDate, Converter={StaticResource NotNullConverter}}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DockPanel.Style>
+                <Button Content="Изменить" DockPanel.Dock="Right"
+                        Command="{Binding SetCount}"/>
+                <TextBlock Text="шт." VerticalAlignment="Center" DockPanel.Dock="Right"/>
+                <TextBox Text="{Binding EditableCount, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"
+                         MinWidth="50" DockPanel.Dock="Right"/>
+                <TextBlock Margin="3" VerticalAlignment="Center"
+                           Text="{Binding SelectedItem.Title, ElementName=list}"/>
+            </DockPanel>
+            <TextBlock DockPanel.Dock="Bottom" Margin="3" FontWeight="Bold" FontSize="16" TextWrapping="Wrap"
+                Text="{Binding Order.FinalPrice, StringFormat=Итоговая стоимость: {0:0.00}₽}"/>
+            <GroupBox Header="Список заказа">
+                <ListBox x:Name="list" ItemsSource="{Binding Order}">
+                    <ListBox.Resources>
+                        <s:PriceConverter x:Key="PriceConverter"/>
+                    </ListBox.Resources>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Column="1" TextWrapping="Wrap">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource PriceConverter}">
+                                            <Binding Path="Count"/>
+                                            <Binding Path="Price"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction
+                        Command="{Binding SetEditableCount}"
+                        CommandParameter="{Binding SelectedItem, ElementName=list}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ListBox>
+            </GroupBox>
+        </DockPanel>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                        Grid.ColumnSpan="2" Grid.Row="2">
-            <Button Content="Завершить"/>
-            <Button Content="Отменить"/>
+                        Grid.ColumnSpan="2" Grid.Row="2" Margin="5, 10">
+            <Button Content="Завершить" Command="{Binding CompleteOrder}"/>
+            <Button Content="Отменить" Command="{Binding СancelOrder}"/>
         </StackPanel>
     </Grid>
 </UserControl>

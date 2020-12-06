@@ -331,5 +331,106 @@ namespace Amaranth.Model
 			}
 			return null;
 		}
+
+		public static Order GetOrder(int id)
+        {
+			Order order = null;
+			var data = new data();
+			data.Add("CreationDate");
+			data.Add("CompletionDate");
+			data.TableName = "`order`";
+			data.IdName = "idOrder";
+			data.RecordId = id;
+
+			_adapter.Load(ref data);
+			if (data["CreationDate"] != null)
+            {
+				order = new Order()
+				{
+					Id = id,
+					CreationDate = Convert.ToDateTime(data["CreationDate"])
+				};
+				if (data["CompletionDate"] != DBNull.Value)
+					order.CompletionDate = Convert.ToDateTime(data["CompletionDate"]);
+
+				var products = _adapter.GetQuery("Product p, Order_Product op", $"p.IdProduct = op.IdProduct AND op.idOrder = {id}");
+				foreach (var p in products)
+				{
+					Category category = null;
+					foreach (var c in _categories)
+						if (c.Id == Convert.ToInt32(p["idCategory"]))
+						{
+							category = c;
+							break;
+						}
+
+					double price = Convert.ToDouble((p["Price1"] == DBNull.Value) ? p["Price"] : p["Price1"]);
+
+					order.Add(new Product(category)
+					{
+						Id = Convert.ToInt32(p["idProduct"]),
+						Title = Convert.ToString(p["Title"]),
+						Price = price,
+						Count = Convert.ToInt32(p["Count1"]),
+						Prescription = Convert.ToBoolean(p["Prescription"])
+					});
+				}
+			}
+			return order;
+		}
+
+		public static void CompleteOrder(Order order)
+        {
+			var data = new data();
+			data.TableName = "`order`";
+			data.IdName = "idOrder";
+			var date = DateTime.Now;
+
+			if (order.CreationDate == null)
+            {
+				data.Add("CreationDate", date);
+				data.Add("CompletionDate", date);
+				int id = _adapter.Insert(data);
+
+				data.TableName = "order_product";
+				foreach (var p in order)
+                {
+					data.Clear();
+					data.Add("idOrder", id);
+					data.Add("idProduct", p.Id);
+					data.Add("Count", p.Count);
+					data.Add("Price", p.Price);
+					_adapter.Insert(data);
+				}
+			}
+			else
+            {
+				data.RecordId = order.Id;
+				data.Add("CompletionDate", date);
+				_adapter.Update(data);
+
+				data.TableName = "order_product";
+				foreach (var p in order)
+				{
+					data.RecordId = $"{order.Id} AND idProduct = {p.Id}";
+					data.Clear();
+					data.Add("Count", p.Count);
+					data.Add("Price", p.Price);
+					_adapter.Update(data);
+				}
+			}
+		}
+
+		public static void CancelOrder(Order order)
+		{
+			var data = new data();
+			data.TableName = "order_product";
+			data.IdName = "idOrder";
+			data.RecordId = order.Id;
+			_adapter.Delete(data);
+
+			data.TableName = "`order`";
+			_adapter.Delete(data);
+		}
 	}
 }

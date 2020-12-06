@@ -292,6 +292,8 @@ namespace Amaranth.Model
                 t = MySqlDbType.Decimal;
             else if (type == typeof(bool))
                 t = MySqlDbType.Bit;
+            else if (type == typeof(DateTime))
+                t = MySqlDbType.DateTime;
             return t;
         }
 

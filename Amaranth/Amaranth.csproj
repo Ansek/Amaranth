@@ -110,9 +110,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\Data\Order.cs" />
     <Compile Include="Service\Command[T].cs" />
     <Compile Include="Service\Command.cs" />
+    <Compile Include="Service\NotNullConverter.cs" />
+    <Compile Include="Service\PriceConverter.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
+    <Compile Include="ViewModel\OrderVM.cs" />
     <Compile Include="ViewModel\ProductsVM.cs" />
     <Compile Include="ViewModel\UsersVM.cs" />
     <Compile Include="ViewModel\СategoriesVM.cs" />
