@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Amaranth"
+        xmlns:s="clr-namespace:Amaranth.Service"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="Информационная система 'Амарант'" Height="600" Width="800">
+        Title="Информационная система 'Амарант'" Height="600" Width="1000">
     <Window.Background>
         <LinearGradientBrush StartPoint="1,0" EndPoint="1,1">
             <GradientStop Color="#FFC7C2C2" Offset="0"/>
@@ -75,24 +76,47 @@
             </Button>
         </StackPanel>
 
-        <ListBox x:Name="menu" ItemsSource="{Binding Pages}" Grid.Row="1" Grid.ColumnSpan="2">
+        <ListBox x:Name="menu" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}" Grid.Row="1" Grid.ColumnSpan="2">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel Orientation="Horizontal"/>
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
+            <ListBox.Resources>
+                <s:IsShowProductPageConverter x:Key="IsShowProductPageConverter"/>
+            </ListBox.Resources>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Tag}"/>
+                    <UserControl>
+                        <UserControl.Style>
+                            <Style TargetType="{x:Type UserControl}">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <TextBlock Text="{Binding Tag}" Height="20"/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ., Converter={StaticResource IsShowProductPageConverter}}" Value="True">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Tag}" Height="20"/>
+                                                        <Button Style="{StaticResource RemoveTag}" CommandParameter="{Binding }"
+                                                                Command="{Binding DataContext.CloseInfo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
+                                                    </StackPanel>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </UserControl.Style>
+                    </UserControl>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="SelectionChanged">
-                    <i:InvokeCommandAction
-                        Command="{Binding SetPage}"
-                        CommandParameter="{Binding SelectedItem, ElementName=menu}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
         </ListBox>
 
         <UserControl Content="{Binding CurrentPage}" Grid.Row="2" Grid.ColumnSpan="2"/>

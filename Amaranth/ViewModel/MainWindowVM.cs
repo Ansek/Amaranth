@@ -30,22 +30,30 @@ namespace Amaranth.ViewModel
             Auth.SetAdapter(mySql);
             DataBaseSinglFacade.GetInstance();
             DataBaseSinglFacade.SetAdapter(mySql);
+
             Pages = new ObservableCollection<UserControl>
             {
                 new OrderPage(),
                 new ProductsPage(),
                 new ReportsPage(),
                 new UsersPage(),
-                new СategoriesPage()
+                new СategoriesPage(),
+                new ArrivalsPage()
             };
             Auth.UserChanged += () => OnValueChanged("CurrentUser");
+            ProductSearchVM.OpenProduct += (product) =>
+            {
+                var page = new ShowProductPage(product);
+                Pages.Add(page);
+                CurrentPage = page;
+            };
         }
 
-        public Command<UserControl> SetPage
+        public Command<UserControl> CloseInfo
         {
             get => new Command<UserControl>((p) =>
             {
-                CurrentPage = p;
+                Pages.Remove(p);
             });
         }
 

@@ -120,6 +120,14 @@
                 </DataGridTextColumn>
                 <DataGridTextColumn Header="Кол-во " Binding="{Binding Count}" Width="auto"/>
                 <DataGridCheckBoxColumn Header="Рецепт " Binding="{Binding Prescription}" IsReadOnly="True" Width="auto"/>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="🔍" CommandParameter="{Binding }" Padding="0"
+                                     Command="{Binding DataContext.OpenInfo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}, AncestorLevel=2}}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">

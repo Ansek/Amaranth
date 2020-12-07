@@ -114,15 +114,26 @@
     <Compile Include="Model\Data\ProductRequest.cs" />
     <Compile Include="Service\Command[T].cs" />
     <Compile Include="Service\Command.cs" />
+    <Compile Include="Service\HeaderProcessingConverter.cs" />
+    <Compile Include="Service\IsShowProductPageConverter.cs" />
+    <Compile Include="Service\ListToStringConverter.cs" />
     <Compile Include="Service\NotNullConverter.cs" />
     <Compile Include="Service\PriceConverter.cs" />
+    <Compile Include="ViewModel\ArrivalsVM.cs" />
     <Compile Include="ViewModel\LoginMV.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
     <Compile Include="ViewModel\OrderVM.cs" />
     <Compile Include="ViewModel\ProductSearchVM.cs" />
     <Compile Include="ViewModel\ProductsVM.cs" />
+    <Compile Include="ViewModel\ShowProductVM.cs" />
+    <Compile Include="View\ShowProductPage.xaml.cs">
+      <DependentUpon>ShowProductPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\UsersVM.cs" />
     <Compile Include="ViewModel\СategoriesVM.cs" />
+    <Compile Include="View\ArrivalsPage.xaml.cs">
+      <DependentUpon>ArrivalsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
@@ -145,6 +156,14 @@
       <DependentUpon>СategoriesPage.xaml</DependentUpon>
     </Compile>
     <Page Include="Dictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ShowProductPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ArrivalsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

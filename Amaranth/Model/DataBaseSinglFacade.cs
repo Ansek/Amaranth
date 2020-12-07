@@ -112,18 +112,21 @@ namespace Amaranth.Model
 			_adapter.Insert(data);
 		}
 
-		public static void Update(ProductInfo product)
+		public static void Update(ProductInfo product, bool onlyCount = false)
 		{
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
-			data.Add("Title", product.Title);
-			data.Add("Image", product.Image);
-			data.Add("Price", product.Price);
 			data.Add("Count", product.Count);
-			data.Add("Prescription", product.Prescription);
-			data.Add("idCategory", product.Category.Id);
+			if (!onlyCount)
+			{
+				data.Add("Title", product.Title);
+				data.Add("Image", product.Image);
+				data.Add("Price", product.Price);
+				data.Add("Prescription", product.Prescription);
+				data.Add("idCategory", product.Category.Id);
+			}
 			data.TableName = "product";
 			data.IdName = "idProduct";
 			data.RecordId = product.Id;

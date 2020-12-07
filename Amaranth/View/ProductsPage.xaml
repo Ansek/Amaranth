@@ -139,10 +139,9 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <Label Content="{Binding Title}" Grid.Row="2"/>
-                                    <TextBox Text="{Binding Value}"
-                                             Grid.Column="1" Grid.Row="2" AcceptsReturn="True" Height="100"
-                                             VerticalScrollBarVisibility="Auto"/>
+                                    <Label Content="{Binding Title}"/>
+                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                             AcceptsReturn="True" Height="100" VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

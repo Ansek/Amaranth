@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
@@ -26,6 +27,8 @@ namespace Amaranth.ViewModel
                 ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll, _oldRequest);
             };
         }
+
+        public static event Action<Product> OpenProduct;
 
         List<Product> _listProducts;
         public List<Product> ListProducts
@@ -115,6 +118,11 @@ namespace Amaranth.ViewModel
         public Command GoNext
         {
             get => new Command(() => CurrentNumber++, () => _currentNumber != _maxNumber);
+        }
+
+        public Command<Product> OpenInfo
+        {
+            get => new Command<Product>((i) => OpenProduct?.Invoke(i)); 
         }
 
         public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;

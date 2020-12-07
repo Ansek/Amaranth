@@ -1,6 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Amaranth">
+                    xmlns:local="clr-namespace:Amaranth"
+                    xmlns:s="clr-namespace:Amaranth.Service">
+
+    <s:HeaderProcessingConverter x:Key="HeaderProcessingConverter"/>
 
     <!-- Базовый стиль для кнопки -->
     <Style x:Key="BaseButton" TargetType="{x:Type Button}">
@@ -131,6 +134,10 @@
 
     <Style TargetType="{x:Type ListBox}">
         <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <Style TargetType="{x:Type Label}">
+        <Setter Property="FontWeight" Value="Bold"/>
     </Style>
 
     <!-- Cтиль для заголовков -->

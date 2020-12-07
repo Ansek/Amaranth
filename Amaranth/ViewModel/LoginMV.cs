@@ -1,11 +1,9 @@
-﻿using System.ComponentModel;
-using System.Collections.Generic;
+﻿using System;
+using System.ComponentModel;
+using System.Windows.Controls;
 using System.Runtime.CompilerServices;
 using Amaranth.Model;
-using Amaranth.Model.Data;
 using Amaranth.Service;
-using System;
-using System.Windows.Controls;
 
 namespace Amaranth.ViewModel
 {
