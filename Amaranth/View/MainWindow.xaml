@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Amaranth"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-        mc:Ignorable="d"
-        Title="Информационная система 'Амарант'" Height="450" Width="800">
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen"
+        Title="Информационная система 'Амарант'" Height="600" Width="800">
     <Window.Background>
         <LinearGradientBrush StartPoint="1,0" EndPoint="1,1">
             <GradientStop Color="#FFC7C2C2" Offset="0"/>
@@ -26,7 +26,54 @@
         </Grid.RowDefinitions>
 
         <Label Content="Logo"/>
-        <Label Content="Login" Grid.Column="1" HorizontalAlignment="Right"/>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <TextBlock Margin="10">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentUser.IsAdministrator}" Value="False">
+                                <Setter Property="Text" Value="Фармацевт"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentUser.IsAdministrator}" Value="True">
+                                <Setter Property="Text" Value="Администратор"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <TextBlock Margin="10">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} {1}">
+                        <Binding Path="CurrentUser.FirstName"/>
+                        <Binding Path="CurrentUser.LastName"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+            <Button Content="Войти" Command="{Binding SignIn}">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButton}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentUser}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button Content="Выйти" Command="{Binding SignOut}">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButton}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentUser}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
 
         <ListBox x:Name="menu" ItemsSource="{Binding Pages}" Grid.Row="1" Grid.ColumnSpan="2">
             <ListBox.ItemsPanel>

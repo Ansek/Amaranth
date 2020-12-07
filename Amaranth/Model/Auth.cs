@@ -32,10 +32,20 @@ namespace Amaranth.Model
 		{
 			if (_adapter != null)
 			{
-				string hash = null;
-				// TO DO
-				throw new NotImplementedException();
-				_intance.OnUserChanged();
+				string hash = BCrypt.Net.BCrypt.HashPassword(password, _salt);
+				var data = _adapter.GetUser(login, hash);
+				if (data != null)
+				{
+					CurrentUser = new User()
+					{
+						FirstName = Convert.ToString(data["FirstName"]),
+						LastName = Convert.ToString(data["LastName"]),
+						IsAdministrator = Convert.ToBoolean(data["IsAdministrator"])
+					};
+					_intance.OnUserChanged();
+				}
+				else
+					throw new Exception("Пароль или логин не подходят");
 			}
 			else
 				throw new Exception("Не задан адаптер для класса Auth");
@@ -46,9 +56,26 @@ namespace Amaranth.Model
 			if (_adapter != null)
 			{
 				string hash = BCrypt.Net.BCrypt.HashPassword(password, _salt);
-				// TO DO
-				throw new NotImplementedException();
-				_intance.OnUserChanged();
+				var data = _adapter.GetUser(login, "");
+				if (data != null)
+                {
+					CurrentUser = new User()
+					{
+						FirstName = Convert.ToString(data["FirstName"]),
+						LastName = Convert.ToString(data["LastName"]),
+						IsAdministrator = Convert.ToBoolean(data["IsAdministrator"])
+					};
+
+					data.TableName = "user";
+					data.IdName = "Login";
+					data.RecordId = $"'{login}'";
+					data.Clear();
+					data.Add("Password", hash);
+					_adapter.Update(data);
+					_intance.OnUserChanged();
+				}
+				else
+					throw new Exception("Пользователь на найден или уже ему установлен пароль");
 			}
 			else
 				throw new Exception("Не задан адаптер для класса Auth");
@@ -58,8 +85,7 @@ namespace Amaranth.Model
 		{
 			if (_adapter != null)
 			{
-				// TO DO
-				throw new NotImplementedException();
+				CurrentUser = null;
 				_intance.OnUserChanged();
 			}
 			else
@@ -80,10 +106,12 @@ namespace Amaranth.Model
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
+		public static event Action UserChanged;
 
 		void OnUserChanged()
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentUser"));
+			UserChanged?.Invoke();
 		}
 	}
 }

@@ -106,6 +106,7 @@ namespace Amaranth.Model
 			data.Add("Login", user.Login);
 			data.Add("FirstName", user.FirstName);
 			data.Add("LastName", user.LastName);
+			data.Add("Password", "");
 			data.Add("IsAdministrator", user.IsAdministrator);
 			data.TableName = "user";
 			_adapter.Insert(data);

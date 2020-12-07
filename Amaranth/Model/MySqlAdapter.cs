@@ -140,7 +140,7 @@ namespace Amaranth.Model
         public data GetUser(string login, string password)
         {
             _connect.Open();
-            string sql = $"SELECT firstname, lastname FROM user WHERE login = '{login}' AND password = '{password}';";
+            string sql = $"SELECT FirstName, LastName, IsAdministrator FROM user WHERE login = '{login}' AND password = '{password}';";
 
             data data = null;
             var cmd = new MySqlCommand(sql, _connect);
@@ -152,8 +152,9 @@ namespace Amaranth.Model
                 if (reader.Read())
                 {
                     data = new data();
-                    data.Add("firstname", reader.GetValue(0));
-                    data.Add("lastname", reader.GetValue(1));
+                    data.Add("FirstName", reader.GetValue(0));
+                    data.Add("LastName", reader.GetValue(1));
+                    data.Add("IsAdministrator", reader.GetValue(2));
                 }
             }
             finally

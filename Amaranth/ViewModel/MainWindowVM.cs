@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using Amaranth.Model;
+using Amaranth.Model.Data;
 using Amaranth.View;
 using Amaranth.Service;
 
@@ -20,6 +21,8 @@ namespace Amaranth.ViewModel
             set { _page = value; OnValueChanged(); }
         }
 
+        public User CurrentUser => Auth.CurrentUser;
+
         public MainWindowVM()
         {
             MySqlAdapter mySql = new MySqlAdapter();
@@ -35,6 +38,7 @@ namespace Amaranth.ViewModel
                 new UsersPage(),
                 new СategoriesPage()
             };
+            Auth.UserChanged += () => OnValueChanged("CurrentUser");
         }
 
         public Command<UserControl> SetPage
@@ -43,6 +47,16 @@ namespace Amaranth.ViewModel
             {
                 CurrentPage = p;
             });
+        }
+
+        public Command SignIn
+        {
+            get => new Command(() => { var view = new LoginWindow(); view.ShowDialog(); });
+        }
+
+        public Command SignOut
+        {
+            get => new Command(() => Auth.SignOut());
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
