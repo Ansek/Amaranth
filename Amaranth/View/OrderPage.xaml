@@ -20,55 +20,9 @@
             <RowDefinition Height="auto"/>
             <RowDefinition />
             <RowDefinition Height="auto"/>
-            
         </Grid.RowDefinitions>
 
-        <DockPanel>
-            <Label Content="Поиск по:" VerticalAlignment="Center"/>
-            <Button Content="Найти" DockPanel.Dock="Right" VerticalAlignment="Center"/>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-
-                <RadioButton Content="наименованию" />
-                <RadioButton Content="по тегам" Grid.Row="1" />
-
-                <ComboBox Grid.Column="1"/>
-                <ItemsControl Grid.Column="1" Grid.Row="1"/>
-            </Grid>
-        </DockPanel>
-
-        <DataGrid x:Name="table" ItemsSource="{Binding ListProducts}" Grid.Row="1">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="3*"/>
-                <DataGridTextColumn Header="Категория" Binding="{Binding Category.Title}" Width="2*"/>
-                <DataGridTextColumn Header="Цена (₽)" Binding="{Binding Price, StringFormat=0.00}" Width="auto">
-                    <DataGridTextColumn.CellStyle>
-                        <Style>
-                            <Setter Property="TextBlock.TextAlignment" Value="Right"/>
-                        </Style>
-                    </DataGridTextColumn.CellStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Кол-во " Binding="{Binding Count}" Width="auto"/>
-                <DataGridCheckBoxColumn Header="Рецепт " Binding="{Binding Prescription}" IsReadOnly="True" Width="auto"/>
-            </DataGrid.Columns>
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="SelectionChanged">
-                    <i:InvokeCommandAction
-                        Command="{Binding SetProduct}"
-                        CommandParameter="{Binding SelectedItem, ElementName=table}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </DataGrid>
-
-        <Label Content="(Для добавления выберите запись из таблицы)" Grid.Row="2"/>
+        <local:ProductSearch Grid.RowSpan="3"/>
 
         <StackPanel Grid.Column="1">
             <DockPanel>

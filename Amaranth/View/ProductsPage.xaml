@@ -6,7 +6,7 @@
       xmlns:sys="clr-namespace:System;assembly=mscorlib"
       xmlns:local="clr-namespace:Amaranth.View"
       xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-      mc:Ignorable="d" 
+      mc:Ignorable="d" x:Name="control"
       d:DesignHeight="450" d:DesignWidth="800"
       Tag="Товары">
 
@@ -21,28 +21,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <DataGrid x:Name="table" ItemsSource="{Binding ListProducts}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="3*"/>
-                <DataGridTextColumn Header="Категория" Binding="{Binding Category.Title}" Width="2*"/>
-                <DataGridTextColumn Header="Цена (₽)" Binding="{Binding Price, StringFormat=0.00}" Width="auto">
-                    <DataGridTextColumn.CellStyle>
-                        <Style>
-                            <Setter Property="TextBlock.TextAlignment" Value="Right"/>
-                        </Style>
-                    </DataGridTextColumn.CellStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="Кол-во " Binding="{Binding Count}" Width="auto"/>
-                <DataGridCheckBoxColumn Header="Рецепт " Binding="{Binding Prescription}" IsReadOnly="True" Width="auto"/>
-            </DataGrid.Columns>
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="SelectionChanged">
-                    <i:InvokeCommandAction
-                        Command="{Binding SetProduct}"
-                        CommandParameter="{Binding SelectedItem, ElementName=table}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </DataGrid>
+        <local:ProductSearch Grid.RowSpan="2" SetProduct="{Binding DataContext.SetProduct, ElementName=control}"/>
 
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
             <Grid Margin="5, 10">
@@ -70,12 +49,13 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid.Resources>
                         <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource baseTextBox}">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Product}" Value="{x:Null}">
+                                <DataTrigger Binding="{Binding DataContext.Product, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}" Value="{x:Null}">
                                     <Setter Property="IsEnabled" Value="False"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -118,12 +98,49 @@
                         </RadioButton>
                     </StackPanel>
 
-                    <ItemsControl ItemsSource="{Binding Product}" Grid.ColumnSpan="2" Grid.Row="4">
+                    <Label Content="Теги" Grid.Row="4"/>
+                    <StackPanel Grid.Column="1" Grid.Row="4">
+                        <ItemsControl ItemsSource="{Binding ListTags}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="DodgerBlue" BorderThickness="1" CornerRadius="3" Margin="1">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding }" Margin="2, 1"/>
+                                            <Button Content="-" DockPanel.Dock="Right" Padding="0" Style="{StaticResource RemoveTag}" CommandParameter="{Binding }"
+                                            Command="{Binding DataContext.RemoveTag, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <DockPanel>
+                            <Button Content="+" DockPanel.Dock="Right" Width="30" Padding="0"
+                                    Command="{Binding AddTag}"/>
+                            <ComboBox Text="{Binding TagField}" ItemsSource="{Binding Tags}" x:Name="tag" IsEditable="True">
+                                <ComboBox.Style>
+                                    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource baseComboBox}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Product}" Value="{x:Null}">
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ComboBox.Style>
+                            </ComboBox>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding Product}" Grid.ColumnSpan="2" Grid.Row="5">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
                                     <Label Content="{Binding Title}" Grid.Row="2"/>
-                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox Text="{Binding Value}"
                                              Grid.Column="1" Grid.Row="2" AcceptsReturn="True" Height="100"
                                              VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
@@ -131,8 +148,8 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <Label Content="Изображение" Grid.Row="5"/>
-                    <StackPanel Grid.Column="1" Grid.Row="5">
+                    <Label Content="Изображение" Grid.Row="6"/>
+                    <StackPanel Grid.Column="1" Grid.Row="6">
                         <Image Height="50" Source="{Binding Product.Image}"/>
                         <Button Content="Обзор...">
                             <Button.Style>
@@ -146,135 +163,9 @@
                             </Button.Style>
                         </Button>
                     </StackPanel>
-                </Grid> 
+                </Grid>
             </Grid>
         </ScrollViewer>
-
-        <Grid Margin="5, 10" Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-
-            <Border VerticalAlignment="Center" BorderBrush="#175182" 
-                    BorderThickness="3" CornerRadius="3" Margin="2">
-                <Border.Clip>
-                    <RectangleGeometry Rect="0, 0, 127, 31" RadiusX="3" RadiusY="3"/>
-                </Border.Clip>
-                <Grid Width="120" Height="20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.Resources>
-                        <Style TargetType="{x:Type RadioButton}">
-                            <Setter Property="FontSize" Value="12"/>
-                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
-                            <Setter Property="Cursor" Value="Hand"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type RadioButton}">
-                                        <ContentPresenter Content="{TemplateBinding Content}" Margin="5, 3"/>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Foreground" Value="PapayaWhip"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Resources>
-                    <Canvas Grid.ColumnSpan="3">
-                        <Rectangle x:Name="back" Fill="#175182" Grid.ColumnSpan="3" Margin="2,-1"
-                               Canvas.Left="-3" Width="30" Height="22"/>
-                    </Canvas>
-                    <RadioButton Content="10" IsChecked="True"
-                                 Command="{Binding SetCountAll}">
-                        <RadioButton.CommandParameter>
-                            <sys:Int32>10</sys:Int32>
-                        </RadioButton.CommandParameter>
-                        <RadioButton.Triggers>
-                            <EventTrigger RoutedEvent="RadioButton.Click">
-                                <EventTrigger.Actions>
-                                    <BeginStoryboard>
-                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
-                                            <DoubleAnimation To="-3" Duration="0:0:0.3"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger.Actions>
-                            </EventTrigger>
-                        </RadioButton.Triggers>
-                    </RadioButton>
-                    <RadioButton Content="25" Grid.Column="1"
-                                 Command="{Binding SetCountAll}">
-                        <RadioButton.CommandParameter>
-                            <sys:Int32>25</sys:Int32>
-                        </RadioButton.CommandParameter>
-                        <RadioButton.Triggers>
-                            <EventTrigger RoutedEvent="RadioButton.Click">
-                                <EventTrigger.Actions>
-                                    <BeginStoryboard>
-                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
-                                            <DoubleAnimation To="28" Duration="0:0:0.3"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger.Actions>
-                            </EventTrigger>
-                        </RadioButton.Triggers>
-                    </RadioButton>
-                    <RadioButton Content="50" Grid.Column="2"
-                                 Command="{Binding SetCountAll}">
-                        <RadioButton.CommandParameter>
-                            <sys:Int32>50</sys:Int32>
-                        </RadioButton.CommandParameter>
-                        <RadioButton.Triggers>
-                            <EventTrigger RoutedEvent="RadioButton.Click">
-                                <EventTrigger.Actions>
-                                    <BeginStoryboard>
-                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
-                                            <DoubleAnimation To="58" Duration="0:0:0.3"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger.Actions>
-                            </EventTrigger>
-                        </RadioButton.Triggers>
-                    </RadioButton>
-                    <RadioButton Content="100" Grid.Column="3"
-                                 Command="{Binding SetCountAll}">
-                        <RadioButton.CommandParameter>
-                            <sys:Int32>100</sys:Int32>
-                        </RadioButton.CommandParameter>
-                        <RadioButton.Triggers>
-                            <EventTrigger RoutedEvent="RadioButton.Click">
-                                <EventTrigger.Actions>
-                                    <BeginStoryboard>
-                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
-                                            <DoubleAnimation To="90" Duration="0:0:0.3"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </EventTrigger.Actions>
-                            </EventTrigger>
-                        </RadioButton.Triggers>
-                    </RadioButton>
-                </Grid>
-            </Border>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Column="1">
-                <Button Content="&lt;&lt;" Command="{Binding GoPrevious}" DockPanel.Dock="Right" Width="30" Height="20" Padding="0, 0, 2, 3"/>
-                <TextBlock VerticalAlignment="Center" Padding="2, 0, 2, 3">
-                    <TextBlock.Text>
-                        <MultiBinding StringFormat="{}{0}/{1}">
-                            <Binding Path="CurrentNumber"/>
-                            <Binding Path="MaxNumber"/>
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-                <Button Content="&gt;&gt;" Command="{Binding GoNext}" DockPanel.Dock="Right" Width="30" Height="20" Padding="2, 0, 0, 3"/>
-            </StackPanel>
-        </Grid>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                         Grid.ColumnSpan="2" Grid.Row="1" Margin="5, 10">

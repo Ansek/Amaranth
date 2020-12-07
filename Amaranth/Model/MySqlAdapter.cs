@@ -46,7 +46,7 @@ namespace Amaranth.Model
             {
                 cmd.CommandText = $"INSERT INTO {data.TableName} ({columns}) VALUES ({values});";
                 int l = cmd.ExecuteNonQuery();
-                if (l > 0 && data.TableName != "user")
+                if (l > 0 && data.TableName != "user" && data.TableName != "tag")
                 {
                     cmd.CommandText = $"SELECT max({data.IdName}) FROM {data.TableName};";
                     id = Convert.ToInt32(cmd.ExecuteScalar());
@@ -169,9 +169,11 @@ namespace Amaranth.Model
             return GetList(table, sql);
         }
 
-        public List<data> LoadList(string table, int pos, int count)
+        public List<data> LoadList(string table, int pos, int count, string condition)
         {
-            string sql = $"SELECT * FROM {table} LIMIT {pos}, {count};";
+            if (condition != string.Empty)
+                condition = $"WHERE {condition}";
+            string sql = $"SELECT * FROM {table} {condition} LIMIT {pos}, {count};";
             return GetList(table, sql);
         }
 
@@ -179,6 +181,16 @@ namespace Amaranth.Model
         {
             string sql = $"SELECT * FROM {table} WHERE {condition};";
             return GetList(table, sql);
+        }
+
+        public List<string> GetColumn(string column, string table)
+        {
+            string sql = $"SELECT {column} FROM {table} ORDER BY {column};";
+            var data = GetList(table, sql);
+            var list = new List<string>();
+            foreach (var d in data)
+                list.Add(d[column].ToString());
+            return list;
         }
 
         public bool IsTableExists(string name)

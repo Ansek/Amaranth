@@ -52,6 +52,28 @@
     </Style>
     <Style TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButton}"/>
 
+    <Style TargetType="{x:Type Button}" x:Key="RemoveTag">
+        <Setter Property="Foreground" Value="Blue"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid Margin="1" VerticalAlignment="Center">
+                        <Ellipse Width="12" Height="12" Fill="{TemplateBinding Background}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="⮾" Margin="0, 0, 0, 1" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" HorizontalAlignment="Center"/>                        
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="DarkGray"/>
+                <Setter Property="Background" Value="Blue"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
     <!-- Базовый стиль для таблицы -->
     <Style TargetType="{x:Type DataGrid}">
         <Setter Property="HeadersVisibility" Value="Column"/>
@@ -94,11 +116,12 @@
     </Style>
     <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource baseTextBox}"/>
 
-    <Style TargetType="{x:Type ComboBox}">
+    <Style TargetType="{x:Type ComboBox}" x:Key="baseComboBox">
         <Setter Property="Margin" Value="3"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
+    <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource baseComboBox}"/>
 
     <Style TargetType="{x:Type RadioButton}" x:Key="baseRadioButton">
         <Setter Property="Margin" Value="5"/>

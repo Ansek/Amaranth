@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using Amaranth.Model;
 using Amaranth.Model.Data;
@@ -10,21 +11,7 @@ namespace Amaranth.ViewModel
     class ProductsVM : INotifyPropertyChanged
     {
         bool _isSelect;
-        int _countAll;
-
-        int _currentNumber;
-        public int CurrentNumber
-        {
-            get => _currentNumber;
-            set { _currentNumber = value; OnValueChanged(); }
-        }
-
-        int _maxNumber;
-        public int MaxNumber
-        {
-            get => _maxNumber;
-            set { _maxNumber = value; OnValueChanged(); }
-        }
+        List<string> _oldTags;
 
         ProductInfo _product;
         public ProductInfo Product
@@ -33,42 +20,23 @@ namespace Amaranth.ViewModel
             set { _product = value; OnValueChanged(); }
         }
 
-        List<Product> _listProducts;
-        public List<Product> ListProducts
+        string _tagField;
+        public string TagField
         {
-            get => _listProducts;
-            set { _listProducts = value; OnValueChanged(); }
+            get => _tagField;
+            set { _tagField = value; OnValueChanged(); }
         }
 
-        public List<Category> Categories => DataBaseSinglFacade.Categories;
+        public ObservableCollection<string> ListTags { get; }
+
+        public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;
+
+        public ObservableCollection<string> Tags => DataBaseSinglFacade.Tags;
 
         public ProductsVM()
         {
             _isSelect = false;
-            _countAll = 10;
-            _currentNumber = 1;
-            _maxNumber = 1;
-            ListProducts = DataBaseSinglFacade.GetListProduct(1, 10);
-        }
-
-        public Command<int> SetCountAll
-        {
-            get => new Command<int>((count) =>
-            {
-                _countAll = count;
-                int pos = count * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, count);
-            });
-        }
-
-        public Command GoPrevious
-        {
-            get => new Command(() => CurrentNumber--, () => _currentNumber != 1);
-        }
-
-        public Command GoNext
-        {
-            get => new Command(() => CurrentNumber++, () => _currentNumber != _maxNumber);
+            ListTags = new ObservableCollection<string>();
         }
 
         public Command<Category> Create
@@ -76,6 +44,8 @@ namespace Amaranth.ViewModel
             get => new Command<Category>((c) =>
             {
                 Product = new ProductInfo(c);
+                ListTags.Clear();
+                _oldTags = null;
                 _isSelect = false;
             }, (c) => c != null);
         }
@@ -85,6 +55,10 @@ namespace Amaranth.ViewModel
             get => new Command<Product>((p) =>
             {
                 Product = DataBaseSinglFacade.LoadInfo(p);
+                _oldTags = DataBaseSinglFacade.LoadTags(p.Id);
+                ListTags.Clear();
+                foreach (var t in _oldTags)
+                    ListTags.Add(t);
                 _isSelect = true;
             }, (p) => p != null);
         }
@@ -93,9 +67,8 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.Insert(_product);
-                int pos = _countAll * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll);
+                int id = DataBaseSinglFacade.Insert(_product);
+                DataBaseSinglFacade.AddTags(id, new List<string>(ListTags));
                 Product = null;
             }, () => _product != null && !_isSelect);
         }
@@ -105,8 +78,16 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 DataBaseSinglFacade.Update(_product);
-                int pos = _countAll * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll);
+                var list = new List<string>();
+                foreach (var t in ListTags)
+                    if (!_oldTags.Contains(t))
+                        list.Add(t);
+                DataBaseSinglFacade.AddTags(_product.Id, list);
+                list.Clear();
+                foreach (var t in _oldTags)
+                    if (!ListTags.Contains(t))
+                        list.Add(t);
+                DataBaseSinglFacade.DeleteTags(_product.Id, list);
                 Product = null;
             }, () => _product != null && _isSelect);
         }
@@ -116,10 +97,27 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 DataBaseSinglFacade.Delete(_product);
-                int pos = _countAll * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll);
+                var list = new List<string>();
                 Product = null;
             }, () => _product != null && _isSelect);
+        }
+
+        public Command AddTag
+        {
+            get => new Command(() =>
+            {
+                if (!ListTags.Contains(TagField))
+                    ListTags.Add(TagField);
+                TagField = "";
+            }, () => TagField != "");
+        }
+
+        public Command<string> RemoveTag
+        {
+            get => new Command<string>((t) =>
+            {
+                ListTags.Remove(t);
+            }, (t) => t != "");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

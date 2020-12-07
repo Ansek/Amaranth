@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace Amaranth.Service
 {
-    class Command : ICommand
+    public class Command : ICommand
     {
         public event EventHandler CanExecuteChanged
         {

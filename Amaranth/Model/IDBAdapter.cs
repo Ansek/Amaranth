@@ -15,11 +15,13 @@ namespace Amaranth.Model
 
 		List<data> LoadList(string table);
 
-		List<data> LoadList(string table, int pos, int count);
+		List<data> LoadList(string table, int pos, int count, string condition);
 
 		data GetUser(string login, string password);
 
 		List<data> GetQuery(string table, string condition);
+
+		List<string> GetColumn(string column, string table);
 
 		bool IsTableExists(string name);
 
