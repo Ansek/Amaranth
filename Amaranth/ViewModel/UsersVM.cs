@@ -78,15 +78,22 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.Delete(_user);
-                ListUsers = DataBaseSinglFacade.GetListUser();
-                User = null;
+                if (DialogueService.ShowWarning("Вы действительно хотите удалить информацию о данном пользователе?"))
+                {
+                    DataBaseSinglFacade.Delete(_user);
+                    ListUsers = DataBaseSinglFacade.GetListUser();
+                    User = null;
+                }
             }, () => _user != null && _isSelect);
         }
 
         public Command ResetPassword
         {
-            get => new Command(() => Auth.ResetPassword(_user.Login), () => _user != null && _isSelect);
+            get => new Command(() =>
+            {
+                Auth.ResetPassword(_user.Login);
+                DialogueService.ShowInformation($"Пароль для пользователя {_user.Login} был сброшен.");
+            }, () => _user != null && _isSelect);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

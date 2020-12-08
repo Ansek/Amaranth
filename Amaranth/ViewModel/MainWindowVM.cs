@@ -59,7 +59,7 @@ namespace Amaranth.ViewModel
 
         public Command SignIn
         {
-            get => new Command(() => { var view = new LoginWindow(); view.ShowDialog(); });
+            get => new Command(() => { DialogueService.ShowLoginWindow(); });
         }
 
         public Command SignOut

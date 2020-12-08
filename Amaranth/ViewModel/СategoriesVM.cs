@@ -81,9 +81,12 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.Delete(_category);
-                ListСategories = DataBaseSinglFacade.GetListCategory();
-                Category = null;
+                if (DialogueService.ShowWarning("Вы действительно хотите удалить информацию о данной категории?"))
+                {
+                    DataBaseSinglFacade.Delete(_category);
+                    ListСategories = DataBaseSinglFacade.GetListCategory();
+                    Category = null;
+                }    
             }, () => _category != null && _isSelect);
         }
 

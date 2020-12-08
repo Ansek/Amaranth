@@ -96,9 +96,12 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.Delete(_product);
-                var list = new List<string>();
-                Product = null;
+                if (DialogueService.ShowWarning("Вы действительно хотите удалить информацию о данном товаре?"))
+                {
+                    DataBaseSinglFacade.Delete(_product);
+                    var list = new List<string>();
+                    Product = null;
+                }
             }, () => _product != null && _isSelect);
         }
 

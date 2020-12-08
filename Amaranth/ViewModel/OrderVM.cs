@@ -86,8 +86,11 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.CancelOrder(_order);
-                Order = null;
+                if (DialogueService.ShowWarning("Вы действительно хотите отменить заказ?"))
+                {
+                    DataBaseSinglFacade.CancelOrder(_order);
+                    Order = null;
+                }
             }, () => _order != null && _order.CompletionDate == null);
         }
 

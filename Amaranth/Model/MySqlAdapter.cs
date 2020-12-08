@@ -107,7 +107,6 @@ namespace Amaranth.Model
 
         public void Load(ref data data)
         {
-            _connect.Open();
             string columns = string.Empty;
             var cmd = new MySqlCommand();
             cmd.Connection = _connect;
@@ -119,6 +118,10 @@ namespace Amaranth.Model
                 columns += $"{d.Name}";
             }
 
+            if (columns == string.Empty)
+                return;
+
+            _connect.Open();
             cmd.CommandText = $"SELECT {columns} FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
             try
             {

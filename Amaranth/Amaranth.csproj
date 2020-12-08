@@ -114,6 +114,7 @@
     <Compile Include="Model\Data\ProductRequest.cs" />
     <Compile Include="Service\Command[T].cs" />
     <Compile Include="Service\Command.cs" />
+    <Compile Include="Service\DialogueService.cs" />
     <Compile Include="Service\HeaderProcessingConverter.cs" />
     <Compile Include="Service\IsShowProductPageConverter.cs" />
     <Compile Include="Service\ListToStringConverter.cs" />
