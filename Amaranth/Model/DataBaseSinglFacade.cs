@@ -47,7 +47,6 @@ namespace Amaranth.Model
 
 			var data = new data();
 			data.Add("Title", product.Title);
-			data.Add("Image", product.Image);
 			data.Add("Price", product.Price);
 			data.Add("Count", product.Count);
 			data.Add("Prescription", product.Prescription);
@@ -122,7 +121,6 @@ namespace Amaranth.Model
 			if (!onlyCount)
 			{
 				data.Add("Title", product.Title);
-				data.Add("Image", product.Image);
 				data.Add("Price", product.Price);
 				data.Add("Prescription", product.Prescription);
 				data.Add("idCategory", product.Category.Id);

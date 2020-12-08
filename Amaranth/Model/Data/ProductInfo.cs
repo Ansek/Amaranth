@@ -20,7 +20,6 @@ namespace Amaranth.Model.Data
             _title = product.Title;
             _price = product.Price;
             _count = product.Count;
-            _image = product.Image;
             _prescription = product.Prescription;
             _values = values;
         }

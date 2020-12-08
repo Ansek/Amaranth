@@ -49,7 +49,6 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid.Resources>
@@ -146,22 +145,6 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-
-                    <Label Content="Изображение" Grid.Row="6"/>
-                    <StackPanel Grid.Column="1" Grid.Row="6">
-                        <Image Height="50" Source="{Binding Product.Image}"/>
-                        <Button Content="Обзор...">
-                            <Button.Style>
-                                <Style TargetType="{x:Type Button}" BasedOn="{StaticResource BaseButton}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Product}" Value="{x:Null}">
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                    </StackPanel>
                 </Grid>
             </Grid>
         </ScrollViewer>

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Windows.Media.Imaging;
 using System.Runtime.CompilerServices;
 
 namespace Amaranth.Model.Data
@@ -10,7 +9,6 @@ namespace Amaranth.Model.Data
 		protected string _title, _priceText;
 		protected double _price;
 		protected bool _prescription;
-		protected BitmapImage _image;
 		protected Category _category;
 
 		public Product(Category category)
@@ -30,12 +28,6 @@ namespace Amaranth.Model.Data
 		{
 			get => _title;
 			set { _title = value; OnValueChanged(); }
-		}
-
-		public BitmapImage Image
-		{
-			get => _image;
-			set { _image = value; OnValueChanged(); }
 		}
 
 		public double Price

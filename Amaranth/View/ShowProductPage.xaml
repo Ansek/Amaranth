@@ -24,7 +24,7 @@
             </Grid.ColumnDefinitions>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
+                <RowDefinition Height="15"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
@@ -32,8 +32,6 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-
-            <Image Height="150" Source="{Binding Product.Image}"/>
 
             <Label Content="Наименование" Grid.Row="1"/>
             <TextBlock Text="{Binding Product.Title}" Grid.Row="1" Grid.Column="1"/>
