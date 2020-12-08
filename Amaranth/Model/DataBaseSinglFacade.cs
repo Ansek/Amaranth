@@ -284,12 +284,13 @@ namespace Amaranth.Model
 				condition += $"(idProduct, {request.Tags.Count}) IN (SELECT idProduct, count(Tag) FROM product_tag WHERE {str} GROUP BY idProduct)";
 			}
 
-			if (request.CheckTitle)
+			if (request.CheckTitle && request.Title != null)
 			{
+				var r = request.Title.Replace("'", @"\'");
 				if (condition != string.Empty)
-					condition += $" AND Title LIKE '%{request.Title}%'";
+					condition += $" AND Title LIKE '%{r}%'";
 				else
-					condition += $" Title LIKE '%{request.Title}%'";
+					condition += $" Title LIKE '%{r}%'";
 			}
 
 			if (request.CheckPrice)

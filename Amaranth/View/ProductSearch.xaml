@@ -89,11 +89,11 @@
 
                         <CheckBox Content="по цене от" IsChecked="{Binding Request.CheckPrice}" Grid.Row="1"/>
                         <DockPanel Grid.Row="1" Grid.Column="1">
-                            <TextBox MinWidth="50" TextAlignment="Right"
-                                     Text="{Binding Request.FromPrice, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox MinWidth="50" TextAlignment="Right" PreviewTextInput="TextBoxDouble"
+                                     Text="{Binding Request.FromPriceText, UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock Text=" до "/>
-                            <TextBox MinWidth="50" TextAlignment="Right"
-                                     Text="{Binding Request.ToPrice, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox MinWidth="50" TextAlignment="Right" PreviewTextInput="TextBoxDouble"
+                                     Text="{Binding Request.ToPriceText, UpdateSourceTrigger=PropertyChanged}" />
                             <TextBlock Text="₽"/>
                         </DockPanel>
 

@@ -35,6 +35,7 @@ namespace Amaranth.ViewModel
         public СategoriesVM()
         {
             _isSelect = false;
+            _descriptionTitle = string.Empty;
             ListСategories = DataBaseSinglFacade.GetListCategory();
         }
 
@@ -92,7 +93,7 @@ namespace Amaranth.ViewModel
             {
                 _category.AddDescription(_descriptionTitle);
                 DescriptionTitle = "";
-            }, () => _category != null);
+            }, () => _category != null && _descriptionTitle != string.Empty);
         }
 
         public Command<Description> RemoveDescription

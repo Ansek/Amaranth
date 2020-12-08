@@ -62,7 +62,8 @@
                     HorizontalAlignment="Right" Grid.Column="2"/>
 
                 <Label Content="Наименование" Grid.Row="1"/>
-                <TextBox Text="{Binding Category.Title, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1" Grid.Column="1"/>
+                <TextBox Text="{Binding Category.Title, UpdateSourceTrigger=PropertyChanged}"
+                         PreviewTextInput="TextBoxlLen32" Grid.Row="1" Grid.Column="1"/>
 
                 <GroupBox Header="Описывающие поля категории" Grid.Row="2" Grid.ColumnSpan="2">
                     <StackPanel>
@@ -79,7 +80,7 @@
                         </ItemsControl>
                         <DockPanel>
                             <Button Content="+" Command="{Binding AddDescription}" DockPanel.Dock="Right" Width="30" Padding="0"/>
-                            <TextBox Text="{Binding DescriptionTitle, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Text="{Binding DescriptionTitle, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="TextBoxlLen64"/>
                         </DockPanel>
                     </StackPanel>
                 </GroupBox>

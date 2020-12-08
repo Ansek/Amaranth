@@ -26,10 +26,10 @@
 
         <StackPanel Grid.Column="1">
             <DockPanel>
-                <Label Content="Номер заказа: "/>
+                <Label Content="Номер заказа: " VerticalAlignment="Center"/>
                 <Button Content="Найти" DockPanel.Dock="Right"
                         Command="{Binding LoadOrder}" CommandParameter="{Binding Text, ElementName=idOrder}"/>
-                <TextBox x:Name="idOrder"/>
+                <TextBox x:Name="idOrder" PreviewTextInput="TextBoxNumber"/>
             </DockPanel>
             <Button Content="Новый заказ" Command="{Binding Create}" HorizontalAlignment="Right"/>
         </StackPanel>
@@ -57,7 +57,7 @@
                         Command="{Binding SetCount}"/>
                 <TextBlock Text="шт." VerticalAlignment="Center" DockPanel.Dock="Right"/>
                 <TextBox Text="{Binding EditableCount, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"
-                         MinWidth="50" DockPanel.Dock="Right"/>
+                         MinWidth="50" PreviewTextInput="TextBoxNumber" DockPanel.Dock="Right"/>
                 <TextBlock Margin="3" VerticalAlignment="Center"
                            Text="{Binding SelectedItem.Title, ElementName=list}"/>
             </DockPanel>

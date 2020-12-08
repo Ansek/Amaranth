@@ -29,11 +29,11 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Label Content="Наименование" Grid.Row="1"/>
-            <Label Content="{Binding Product.Title}"  Grid.Column="1" Grid.Row="1"/>
+            <Label Content="Наименование:" Grid.Row="1"/>
+            <TextBlock Text="{Binding Product.Title}" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
 
-            <Label Content="Категория" Grid.Row="2"/>
-            <Label Content="{Binding Product.Category.Title}" Grid.Column="1" Grid.Row="2"/>
+            <Label Content="Категория:" Grid.Row="2"/>
+            <TextBlock Text="{Binding Product.Category.Title}" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2"/>
 
             <Label Content="Количество" Grid.Row="3"/>
             <DockPanel Grid.Column="1" Grid.Row="3">
@@ -50,7 +50,7 @@
                         Command="{Binding SetCount}"/>
                 <TextBlock Text="шт." VerticalAlignment="Center" DockPanel.Dock="Right"/>
                 <TextBox Text="{Binding EditableCount, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"
-                         MinWidth="50" DockPanel.Dock="Right"/>
+                         MinWidth="50" DockPanel.Dock="Right" PreviewTextInput="TextBoxNumber"/>
             </DockPanel>
         </Grid>      
     </Grid>

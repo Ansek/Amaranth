@@ -12,5 +12,13 @@ namespace Amaranth.View
             InitializeComponent();
             DataContext = new ViewModel.OrderVM();
         }
+
+        private void TextBoxNumber(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            int i;
+            var t = ((TextBox)sender).Text + e.Text;
+            if (!int.TryParse(t, out i))
+                e.Handled = true;
+        }
     }
 }

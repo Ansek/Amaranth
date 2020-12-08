@@ -7,7 +7,7 @@ namespace Amaranth.Model.Data
 	public class Product : INotifyPropertyChanged
 	{
 		protected int _id, _count;
-		protected string _title;
+		protected string _title, _priceText;
 		protected double _price;
 		protected bool _prescription;
 		protected BitmapImage _image;
@@ -41,7 +41,13 @@ namespace Amaranth.Model.Data
 		public double Price
 		{
 			get => _price;
-			set { _price = value; OnValueChanged(); }
+			set { _price = value; OnValueChanged(); OnValueChanged("PriceText"); }
+		}
+
+		public string PriceText
+		{
+			get => _priceText;
+			set { _priceText = value; double.TryParse(value.Replace('.', ','), out _price); OnValueChanged(); OnValueChanged("Price"); }
 		}
 
 		public int Count

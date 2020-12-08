@@ -70,13 +70,13 @@
                     </Grid.Resources>
 
                     <Label Content="Наименование"/>
-                    <TextBox Text="{Binding Product.Title, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1"/>
+                    <TextBox Text="{Binding Product.Title, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="TextBoxlLen64"  Grid.Column="1"/>
 
                     <Label Content="Категория" Grid.Row="1"/>
                     <TextBox Text="{Binding Product.Category.Title, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="1" IsEnabled="False"/>
 
                     <Label Content="Цена" Grid.Row="2"/>
-                    <TextBox Text="{Binding Product.Price, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="2"/>
+                    <TextBox Text="{Binding Product.PriceText, UpdateSourceTrigger=PropertyChanged}" PreviewTextInput="TextBoxDouble" Grid.Column="1" Grid.Row="2"/>
 
                     <Label Content="Рецепт" Grid.Row="3"/>
                     <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
@@ -140,7 +140,7 @@
                             <DataTemplate>
                                 <StackPanel>
                                     <Label Content="{Binding Title}"/>
-                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap"
                                              AcceptsReturn="True" Height="100" VerticalScrollBarVisibility="Auto"/>
                                 </StackPanel>
                             </DataTemplate>

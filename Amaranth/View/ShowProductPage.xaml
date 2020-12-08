@@ -45,7 +45,7 @@
             <TextBlock Text="{Binding Product.Price, StringFormat=0.00₽}" Grid.Column="1" Grid.Row="3"/>
 
             <Label Content="Рецепт" Grid.Row="4"/>
-            <TextBlock Grid.Column="1" Grid.Row="4">
+            <TextBlock Grid.Column="1" Grid.Row="4" VerticalAlignment="Center">
                 <TextBlock.Style>
                     <Style TargetType="{x:Type TextBlock}">
                         <Setter Property="Text" Value= "Нет"/>

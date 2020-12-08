@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
+using System.Text.RegularExpressions;
 
 namespace Amaranth.View
 {
@@ -26,6 +27,14 @@ namespace Amaranth.View
         {
             get => (ICommand)GetValue(SetProductProperty);
             set { SetValue(SetProductProperty, value); }
+        }
+
+        private void TextBoxDouble(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            var regex = new Regex(@"^\d{1,8}(\.\d{0,2})?$");
+            string t = ((TextBox)sender).Text + e.Text;
+            if (!regex.IsMatch(t))
+                e.Handled = true;
         }
     }
 }
