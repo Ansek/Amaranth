@@ -38,7 +38,8 @@ namespace Amaranth.ViewModel
                 new ReportsPage(),
                 new UsersPage(),
                 new СategoriesPage(),
-                new ArrivalsPage()
+                new ArrivalsPage(),
+                new ListOrdersPage()
             };
             Auth.UserChanged += () => OnValueChanged("CurrentUser");
             ProductSearchVM.OpenProduct += (product) =>

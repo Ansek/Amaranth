@@ -112,12 +112,22 @@ namespace Amaranth.ViewModel
 
         public Command GoPrevious
         {
-            get => new Command(() => CurrentNumber--, () => _currentNumber != 1);
+            get => new Command(() =>
+            {
+                CurrentNumber--;
+                int pos = _countAll * (_currentNumber - 1);
+                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll, _oldRequest);
+            }, () => _currentNumber != 1);
         }
 
         public Command GoNext
         {
-            get => new Command(() => CurrentNumber++, () => _currentNumber != _maxNumber);
+            get => new Command(() =>
+            {
+                CurrentNumber++;
+                int pos = _countAll * (_currentNumber - 1);
+                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll, _oldRequest);
+            }, () => _currentNumber != _maxNumber);
         }
 
         public Command<Product> OpenInfo

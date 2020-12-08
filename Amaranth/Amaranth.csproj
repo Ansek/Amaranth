@@ -121,12 +121,16 @@
     <Compile Include="Service\NotNullConverter.cs" />
     <Compile Include="Service\PriceConverter.cs" />
     <Compile Include="ViewModel\ArrivalsVM.cs" />
+    <Compile Include="ViewModel\ListOrdersVM.cs" />
     <Compile Include="ViewModel\LoginMV.cs" />
     <Compile Include="ViewModel\MainWindowVM.cs" />
     <Compile Include="ViewModel\OrderVM.cs" />
     <Compile Include="ViewModel\ProductSearchVM.cs" />
     <Compile Include="ViewModel\ProductsVM.cs" />
     <Compile Include="ViewModel\ShowProductVM.cs" />
+    <Compile Include="View\ListOrdersPage.xaml.cs">
+      <DependentUpon>ListOrdersPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ShowProductPage.xaml.cs">
       <DependentUpon>ShowProductPage.xaml</DependentUpon>
     </Compile>
@@ -157,6 +161,10 @@
       <DependentUpon>СategoriesPage.xaml</DependentUpon>
     </Compile>
     <Page Include="Dictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ListOrdersPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -399,6 +399,36 @@ namespace Amaranth.Model
 			return null;
 		}
 
+		public static List<Order> GetListOrder(int pos, int count, bool onlyActive = false, bool onlyCompleted = false)
+        {
+			var condition = string.Empty;
+			if (onlyActive && !onlyCompleted)
+				condition = "CompletionDate IS NULL";
+			else if(!onlyActive && onlyCompleted)
+				condition = "CompletionDate IS NOT NULL";
+
+			var orders = _adapter.LoadList("`order`", pos, count, condition);
+			if (orders.Count > 0)
+			{
+				var list = new List<Order>();
+				foreach (var o in orders)
+				{
+					var order = new Order()
+					{
+						Id = Convert.ToInt32(o["idOrder"]),
+						CreationDate = Convert.ToDateTime(o["CreationDate"])
+					};
+
+					if (o["CompletionDate"] != DBNull.Value)
+						order.CompletionDate = Convert.ToDateTime(o["CompletionDate"]);
+
+					list.Add(order);
+				}
+				return list;
+			}
+			return null;
+		}
+
 		public static Order GetOrder(int id)
         {
 			Order order = null;
