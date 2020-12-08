@@ -47,6 +47,7 @@ namespace Amaranth.ViewModel
                 ListTags.Clear();
                 _oldTags = null;
                 _isSelect = false;
+                TagField = "";
             }, (c) => c != null);
         }
 
@@ -60,6 +61,7 @@ namespace Amaranth.ViewModel
                 foreach (var t in _oldTags)
                     ListTags.Add(t);
                 _isSelect = true;
+                TagField = "";
             }, (p) => p != null);
         }
 

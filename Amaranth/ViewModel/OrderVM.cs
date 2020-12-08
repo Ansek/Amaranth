@@ -21,7 +21,14 @@ namespace Amaranth.ViewModel
         public int EditableCount
         {
             get => _editableCount;
-            set { _editableCount = value; OnValueChanged(); }
+            set { if (value <= _maxCount) _editableCount = value; OnValueChanged(); }
+        }
+
+        int _maxCount;
+        public int MaxCount
+        {
+            get => _maxCount;
+            set { _maxCount = value; OnValueChanged(); }
         }
 
         string _message;
@@ -29,6 +36,12 @@ namespace Amaranth.ViewModel
         {
             get => _message;
             set { _message = value; OnValueChanged(); }
+        }
+
+        public OrderVM()
+        {
+            _order = new Order();
+            Message = "Новый заказ";
         }
 
         public Command<string> LoadOrder
@@ -60,8 +73,24 @@ namespace Amaranth.ViewModel
             get => new Command<Product>((p) =>
             {
                 _idProduct = p.Id;
+                MaxCount = DataBaseSinglFacade.GetMaxCountProduct(p.Id);
                 EditableCount = p.Count;
             }, (p) => p != null);
+        }
+
+        public Command<Product> SetProduct
+        {
+            get => new Command<Product>((p) =>
+            {
+                var product = new Product(p);
+                product.Count = 1;
+                Order.Add(product);
+            }, (p) => p != null);
+        }
+
+        public Command<Product> DeleteProduct
+        {
+            get => new Command<Product>((p) => Order.Delete(p), (p) => p != null);
         }
 
         public Command SetCount
@@ -77,7 +106,10 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 DataBaseSinglFacade.CompleteOrder(_order);
-                Order = null;
+                foreach (var p in _order)
+                    DataBaseSinglFacade.SubMaxCountProduct(p.Id, p.Count);
+                Order = new Order();
+                Message = "Новый заказ";
             }, () => _order != null && _order.CompletionDate == null);
         }
 
@@ -88,7 +120,8 @@ namespace Amaranth.ViewModel
                 if (DialogueService.ShowWarning("Вы действительно хотите отменить заказ?"))
                 {
                     DataBaseSinglFacade.CancelOrder(_order);
-                    Order = null;
+                    Order = new Order();
+                    Message = "Новый заказ";
                 }
             }, () => _order != null && _order.CompletionDate == null);
         }

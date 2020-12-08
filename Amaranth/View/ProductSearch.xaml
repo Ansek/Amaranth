@@ -60,7 +60,7 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
 
-                        <CheckBox Content="по тегам" IsChecked="{Binding Request.CheckTags}"/>
+                        <CheckBox Content="тегам" IsChecked="{Binding Request.CheckTags}"/>
                         <StackPanel Grid.Column="1">
                             <ItemsControl ItemsSource="{Binding Request.Tags}">
                                 <ItemsControl.ItemsPanel>
@@ -82,12 +82,12 @@
                             </ItemsControl>
                             <DockPanel>
                                 <Button Content="+" DockPanel.Dock="Right" Width="30" Padding="0"
-                                    Command="{Binding AddTag}" CommandParameter="{Binding Text, ElementName=tag}"/>
-                                <ComboBox x:Name="tag" ItemsSource="{Binding Tags}" IsEditable="True"/>
+                                    Command="{Binding AddTag}"/>
+                                <ComboBox Text="{Binding TagField}" ItemsSource="{Binding Tags}" x:Name="tag" IsEditable="True"/>
                             </DockPanel>
                         </StackPanel>
 
-                        <CheckBox Content="по цене от" IsChecked="{Binding Request.CheckPrice}" Grid.Row="1"/>
+                        <CheckBox Content="цене от" IsChecked="{Binding Request.CheckPrice}" Grid.Row="1"/>
                         <DockPanel Grid.Row="1" Grid.Column="1">
                             <TextBox MinWidth="50" TextAlignment="Right" PreviewTextInput="TextBoxDouble"
                                      Text="{Binding Request.FromPriceText, UpdateSourceTrigger=PropertyChanged}" />
@@ -118,8 +118,20 @@
                         </Style>
                     </DataGridTextColumn.CellStyle>
                 </DataGridTextColumn>
-                <DataGridTextColumn Header="Кол-во " Binding="{Binding Count}" Width="auto"/>
-                <DataGridCheckBoxColumn Header="Рецепт " Binding="{Binding Prescription}" IsReadOnly="True" Width="auto"/>
+                <DataGridTextColumn Header="Кол-во&#10; (Рез./Всего) " Width="auto">
+                    <DataGridTextColumn.Binding>
+                        <MultiBinding StringFormat="{}{0}/{1}">
+                            <Binding Path="Reserve"/>
+                            <Binding Path="Count"/>
+                        </MultiBinding>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.CellStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridCheckBoxColumn Header=" Рецепт " Binding="{Binding Prescription}" IsReadOnly="True" Width="auto"/>
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

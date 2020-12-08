@@ -5,7 +5,7 @@ namespace Amaranth.Model.Data
 {
 	public class Product : INotifyPropertyChanged
 	{
-		protected int _id, _count;
+		protected int _id, _count, _reserve;
 		protected string _title, _priceText;
 		protected double _price;
 		protected bool _prescription;
@@ -16,6 +16,18 @@ namespace Amaranth.Model.Data
 			_id = -1;
 			_category = category;
 			_prescription = false;
+		}
+
+		public Product(Product product)
+		{
+			_id = product._id;
+			_count = product._count;
+			_reserve = product._reserve;
+			_title = product._title;
+			_priceText = product._priceText;
+			_price = product._price;
+			_prescription = product._prescription;
+			_category = product._category;
 		}
 
 		public int Id
@@ -46,6 +58,12 @@ namespace Amaranth.Model.Data
 		{
 			get => _count;
 			set { _count = value; OnValueChanged(); }
+		}
+
+		public int Reserve
+		{
+			get => _reserve;
+			set { _reserve = value; OnValueChanged(); }
 		}
 
 		public bool Prescription

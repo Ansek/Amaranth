@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Amaranth.View"
       xmlns:s="clr-namespace:Amaranth.Service"
       xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
-      mc:Ignorable="d" 
+      mc:Ignorable="d" x:Name="control"
       d:DesignHeight="450" d:DesignWidth="800"
       Tag="Заказ">
 
@@ -22,7 +22,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <local:ProductSearch Grid.RowSpan="3"/>
+        <local:ProductSearch SetProduct="{Binding DataContext.SetProduct, ElementName=control}" Grid.RowSpan="3"/>
 
         <StackPanel Grid.Column="1">
             <DockPanel>
@@ -47,7 +47,7 @@
                             <DataTrigger Binding="{Binding SelectedItem, ElementName=list}" Value="{x:Null}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding Order.CompletionDate, Converter={StaticResource NotNullConverter}}" Value="True">
+                            <DataTrigger Binding="{Binding Order.CreationDate, Converter={StaticResource NotNullConverter}}" Value="True">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -55,7 +55,7 @@
                 </DockPanel.Style>
                 <Button Content="Изменить" DockPanel.Dock="Right"
                         Command="{Binding SetCount}"/>
-                <TextBlock Text="шт." VerticalAlignment="Center" DockPanel.Dock="Right"/>
+                <TextBlock Text="{Binding MaxCount, StringFormat=/{0} шт.}" VerticalAlignment="Center" DockPanel.Dock="Right"/>
                 <TextBox Text="{Binding EditableCount, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"
                          MinWidth="50" PreviewTextInput="TextBoxNumber" DockPanel.Dock="Right"/>
                 <TextBlock Margin="3" VerticalAlignment="Center"
@@ -64,38 +64,56 @@
             <TextBlock DockPanel.Dock="Bottom" Margin="3" FontWeight="Bold" FontSize="16" TextWrapping="Wrap"
                 Text="{Binding Order.FinalPrice, StringFormat=Итоговая стоимость: {0:0.00}₽}"/>
             <GroupBox Header="Список заказа">
-                <ListBox x:Name="list" ItemsSource="{Binding Order}">
-                    <ListBox.Resources>
-                        <s:PriceConverter x:Key="PriceConverter"/>
-                    </ListBox.Resources>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="170"/>
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
+                <Grid>
+                    <TextBlock TextAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Margin="10"
+                        Text="Для добавления товара сделайте поиск и кликните на нужном пункте левой кнопкой мышки">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Items.Count, ElementName=list}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ListBox x:Name="list" ItemsSource="{Binding Order}" Grid.IsSharedSizeScope="True">
+                        <ListBox.Resources>
+                            <s:PriceConverter x:Key="PriceConverter"/>
+                        </ListBox.Resources>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition SharedSizeGroup="Product"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
-                                <TextBlock Grid.Column="1" TextWrapping="Wrap">
-                                    <TextBlock.Text>
-                                        <MultiBinding Converter="{StaticResource PriceConverter}">
-                                            <Binding Path="Count"/>
-                                            <Binding Path="Price"/>
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectionChanged">
-                            <i:InvokeCommandAction
+                                    <Button Style="{StaticResource RemoveTag}" CommandParameter="{Binding }" Padding="0" Margin="1, 0, 0, 0"
+                                            Command="{Binding DataContext.DeleteProduct, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
+                                    <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Grid.Column="1"/>
+                                    <TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="3, 0">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource PriceConverter}">
+                                                <Binding Path="Count"/>
+                                                <Binding Path="Price"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction
                         Command="{Binding SetEditableCount}"
                         CommandParameter="{Binding SelectedItem, ElementName=list}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </ListBox>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ListBox>
+                </Grid>
             </GroupBox>
         </DockPanel>
 

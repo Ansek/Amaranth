@@ -316,7 +316,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var condition = GetCondition(request);
-			var products = _adapter.LoadList("product", pos, count, condition);
+			var products = _adapter.LoadList("product_view", pos, count, condition);
 			if (products.Count > 0)
 			{
 				var list = new List<Product>();
@@ -330,14 +330,19 @@ namespace Amaranth.Model
 							break;
 						}
 
-					list.Add(new Product(category)
+					var product = new Product(category)
 					{
 						Id = Convert.ToInt32(p["idProduct"]),
 						Title = Convert.ToString(p["Title"]),
 						Price = Convert.ToDouble(p["Price"]),
 						Count = Convert.ToInt32(p["Count"]),
 						Prescription = Convert.ToBoolean(p["Prescription"])
-					});
+					};
+
+					if (p["Reserve"] != DBNull.Value)
+						product.Reserve = Convert.ToInt32(p["Reserve"]);
+
+					list.Add(product);
 				}
 				return list;
 			}
@@ -516,6 +521,7 @@ namespace Amaranth.Model
 					_adapter.Update(data);
 				}
 			}
+			ProductChanged?.Invoke();
 		}
 
 		public static void CancelOrder(Order order)
@@ -528,6 +534,7 @@ namespace Amaranth.Model
 
 			data.TableName = "`order`";
 			_adapter.Delete(data);
+			ProductChanged?.Invoke();
 		}
 
 		public static void AddTags(int idProduct, List<string> tags)
@@ -576,6 +583,34 @@ namespace Amaranth.Model
 				list.Add(d["Tag"].ToString());
 
 			return list;
+		}
+
+		public static int GetMaxCountProduct(int idProduct)
+        {
+			var data = _adapter.GetQuery("product_view", $"idProduct = {idProduct}");
+			if (data != null)
+            {
+				int reserve = Convert.ToInt32(data[0]["Reserve"]);
+				int count = Convert.ToInt32(data[0]["Count"]);
+				return count - reserve;
+			}
+			return 0;
+		}
+
+		public static void SubMaxCountProduct(int idProduct, int count)
+        {
+			var data = _adapter.GetQuery("product", $"idProduct = {idProduct}");
+			if (data != null)
+			{
+				int newCount = Convert.ToInt32(data[0]["Count"]) - count;
+				data[0].Clear();
+				data[0].Add("Count", newCount);
+				data[0].TableName = "product";
+				data[0].IdName = "idProduct";
+				data[0].RecordId = idProduct;
+				_adapter.Update(data[0]);
+				ProductChanged?.Invoke();
+			}
 		}
 	}
 }

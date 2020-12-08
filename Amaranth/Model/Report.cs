@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace Amaranth.Model
 {
@@ -11,9 +13,20 @@ namespace Amaranth.Model
 			_adapter = adapter;
 		}
 
-		public void Print(string condition)
+		public void Print(Data.ProductRequest request)
 		{
-			throw new NotImplementedException();
+			object oMissing = Missing.Value;
+			object oEndOfDoc = "\\endofdoc";
+
+			Word._Application oWord;
+			Word._Document oDoc;
+			oWord = new Microsoft.Office.Interop.Word.Application();
+			oDoc = oWord.Documents.Add(ref oMissing, ref oMissing,
+			ref oMissing, ref oMissing);
+
+
+
+			oWord.Visible = true;
 		}
 	}
 }

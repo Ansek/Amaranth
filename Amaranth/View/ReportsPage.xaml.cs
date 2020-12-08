@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
+using System.Text.RegularExpressions;
 
 namespace Amaranth.View
 {
@@ -23,6 +11,23 @@ namespace Amaranth.View
         public ReportsPage()
         {
             InitializeComponent();
+            DataContext = new ViewModel.ReportsVM();
+        }
+
+        private void TextBoxNumber(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            int i;
+            var t = ((TextBox)sender).Text + e.Text;
+            if (!int.TryParse(t, out i))
+                e.Handled = true;
+        }
+
+        private void TextBoxDouble(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            var regex = new Regex(@"^\d{1,8}(\.\d{0,2})?$");
+            string t = ((TextBox)sender).Text + e.Text;
+            if (!regex.IsMatch(t))
+                e.Handled = true;
         }
     }
 }

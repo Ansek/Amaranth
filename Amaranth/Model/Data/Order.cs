@@ -48,6 +48,10 @@ namespace Amaranth.Model.Data
 
         public void Add(Product product)
         {
+            foreach (var p in _products)
+                if (p.Id == product.Id)
+                    return;
+
             _products.Add(product);
             FinalPrice += product.Count * product.Price;
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));

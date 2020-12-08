@@ -11,7 +11,7 @@ namespace Amaranth.View
         public LoginWindow()
         {
             InitializeComponent();
-            var mv = new ViewModel.LoginMV();
+            var mv = new ViewModel.LoginVM();
             DataContext = mv;
             mv.ClickOk += () => DialogResult = true;
         }

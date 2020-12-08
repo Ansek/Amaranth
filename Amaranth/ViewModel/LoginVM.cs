@@ -7,7 +7,7 @@ using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class LoginMV : INotifyPropertyChanged
+    class LoginVM : INotifyPropertyChanged
     {
         string _login;
         public string Login
