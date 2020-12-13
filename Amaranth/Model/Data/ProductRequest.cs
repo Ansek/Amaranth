@@ -17,9 +17,10 @@ namespace Amaranth.Model.Data
         {
             _checkTitle = true;
             Tags = new ObservableCollection<string>();
-
+            _title = string.Empty;
             _fromDate = DateTime.Now;
             _fromDate = _fromDate.AddMonths(-1);
+            _recordsCount = 1;
             _toDate = DateTime.Now;
         }
 
@@ -68,7 +69,7 @@ namespace Amaranth.Model.Data
         public int RecordsCount
         {
             get => _recordsCount;
-            set { _recordsCount = value; OnValueChanged(); }
+            set { if (value > 0) _recordsCount = value; OnValueChanged(); }
         }        
 
         public double FromPrice

@@ -265,7 +265,7 @@ namespace Amaranth.Model
 			return new ProductInfo(product, values);
 		}
 
-		static string GetCondition(ProductRequest request)
+		public static string GetCondition(ProductRequest request)
         {
 			string condition = string.Empty;
 
@@ -297,6 +297,18 @@ namespace Amaranth.Model
 					condition += $" AND {request.FromPrice} <= Price AND Price <= {request.ToPrice}";
 				else
 					condition += $" {request.FromPrice} <= Price AND Price <= {request.ToPrice}";
+			}
+
+			if (request.CheckDateComplited)
+			{
+				var select = $"SELECT op.idProduct FROM `order` o, order_product op " +
+					$"WHERE o.idOrder = op.idOrder AND DATE(o.CompletionDate)" +
+					$" BETWEEN '{request.FromDate.ToString("yyyy-MM-dd")}'" +
+					$" AND '{request.ToDate.ToString("yyyy-MM-dd")}' GROUP BY op.idProduct";
+				if (condition != string.Empty)
+					condition += $" AND idProduct IN ({select})";
+				else
+					condition += $"idProduct IN ({select})";
 			}
 
 			if (request.CheckCategory)

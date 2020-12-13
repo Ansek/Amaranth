@@ -31,17 +31,37 @@ namespace Amaranth.ViewModel
             DataBaseSinglFacade.GetInstance();
             DataBaseSinglFacade.SetAdapter(mySql);
 
-            Pages = new ObservableCollection<UserControl>
+            Pages = new ObservableCollection<UserControl>();
+            //    new OrderPage(),
+            //    new ProductsPage(),
+            //    new ReportsPage(),
+            //    new UsersPage(),
+            //    new СategoriesPage(),
+            //    new ArrivalsPage(),
+            //    new ListOrdersPage()
+            //};
+            Auth.UserChanged += () =>
             {
-                new OrderPage(),
-                new ProductsPage(),
-                new ReportsPage(),
-                new UsersPage(),
-                new СategoriesPage(),
-                new ArrivalsPage(),
-                new ListOrdersPage()
+                OnValueChanged("CurrentUser");
+                if (Auth.CurrentUser != null)
+                    if (Auth.CurrentUser.IsAdministrator)
+                    { 
+                        Pages.Clear();
+                        Pages.Add(new ProductsPage());
+                        Pages.Add(new ReportsPage());
+                        Pages.Add(new UsersPage());
+                        Pages.Add(new СategoriesPage());
+                        Pages.Add(new ArrivalsPage());
+                        Pages.Add(new ListOrdersPage());
+                    }
+                    else
+                    {
+                        Pages.Clear();
+                        Pages.Add(new OrderPage());
+                        Pages.Add(new ArrivalsPage());
+                        Pages.Add(new ListOrdersPage());
+                    }
             };
-            Auth.UserChanged += () => OnValueChanged("CurrentUser");
             ProductSearchVM.OpenProduct += (product) =>
             {
                 var page = new ShowProductPage(product);
