@@ -17,7 +17,6 @@ namespace Amaranth.Model.Data
 			_id = -1;
 			_category = category;
 			_prescription = false;
-			IsView = false;
 		}
 
 		/// <summary>
@@ -34,7 +33,6 @@ namespace Amaranth.Model.Data
 			_price = product._price;
 			_prescription = product._prescription;
 			_category = product._category;
-			IsView = false;
 		}
 
 		protected int _id;
@@ -113,11 +111,6 @@ namespace Amaranth.Model.Data
 		/// </summary>
 		public Category Category => _category;
 
-		/// <summary>
-		/// Определяет тип загрузки: true - из представления или false - из основной таблицы.
-		/// </summary>
-		bool IsView { get; set; } 
-
 		/*--- Свойства и методы для интерфейса IData ---*/
 
 		/// <summary>
@@ -133,7 +126,7 @@ namespace Amaranth.Model.Data
 		/// <summary>
 		/// Имя таблицы.
 		/// </summary>
-		public string Table => (IsView) ? "Product_View" : "Product";
+		public string Table => "Product";
 
 		/// <summary>
 		/// Получение данных об имени столбцах и их содержимом.
@@ -151,28 +144,31 @@ namespace Amaranth.Model.Data
 		/// <summary>
 		/// Заполнение данных по указанным столбцам.
 		/// </summary>
-		/// <param name="data">Кортеж из имени столбца и его значения.</param>
-		public void SetData(IEnumerable<(string, object)> data)
+		/// <param name="column">Имя столбца.</param>
+		/// <param name="value">Значение столбца.</param>
+		public void SetData(string column, object value)
 		{
-			foreach (var d in data)
-				switch (d.Item1)
-                {
-					case "Title":
-						Title = d.Item2 as string;
-						break;
-					case "Price":
-						Price = Convert.ToDouble(d.Item2);
-						break;
-					case "Count":
-						Count = Convert.ToInt32(d.Item2);
-						break;
-					case "Prescription":
-						Prescription = Convert.ToBoolean(d.Item2);
-						break;
-					case "Reserve":
-						Reserve = Convert.ToInt32(d.Item2);
-						break;
-				}					
+			switch (column)
+            {
+				case "idProduct":
+					Id = Convert.ToInt32(value);
+					break;
+				case "Title":
+					Title = value as string;
+					break;
+				case "Price":
+					Price = Convert.ToDouble(value);
+					break;
+				case "Count":
+					Count = Convert.ToInt32(value);
+					break;
+				case "Prescription":
+					Prescription = Convert.ToBoolean(value);
+					break;
+				case "Reserve":
+					Reserve = (value != DBNull.Value) ? Convert.ToInt32(value) : 0;
+					break;
+			}					
 		}
 
 	}

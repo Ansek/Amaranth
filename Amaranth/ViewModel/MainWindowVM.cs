@@ -23,15 +23,24 @@ namespace Amaranth.ViewModel
             var db = DataBaseSinglFacade.GetInstance();
             db.SetAdapter(mySql);
 
-            Pages = new ObservableCollection<UserControl>();
-            //    new OrderPage(),
-            //    new ProductsPage(),
-            //    new ReportsPage(),
-            //    new UsersPage(),
-            //    new СategoriesPage(),
-            //    new ArrivalsPage(),
-            //    new ListOrdersPage()
-            //};
+            // Привязка к событию изменения списка категорий
+            db.CategoryListChanged += () =>
+            {
+                Categories.Clear();
+                foreach (var c in db.GetListCategory())
+                    Categories.Add(c);
+            };
+
+            Pages = new ObservableCollection<UserControl>()
+            { 
+                new OrderPage(),
+                new ProductsPage(),
+                new ReportsPage(),
+                new UsersPage(),
+                new СategoriesPage(),
+                new ArrivalsPage(),
+                new ListOrdersPage()
+            };
             Auth.UserChanged += () =>
             {
                 OnValueChanged("CurrentUser");
@@ -61,6 +70,13 @@ namespace Amaranth.ViewModel
                 CurrentPage = page;
             };
         }
+        
+        static MainWindowVM()
+        {
+            Categories = new ObservableCollection<Category>();
+        }
+
+        public static ObservableCollection<Category> Categories;
 
         /// <summary>
         /// Задает список для вкладок на форме.

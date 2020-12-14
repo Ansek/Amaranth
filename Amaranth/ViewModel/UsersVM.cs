@@ -11,7 +11,7 @@ namespace Amaranth.ViewModel
     class UsersVM : BindableBase
     {
         /// <summary>
-        /// Для доступа к функция БД.
+        /// Для доступа к функциям БД.
         /// </summary>
         readonly DataBaseSinglFacade _db;
 
@@ -21,8 +21,15 @@ namespace Amaranth.ViewModel
         public UsersVM()
         {
             _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
+            // Привязка к событию изменения списка пользователей
+            _db.UserListChanged += () =>
+            {
+                ListUsers = _db.GetListUser();  // Обновление списка
+                User = null;                    // Сброс текущей записи
+            };
+            // Устанока параметров по умолчанию
             _isSelect = false;
-            ListUsers = DataBaseSinglFacade.GetListUser();
+            ListUsers = _db.GetListUser();
         }
 
         bool _isSelect;
@@ -87,8 +94,6 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 _db.Insert(_user);
-                ListUsers = DataBaseSinglFacade.GetListUser();
-                User = null;
             }, () => _user != null && !_isSelect);
         }
 
@@ -100,8 +105,6 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 _db.Update(_user);
-                ListUsers = DataBaseSinglFacade.GetListUser();
-                User = null;
             }, () => _user != null && _isSelect);
         }
 
@@ -113,11 +116,7 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 if (DialogueService.ShowWarning("Вы действительно хотите удалить информацию о данном пользователе?"))
-                {
                     _db.Delete(_user);
-                    ListUsers = DataBaseSinglFacade.GetListUser();
-                    User = null;
-                }
             }, () => _user != null && _isSelect);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Amaranth.Model.Data;
@@ -54,6 +55,11 @@ namespace Amaranth.Model
 		/*--- Методы для работы с товарами ---*/
 
 		/// <summary>
+		/// Для оповещения, что был изменен список товаров.
+		/// </summary>
+		public event Action ProductListChanged;
+
+		/// <summary>
 		/// Добавление данных о товаре.
 		/// </summary>
 		/// <param name="product">Добавляемый товар.</param>
@@ -104,7 +110,50 @@ namespace Amaranth.Model
 			_adapter.Delete(product);
 		}
 
+		/// <summary>
+		/// Запрашивает список товаров.
+		/// </summary>
+		/// <param name="categories">Список категорий для создания объектов товара.</param>
+		/// <param name="request">Запрос для выборки товаров.</param>
+		/// <param name="count">Количество записей для загрузки.</param>
+		/// <param name="pos">Смещение.</param>
+		/// <returns>Список найденных товаров</returns>
+		public List<Product> GetListProduct(IEnumerable<Category> categories, ProductRequest request, int count, int pos)
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Получение данных из расширенной таблицы (с полем зарезервированного количества товаров)
+			var table = _adapter.LoadTable("product_view", request.GetCondition(), count, pos);
+
+			var list = new List<Product>();
+			// Разбор строк полученной таблицы
+			for (int i = 0; i < table.Rows.Count; i++)
+			{
+				// Поиск соответсвующей категории
+				var idCategory = Convert.ToInt32(table.Rows[i]["idCategory"]);
+				Category category = null;
+				foreach (var c in categories)
+					if (c.Id == idCategory)
+					{
+						category = c;
+						break;
+					}
+
+				// Создает объекта товара
+				var product = new Product(category);
+				FillData(product, table, i); // Копирование значений из таблицы
+				list.Add(product);
+			}
+			return list;
+		}
+
 		/*--- Методы для работы с категориями ---*/
+
+		/// <summary>
+		/// Для оповещения, что был изменен список категорий.
+		/// </summary>
+		public event Action CategoryListChanged;
 
 		/// <summary>
 		/// Добавление данных о категории.
@@ -127,9 +176,10 @@ namespace Amaranth.Model
 		{
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+						
+			_adapter.Update(category);      // Изменение данных категории
 
-			// Изменение данных категории
-			_adapter.Update(category);
+			CategoryListChanged?.Invoke();  // Оповещение об изменении
 		}
 
 		/// <summary>
@@ -140,12 +190,42 @@ namespace Amaranth.Model
 		{
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+						
+			_adapter.Delete(category);		// Удаление данных категории
 
-			// Удаление данных категории
-			_adapter.Delete(category);
+			CategoryListChanged?.Invoke();  // Оповещение об изменении
+		}
+
+		/// <summary>
+		/// Запрашивает список категорий.
+		/// </summary>
+		/// <returns>Список найденных категорий.</returns>
+		public List<Category> GetListCategory()
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Получение данных из таблицы категорий
+			var table = _adapter.LoadTable("category");
+
+			var list = new List<Category>();
+			// Разбор строк полученной таблицы
+			for (int i = 0; i < table.Rows.Count; i++)
+			{
+				// Создает объекта категории
+				var category = new Category();
+				FillData(category, table, i); // Копирование значений из таблицы
+				list.Add(category);
+			}
+			return list;
 		}
 
 		/*--- Методы для работы с пользователями ---*/
+
+		/// <summary>
+		/// Для оповещения, что был изменен список пользователей.
+		/// </summary>
+		public event Action UserListChanged;
 
 		/// <summary>
 		/// Добавление данных о категории.
@@ -155,9 +235,10 @@ namespace Amaranth.Model
 		{
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+						
+			_adapter.Insert(user);		// Запись данных пользователя
 
-			// Запись данных пользователя
-			_adapter.Insert(user);
+			UserListChanged?.Invoke();  // Оповещение об изменении
 		}
 
 		/// <summary>
@@ -168,9 +249,10 @@ namespace Amaranth.Model
 		{
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+						
+			_adapter.Update(user);		// Изменение данных пользователя
 
-			// Изменение данных пользователя
-			_adapter.Update(user);
+			UserListChanged?.Invoke();	// Оповещение об изменении
 		}
 
 		/// <summary>
@@ -182,11 +264,51 @@ namespace Amaranth.Model
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
-			// Удаление данных пользователя
-			_adapter.Delete(user);
+			_adapter.Delete(user);		// Удаление данных пользователя
+
+			UserListChanged?.Invoke();	// Оповещение об изменении
 		}
 
+		/// <summary>
+		/// Заполнение данными через объект таблицы.
+		/// </summary>
+		/// <param name="data">Объект для заполнения.</param>
+		/// <param name="table">Объект таблицы.</param>
+		/// <param name="iRow">Идентификатор строки</param>
+		void FillData(IData data, DataTable table, int iRow)
+        {
+			// Перебор значений заданной строки
+			for (int i = 0; i < table.Columns.Count; i++)
+            {
+				var column = table.Columns[i].ColumnName;	// Получение имени столбца
+				var value = table.Rows[iRow][i];			// Получение значения по этому столбцу
+				data.SetData(column, value);				// Запись данных в объект заполнения
+			}
+		}
 
+		/// <summary>
+		/// Запрашивает список категорий.
+		/// </summary>
+		/// <returns>Список найденных категорий.</returns>
+		public List<User> GetListUser()
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Получение данных из таблицы пользователей
+			var table = _adapter.LoadTable("user");
+
+			var list = new List<User>();
+			// Разбор строк полученной таблицы
+			for (int i = 0; i < table.Rows.Count; i++)
+			{
+				// Создает объекта категории
+				var user = new User();
+				FillData(user, table, i); // Копирование значений из таблицы
+				list.Add(user);
+			}
+			return list;
+		}
 
 		//--------------------------------------------------------
 
@@ -196,8 +318,8 @@ namespace Amaranth.Model
 		static ObservableCollection<string> _tags;
 
 
-
 		public static event Action ProductChanged;
+
 
 		public static ObservableCollection<Category> Categories => _categories;
 
@@ -489,7 +611,7 @@ namespace Amaranth.Model
 			return condition;
 		}
 
-		public static List<Product> GetListProduct(int pos, int count, ProductRequest request)
+		public static List<Product> GetListProductOld(int pos, int count, ProductRequest request)
 		{
 			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
@@ -528,7 +650,7 @@ namespace Amaranth.Model
 			return null;
 		}
 
-		public static List<Category> GetListCategory()
+		public static List<Category> GetListCategoryOld()
 		{
 			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
@@ -559,7 +681,7 @@ namespace Amaranth.Model
 			return null;
 		}
 
-		public static List<User> GetListUser()
+		public static List<User> GetListUserOld()
 		{
 			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");

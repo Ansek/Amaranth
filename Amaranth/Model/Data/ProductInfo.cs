@@ -96,16 +96,16 @@ namespace Amaranth.Model.Data
         /// <summary>
         /// Заполнение данных по указанным столбцам.
         /// </summary>
-        /// <param name="data">Кортеж из имени столбца и его значения.</param>
-        public new void SetData(IEnumerable<(string, object)> data)
+        /// <param name="column">Имя столбца.</param>
+        /// <param name="value">Значение столбца.</param>
+        public new void SetData(string column, object value)
         {
-            int i = 0;
-            foreach (var d in data)
-            {
-                if (d.Item1 == $"Desc{i}")
-                    _values[i] = d.Item2 as string;
-                i++;
-            }
+            for (int i = 0; i < _values.Count; i++)
+                if (column == $"Desc{i}")                    
+                {
+                    _values[i] = value as string;
+                    break;
+                }
         }
     }
 }

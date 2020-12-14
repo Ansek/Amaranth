@@ -138,14 +138,22 @@ namespace Amaranth.Model.Data
         /// <summary>
         /// Заполнение данных по указанным столбцам.
         /// </summary>
-        /// <param name="data">Кортеж из имени столбца и его значения.</param>
-        public void SetData(IEnumerable<(string, object)> data)
+        /// <param name="column">Имя столбца.</param>
+        /// <param name="value">Значение столбца.</param>
+        public void SetData(string column, object value)
         {
-            foreach (var d in data)
-                if (d.Item1 == "CreationDate")
-                    CreationDate = d.Item2 as DateTime?;
-                else if (d.Item1 == "CompletionDate")
-                    CompletionDate = d.Item2 as DateTime?;
+            switch (column)
+            {
+                case "idOrder":
+                    Id = Convert.ToInt32(value);
+                    break;
+                case "CreationDate":
+                    CreationDate = value as DateTime?;
+                    break;
+                case "CompletionDate":
+                    CompletionDate = value as DateTime?;
+                    break;
+            }
         }
 
         /*--- Свойства и методы для интерфейса IDataCollection ---*/
@@ -173,7 +181,7 @@ namespace Amaranth.Model.Data
             foreach (var el in data)
             {
                 var prod = new Product(category);
-                prod.SetData(el.GetData()); // Копирование полученных данных
+                //prod.SetData(el.GetData()); // Копирование полученных данных
                 _list.Add(prod);
             }
         }

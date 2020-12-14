@@ -12,7 +12,7 @@ namespace Amaranth.ViewModel
     class ProductsVM : BindableBase
     {
         /// <summary>
-        /// Для доступа к функция БД.
+        /// Для доступа к функциям БД.
         /// </summary>
         readonly DataBaseSinglFacade _db;
 
@@ -32,6 +32,7 @@ namespace Amaranth.ViewModel
         public ProductsVM()
         {
             _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
+            // Устанока параметров по умолчанию
             _isSelect = false;
             ListTags = new ObservableCollection<string>();
         }

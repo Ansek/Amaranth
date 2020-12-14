@@ -102,6 +102,26 @@ namespace Amaranth.Model
         }
 
         /// <summary>
+        /// Загрузка данных из БД.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="condition">Условие выборки.</param>
+        /// <param name="count">Количество записей.</param>
+        /// <param name="pos">Смещение.</param>
+        /// <returns>Таблица с результатами запроса.</returns>
+        public DataTable LoadTable(string table, string condition = null, int count = 0, int pos = 0)
+        {
+            // Составление скрипта запроса
+            if (condition != null)
+                condition = $"WHERE {condition}";
+            var limit = (count > 0) ? $"LIMIT {pos}, {count}" : "";
+            var sql = $"SELECT * FROM {table} {condition} {limit};";
+
+            //Выполнение запроса
+            return LoadTable(table, sql);
+        }
+
+        /// <summary>
         /// Выполнение запроса без получения ответа.
         /// </summary>
         /// <param name="cmd">Объект команды для выполнения запроса.</param>
@@ -163,6 +183,23 @@ namespace Amaranth.Model
         }
 
         /// <summary>
+        /// Загружает результат запроса в таблицу.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="sql">Скрипт запроса.</param>
+        /// <returns>Таблица с результатами запроса.</returns>
+        DataTable LoadTable(string table, string sql)
+        {
+            var ds = new DataSet();
+            // Настройка параметров
+            var cmd = new MySqlCommand(sql, _connect);
+            var msadapter = new MySqlDataAdapter(cmd);
+            // Загрузка таблицы
+            msadapter.Fill(ds, table);
+            return ds.Tables[table];
+        }
+
+        /// <summary>
         /// Упаковка значения в формат параметра команды.
         /// </summary>
         /// <param name="value">Получаемое значение.</param>
@@ -190,99 +227,10 @@ namespace Amaranth.Model
             return new MySqlParameter(name, type) { Value = value };
         }
 
+
+
         // ------------------------------------------------------------------------
 
-
-        public int Insert(data data)
-        {
-            _connect.Open();
-            int id = -1;
-            string idCmd;
-            string columns = string.Empty;
-            string values = string.Empty;
-            var cmd = new MySqlCommand();
-            cmd.Connection = _connect;
-
-            int i = 0;
-            foreach (var d in data)
-            {
-                if (i != 0)
-                {
-                    columns += ",";
-                    values += ",";
-                }
-                idCmd = $"@{i++}";
-                columns += d.Name;
-                values += idCmd;
-                //var type = GetEquivalent(d.Type);
-                var type = MySqlDbType.Int32;
-                cmd.Parameters.Add(idCmd, type);
-                cmd.Parameters[idCmd].Value = d.Value;
-            }
-
-            try
-            {
-                cmd.CommandText = $"INSERT INTO {data.TableName} ({columns}) VALUES ({values});";
-                int l = cmd.ExecuteNonQuery();
-                if (l > 0 && data.TableName != "user" && data.TableName != "tag")
-                {
-                    cmd.CommandText = $"SELECT max({data.IdName}) FROM {data.TableName};";
-                    id = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-            }
-            finally
-            {
-                _connect.Close();
-            }
-            return id;
-        }
-
-        public void Update(data data)
-        {
-            _connect.Open();
-            string idCmd;
-            string parameters = string.Empty;
-            var cmd = new MySqlCommand();
-            cmd.Connection = _connect;
-
-            int i = 0;
-            foreach (var d in data)
-            {
-                if (i != 0)
-                    parameters += ",";
-                idCmd = $"@{i++}";
-                parameters += $"{d.Name} = {idCmd}";
-                //var type = GetEquivalent(d.Type);
-                var type = MySqlDbType.Int32;
-                cmd.Parameters.Add(idCmd, type);
-                cmd.Parameters[idCmd].Value = d.Value;
-            }
-
-            cmd.CommandText = $"UPDATE {data.TableName} SET {parameters} WHERE {data.IdName} = {data.RecordId};";
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                _connect.Close();
-            }
-        }
-
-        public void Delete(data data)
-        {
-            _connect.Open();
-            string sql = $"DELETE FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
-            var cmd = new MySqlCommand(sql, _connect);
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                _connect.Close();
-            }
-        }
 
         public void Load(ref data data)
         {
@@ -507,6 +455,21 @@ namespace Amaranth.Model
             var o = cmd.ExecuteScalar();
             _connect.Close();
             return o;
+        }
+
+        public int Insert(data data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update(data data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete(data data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

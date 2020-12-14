@@ -13,6 +13,11 @@ namespace Amaranth.ViewModel
     class ProductSearchVM : BindableBase
     {
         /// <summary>
+        /// Для доступа к функциям БД.
+        /// </summary>
+        readonly DataBaseSinglFacade _db;
+
+        /// <summary>
         /// Задает максимальное количество отображаемых заказов в таблице.
         /// </summary>
         int _countAll;
@@ -32,16 +37,20 @@ namespace Amaranth.ViewModel
         /// </summary>
         public ProductSearchVM()
         {
+            _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
+            // Привязка к событию изменения списка товаров
+            _db.ProductListChanged += () =>
+            {
+                var categories = MainWindowVM.Categories;
+                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
+            };
+            // Устанока параметров по умолчанию
             _countAll = 10;
             _currentNumber = 1;
             _maxNumber = 1;
             _request = new ProductRequest();
             _oldRequest = new ProductRequest();
-            DataBaseSinglFacade.ProductChanged += () =>
-            {
-                int pos = _countAll * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll, _oldRequest);
-            };
+            ListProducts = _db.GetListProduct(MainWindowVM.Categories, _oldRequest, _countAll, Position);
         }
 
         List<Product> _listProducts;
@@ -84,6 +93,11 @@ namespace Amaranth.ViewModel
             set => SetValue(ref _maxNumber, value);
         }
 
+        /// <summary>
+        /// Определяет на какой позиции надо извлечь данные.
+        /// </summary>
+        public int Position => _countAll * (_currentNumber - 1);
+
         string _tagField;
         /// <summary>
         /// Для хранения поля ввода имени тега.
@@ -111,9 +125,9 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                int pos = _countAll * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll, _request);
-                _oldRequest.Copy(_request);
+                var categories = MainWindowVM.Categories;
+                ListProducts = _db.GetListProduct(categories, _request, _countAll, Position);  // Обновление списка
+                _oldRequest.Copy(_request); // Копирование запроса (в случае перехода на другую страницу)
             });
         }
 
@@ -149,8 +163,8 @@ namespace Amaranth.ViewModel
             get => new Command<int>((count) =>
             {
                 _countAll = count;
-                int pos = count * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, count, _oldRequest);
+                var categories = MainWindowVM.Categories;
+                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
             });
         }
 
@@ -162,8 +176,8 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 CurrentNumber--;
-                int pos = _countAll * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll, _oldRequest);
+                var categories = MainWindowVM.Categories;
+                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
             }, () => _currentNumber != 1);
         }
 
@@ -175,8 +189,8 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 CurrentNumber++;
-                int pos = _countAll * (_currentNumber - 1);
-                ListProducts = DataBaseSinglFacade.GetListProduct(pos, _countAll, _oldRequest);
+                var categories = MainWindowVM.Categories;
+                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
             }, () => _currentNumber != _maxNumber);
         }
 

@@ -99,25 +99,25 @@ namespace Amaranth.Model.Data
 		/// <summary>
 		/// Заполнение данных по указанным столбцам.
 		/// </summary>
-		/// <param name="data">Кортеж из имени столбца и его значения.</param>
-		public void SetData(IEnumerable<(string, object)> data)
+		/// <param name="column">Имя столбца.</param>
+		/// <param name="value">Значение столбца.</param>
+		public void SetData(string column, object value)
 		{
-			foreach (var d in data)
-				switch (d.Item1)
-				{
-					case "Login":
-						Login = d.Item2 as string;
-						break;
-					case "FirstName":
-						FirstName = d.Item2 as string;
-						break;
-					case "LastName":
-						LastName = d.Item2 as string;
-						break;
-					case "IsAdministrator":
-						IsAdministrator = Convert.ToBoolean(d.Item2);
-						break;
-				}
+			switch (column)
+			{
+				case "Login":
+					Login = value as string;
+					break;
+				case "FirstName":
+					FirstName = value as string;
+					break;
+				case "LastName":
+					LastName = value as string;
+					break;
+				case "IsAdministrator":
+					IsAdministrator = Convert.ToBoolean(value);
+					break;
+			}
 		}
 	}
 }

@@ -11,7 +11,7 @@ namespace Amaranth.ViewModel
     class СategoriesVM : BindableBase
     {
         /// <summary>
-        /// Для доступа к функция БД.
+        /// Для доступа к функциям БД.
         /// </summary>
         readonly DataBaseSinglFacade _db;
 
@@ -26,9 +26,15 @@ namespace Amaranth.ViewModel
         public СategoriesVM()
         {
             _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
+            _db.CategoryListChanged += () =>
+            {
+                ListСategories = _db.GetListCategory(); // Обновление списка
+                Category = null;                        // Сброс текущей записи
+            };
+            // Установка параметров по умолчанию
             _isSelect = false;
             _descriptionTitle = string.Empty;
-            ListСategories = DataBaseSinglFacade.GetListCategory();
+            ListСategories = _db.GetListCategory();
         }
 
         Category _category;
@@ -93,8 +99,6 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 _db.Insert(_category);
-                ListСategories = DataBaseSinglFacade.GetListCategory();
-                Category = null;
             }, () => _category != null && !_isSelect);
         }
 
@@ -106,8 +110,6 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 _db.Update(_category);
-                ListСategories = DataBaseSinglFacade.GetListCategory();
-                Category = null;
             }, () => _category != null && _isSelect);
         }
 
@@ -119,11 +121,7 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 if (DialogueService.ShowWarning("Вы действительно хотите удалить информацию о данной категории?"))
-                {
                     _db.Delete(_category);
-                    ListСategories = DataBaseSinglFacade.GetListCategory();
-                    Category = null;
-                }    
             }, () => _category != null && _isSelect);
         }
 

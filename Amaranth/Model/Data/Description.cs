@@ -89,12 +89,14 @@ namespace Amaranth.Model.Data
 		/// <summary>
 		/// Заполнение данных по указанным столбцам.
 		/// </summary>
-		/// <param name="data">Кортеж из имени столбца и его значения.</param>
-		public void SetData(IEnumerable<(string, object)> data)
+		/// <param name="column">Имя столбца.</param>
+		/// <param name="value">Значение столбца.</param>
+		public void SetData(string column, object value)
 		{
-			foreach (var d in data)
-				if (d.Item1 == "Title")
-					Title = d.Item2 as string;
+			if (column == "idDescription")
+				Id = Convert.ToInt32(value);
+			else if (column == "Title")
+				Title = value as string;
 		}
 	}
 }

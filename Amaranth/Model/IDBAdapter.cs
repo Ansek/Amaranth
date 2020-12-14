@@ -1,5 +1,6 @@
-﻿using Amaranth.Model.Data;
+﻿using System.Data;
 using System.Collections.Generic;
+using Amaranth.Model.Data;
 using data = Amaranth.Model.Data.Data;
 
 namespace Amaranth.Model
@@ -26,6 +27,16 @@ namespace Amaranth.Model
 		/// </summary>
 		/// <param name="data">Удаляемое значение.</param>
 		void Delete(IData data);
+
+		/// <summary>
+		/// Загрузка данных из БД.
+		/// </summary>
+		/// <param name="table">Имя таблицы.</param>
+		/// <param name="condition">Условие выборки.</param>
+		/// <param name="count">Количество записей.</param>
+		/// <param name="pos">Смещение.</param>
+		/// <returns>Таблица с результатами запроса.</returns>
+		DataTable LoadTable(string table, string condition = null, int count = 0, int pos = 0);
 
 		// ----------------
 		int Insert(data data);

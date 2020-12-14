@@ -2,7 +2,7 @@
 
 namespace Amaranth.Model.Data
 {
-    interface IDataCollection
+    interface IDataCollection : IData
     {
         /// <summary>
         /// Имя таблицы для хранения коллекции.

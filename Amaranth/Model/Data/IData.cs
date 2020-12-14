@@ -31,7 +31,8 @@ namespace Amaranth.Model.Data
         /// <summary>
         /// Заполнение данных по указанным столбцам.
         /// </summary>
-        /// <param name="data">Кортеж из имени столбца и его значения.</param>
-        void SetData(IEnumerable<(string, object)> data);
+        /// <param name="column">Имя столбца.</param>
+        /// <param name="value">Значение столбца.</param>
+        void SetData(string column, object value);
     }
 }

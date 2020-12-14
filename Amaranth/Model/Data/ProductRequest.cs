@@ -5,14 +5,14 @@ using System;
 
 namespace Amaranth.Model.Data
 {
-    public class ProductRequest : INotifyPropertyChanged
+    /// <summary>
+    /// Задает параметры для поиска товаров в БД.
+    /// </summary>
+    public class ProductRequest : BindableBase
     {
-        string _title, _fromPriceText, _toPriceText;
-        int _category, _recordsCount;
-        double _fromPrice, _toPrice;
-        bool _checkTitle, _checkTags, _checkPrice, _checkCategory, _checkRecordsCount, _checkDateComplited;
-        DateTime _fromDate, _toDate;
-
+        /// <summary>
+        /// Конструктор для параметров запроса товаров.
+        /// </summary>
         public ProductRequest()
         {
             _checkTitle = true;
@@ -24,98 +24,165 @@ namespace Amaranth.Model.Data
             _toDate = DateTime.Now;
         }
 
+        bool _checkTitle;
+        /// <summary>
+        /// Задает флаг поиска по наименованию.
+        /// </summary>
         public bool CheckTitle
         {
             get => _checkTitle;
-            set { _checkTitle = value; OnValueChanged(); }
+            set => SetValue(ref _checkTitle, value);
         }
 
-        public bool CheckRecordsCount
-        {
-            get => _checkRecordsCount;
-            set { _checkRecordsCount = value; OnValueChanged(); }
-        }        
-
-        public bool CheckTags
-        {
-            get => _checkTags;
-            set { _checkTags = value; OnValueChanged(); }
-        }
-
-        public bool CheckPrice
-        {
-            get => _checkPrice;
-            set { _checkPrice = value; OnValueChanged(); }
-        }
-
-        public bool CheckCategory
-        {
-            get => _checkCategory;
-            set { _checkCategory = value; OnValueChanged(); }
-        }
-
-        public bool CheckDateComplited
-        {
-            get => _checkDateComplited;
-            set { _checkDateComplited = value; OnValueChanged(); }
-        }
-
+        string _title;
+        /// <summary>
+        /// Текст для поиска по наименованию.
+        /// </summary>
         public string Title
         {
             get => _title;
-            set { _title = value; OnValueChanged(); }
+            set => SetValue(ref _title, value);
         }
 
+        bool _checkRecordsCount;
+        /// <summary>
+        /// Задает флаг на ограничение количества найденных записей.
+        /// </summary>
+        public bool CheckRecordsCount
+        {
+            get => _checkRecordsCount;
+            set => SetValue(ref _checkRecordsCount, value);
+        }
+
+        int _recordsCount;
+        /// <summary>
+        /// Устанавливает ограничение на количество найденных записей.
+        /// </summary>
         public int RecordsCount
         {
             get => _recordsCount;
-            set { if (value > 0) _recordsCount = value; OnValueChanged(); }
-        }        
+            set { if (value > 0) SetValue(ref _recordsCount, value); }
+        }
 
+        bool _checkTags;
+        /// <summary>
+        /// Задает флаг на проверка по тегам.
+        /// </summary>
+        public bool CheckTags
+        {
+            get => _checkTags;
+            set => SetValue(ref _checkTags, value);
+        }
+
+        /// <summary>
+        /// Список тегов.
+        /// </summary>
+        public ObservableCollection<string> Tags { get; }
+
+        bool _checkPrice;
+        /// <summary>
+        /// Задает флаг на проверку вхождения в диапазон цен. 
+        /// </summary>
+        public bool CheckPrice
+        {
+            get => _checkPrice;
+            set => SetValue(ref _checkPrice, value);
+        }
+
+        double _fromPrice;
+        /// <summary>
+        /// Минимальное значение цены.
+        /// </summary>
         public double FromPrice
         {
             get => _fromPrice;
-            set { _fromPrice = value;  OnValueChanged(); }
+            set => SetValue(ref _fromPrice, value);
         }
 
+        double  _toPrice;
+        /// <summary>
+        /// Максимальное значение цены.
+        /// </summary>
         public double ToPrice
         {
             get => _toPrice;
-            set { _toPrice = value; OnValueChanged(); }
+            set => SetValue(ref _toPrice, value);
         }
 
+        string _fromPriceText;
+        /// <summary>
+        /// Текстовое значение минимальной цены для проверки на форме.
+        /// </summary>
         public string FromPriceText
         {
             get => _fromPriceText;
-            set { _fromPriceText = value; double.TryParse(value, out _fromPrice); OnValueChanged(); }
+            set { SetValue(ref _fromPriceText, value); double.TryParse(value, out _fromPrice); OnValueChanged("FromPrice"); }
         }
 
+        string _toPriceText;
+        /// <summary>
+        /// Текстовое значение минимальной цены для проверки на форме.
+        /// </summary>
         public string ToPriceText
         {
             get => _toPriceText;
-            set { _toPriceText = value; double.TryParse(value, out _toPrice); OnValueChanged(); }
+            set { SetValue(ref _toPriceText, value); double.TryParse(value, out _toPrice); OnValueChanged("ToPrice"); }
         }
 
-        public DateTime FromDate
+        bool _checkCategory;
+        /// <summary>
+        /// Задает флаг на определение категории товара.
+        /// </summary>
+        public bool CheckCategory
         {
-            get => _fromDate;
-            set { _fromDate = value; OnValueChanged(); }
+            get => _checkCategory;
+            set => SetValue(ref _checkCategory, value);
         }
 
-        public DateTime ToDate
-        {
-            get => _toDate;
-            set { _toDate = value; OnValueChanged(); }
-        }
-
+        int _category;
+        /// <summary>
+        /// Идентификатор категории товара.
+        /// </summary>
         public int Category
         {
             get => _category;
             set { _category = value; OnValueChanged(); }
         }
 
-        public ObservableCollection<string> Tags { get; }
+        bool _checkDateComplited;
+        /// <summary>
+        /// Задает флаг на проверку вхождения в диапазон даты завершения заказа. 
+        /// </summary>
+        public bool CheckDateComplited
+        {
+            get => _checkDateComplited;
+            set { _checkDateComplited = value; OnValueChanged(); }
+        }
 
+        DateTime _fromDate;
+        /// <summary>
+        /// Ранее значение даты диапазона.
+        /// </summary>
+        public DateTime FromDate
+        {
+            get => _fromDate;
+            set => SetValue(ref _fromDate, value);
+        }
+
+        DateTime _toDate;
+        /// <summary>
+        /// Позднее значение даты диапазона.
+        /// </summary>
+        public DateTime ToDate
+        {
+            get => _toDate;
+            set => SetValue(ref _toDate, value);
+        }
+
+        /// <summary>
+        /// Копирует данные запроса.
+        /// </summary>
+        /// <param name="request">Объект запроса.</param>
         public void Copy(ProductRequest request)
         {
             _title = request._title;
@@ -128,11 +195,65 @@ namespace Amaranth.Model.Data
             _checkCategory = request._checkCategory;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
+        /// <summary>
+        /// Формирует SQL-фрагмент для запроса к БД.
+        /// </summary>
+        /// <returns></returns>
+        public string GetCondition()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            string condition = string.Empty;
+
+            // Установка условий для поиска по тегам
+            if (_checkTags && Tags.Count > 0)
+            {
+                var str = string.Empty;
+                foreach (var t in Tags)
+                {
+                    if (str != string.Empty)
+                        str += " OR ";
+                    str += $"Tag = '{t}'";
+
+                }
+                condition += $"(idProduct, {Tags.Count}) IN (SELECT idProduct, count(Tag) FROM product_tag WHERE {str} GROUP BY idProduct)";
+            }
+
+            // Установка условия поиска по наименованию
+            if (_checkTitle && _title != null)
+            {
+                if (condition != string.Empty)
+                    condition += " AND ";
+                condition += $"Title LIKE '%{_title.Replace("'", @"\'")}%'";
+            }
+
+            // Установка условия поиска по цене
+            if (_checkPrice)
+            {
+                if (condition != string.Empty)
+                    condition += " AND ";
+                condition += $"{_fromPrice} <= Price AND Price <= {_toPrice}";
+            }
+
+            // Установка условия по проверке даты завершения
+            if (_checkDateComplited)
+            {
+                var select = $"SELECT op.idProduct FROM `order` o, order_product op " +
+                    $"WHERE o.idOrder = op.idOrder AND DATE(o.CompletionDate)" +
+                    $" BETWEEN '{_fromDate.ToString("yyyy-MM-dd")}'" +
+                    $" AND '{_toDate.ToString("yyyy-MM-dd")}' GROUP BY op.idProduct";
+                if (condition != string.Empty)
+                    condition += " AND ";
+                condition += $"idProduct IN ({select})";
+            }
+
+            // Установка условия поиска по категории
+            if (_checkCategory)
+            {
+                if (condition != string.Empty)
+                    condition += " AND ";
+                condition += $"idCategory = {_category}";
+            }
+
+            return condition;
         }
     }
 }
