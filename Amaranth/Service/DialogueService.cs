@@ -3,16 +3,27 @@ using Amaranth.View;
 
 namespace Amaranth.Service
 {
+    /// <summary>
+    /// Класс для вызова диалоговых окон в системе.
+    /// </summary>
     class DialogueService
     {
+        /// <summary>
+        /// Вызов окна для авторизации пользователя.
+        /// </summary>
         public static void ShowLoginWindow()
         {
             var view = new LoginWindow();
             view.ShowDialog();
         }
 
+        /// <summary>
+        /// Вывод сообщения об ошибке.
+        /// </summary>
+        /// <param name="message">Текст сообщения.</param>
         public static void ShowError(string message)
         {
+            // Перевод стандартных ошибок.
             if (message == "The connection is already open.")
                 message = "Соединение с базой данных не было корректно закрыто. Пожалуйста, перезапустите приложение.";
             else if (message.Contains("You have an error in your SQL syntax;"))
@@ -22,11 +33,19 @@ namespace Amaranth.Service
             MessageBox.Show(message, "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
+        /// <summary>
+        /// Вывод предупреждающего сообщения.
+        /// </summary>
+        /// <param name="message">Текст сообщения.</param>
         public static bool ShowWarning(string message)
         {
             return MessageBox.Show(message, "Внимание!", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
         }
 
+        /// <summary>
+        /// Вывод информационного сообщения.
+        /// </summary>
+        /// <param name="message">Текст сообщения.</param>
         public static void ShowInformation(string message)
         {
             MessageBox.Show(message, "Оповещение", MessageBoxButton.OK, MessageBoxImage.Information);

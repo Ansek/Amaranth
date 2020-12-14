@@ -3,7 +3,7 @@
 namespace Amaranth.View
 {
     /// <summary>
-    /// Логика взаимодействия для ListOrdersPage.xaml
+    /// Логика взаимодействия для формы списка заказов.
     /// </summary>
     public partial class ListOrdersPage : UserControl
     {

@@ -1,27 +1,37 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using Amaranth.Model;
+﻿using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class ArrivalsVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы поступления товара.
+    /// </summary>
+    class ArrivalsVM : BindableBase
     {
         ProductInfo _product;
+        /// <summary>
+        /// Выбранный товар.
+        /// </summary>
         public ProductInfo Product
         {
             get => _product;
-            set { _product = value; OnValueChanged(); }
+            set => SetValue(ref _product, value);
         }
 
         int _editableCount;
+        /// <summary>
+        /// Редактируемое значение количества.
+        /// </summary>
         public int EditableCount
         {
             get => _editableCount;
-            set { _editableCount = value; OnValueChanged(); }
+            set => SetValue(ref _editableCount, value);
         }
 
+        /// <summary>
+        /// Установка значения выбранного товара.
+        /// </summary>
         public Command<Product> SetProduct
         {
             get => new Command<Product>((p) =>
@@ -31,6 +41,9 @@ namespace Amaranth.ViewModel
             }, (p) => p != null);
         }
 
+        /// <summary>
+        /// Установка значения редактируемого количества.
+        /// </summary>
         public Command SetCount
         {
             get => new Command(() =>
@@ -38,13 +51,6 @@ namespace Amaranth.ViewModel
                 _product.Count = _editableCount;
                 DataBaseSinglFacade.Update(_product, true);
             }, () => _editableCount > 0);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

@@ -1,23 +1,29 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Amaranth.Model.Data
 {
-	public class Product : INotifyPropertyChanged
+	/// <summary>
+	/// Определяет товар.
+	/// </summary>
+	public class Product : BindableBase, IData
 	{
-		protected int _id, _count, _reserve;
-		protected string _title, _priceText;
-		protected double _price;
-		protected bool _prescription;
-		protected Category _category;
-
+		/// <summary>
+		/// Конструктор для объекта товара.
+		/// </summary>
+		/// <param name="category">Категория, которая определяет дополнительные поля.</param>
 		public Product(Category category)
 		{
 			_id = -1;
 			_category = category;
 			_prescription = false;
+			IsView = false;
 		}
 
+		/// <summary>
+		/// Копирующий конструктор для объекта товара.
+		/// </summary>
+		/// <param name="product">Объект копирования.</param>
 		public Product(Product product)
 		{
 			_id = product._id;
@@ -28,60 +34,146 @@ namespace Amaranth.Model.Data
 			_price = product._price;
 			_prescription = product._prescription;
 			_category = product._category;
+			IsView = false;
 		}
 
+		protected int _id;
+		/// <summary>
+		/// Идентификатор товара.
+		/// </summary>
 		public int Id
 		{
 			get => _id;
-			set { _id = value; OnValueChanged(); }
+			set => SetValue(ref _id, value);
 		}
 
+		protected string _title;
+		/// <summary>
+		/// Заголовок товара.
+		/// </summary>
 		public string Title
 		{
 			get => _title;
-			set { _title = value; OnValueChanged(); }
+			set => SetValue(ref _title, value);
 		}
 
+		protected double _price;
+		/// <summary>
+		/// Цена товара.
+		/// </summary>
 		public double Price
 		{
 			get => _price;
-			set { _price = value; OnValueChanged(); OnValueChanged("PriceText"); }
+			set { SetValue(ref _price, value); OnValueChanged("PriceText"); }
 		}
 
+		protected string _priceText;
+		/// <summary>
+		/// Значение цены для контроля ввода.
+		/// </summary>
 		public string PriceText
 		{
 			get => _priceText;
-			set { _priceText = value; double.TryParse(value.Replace('.', ','), out _price); OnValueChanged(); OnValueChanged("Price"); }
+			set { SetValue(ref _priceText, value); double.TryParse(value.Replace('.', ','), out _price); OnValueChanged("Price"); }
 		}
 
+		protected int _count;
+		/// <summary>
+		/// Для хранения значения количества товаров.
+		/// </summary>
 		public int Count
 		{
 			get => _count;
-			set { _count = value; OnValueChanged(); }
+			set => SetValue(ref _count, value);
 		}
 
+		protected int _reserve;
+		/// <summary>
+		/// Количество зарезервированных товаров.
+		/// </summary>
 		public int Reserve
 		{
 			get => _reserve;
-			set { _reserve = value; OnValueChanged(); }
+			set => SetValue(ref _reserve, value);
 		}
 
+		protected bool _prescription;
+		/// <summary>
+		/// Флаг, выдается ли товар по рецепту.
+		/// </summary>
 		public bool Prescription
 		{
 			get => _prescription;
-			set { _prescription = value; OnValueChanged(); }
+			set => SetValue(ref _prescription, value);
 		}
 
-		public Category Category
+		protected Category _category;
+		/// <summary>
+		/// Категория товара.
+		/// </summary>
+		public Category Category => _category;
+
+		/// <summary>
+		/// Определяет тип загрузки: true - из представления или false - из основной таблицы.
+		/// </summary>
+		bool IsView { get; set; } 
+
+		/*--- Свойства и методы для интерфейса IData ---*/
+
+		/// <summary>
+		/// Значений первичного ключа.
+		/// </summary>
+		public object IdColumn => _id;
+
+		/// <summary>
+		/// Имя столбца значения первичного ключа.
+		/// </summary>
+		public string IdColumnName => "idProduct";
+
+		/// <summary>
+		/// Имя таблицы.
+		/// </summary>
+		public string Table => (IsView) ? "Product_View" : "Product";
+
+		/// <summary>
+		/// Получение данных об имени столбцах и их содержимом.
+		/// </summary>
+		/// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
+		public IEnumerable<(string, object)> GetData()
 		{
-			get => _category;
+			yield return ("Title", _title);
+			yield return ("Price", _price);
+			yield return ("Count", _count);
+			yield return ("Prescription", _prescription);
+			yield return ("idCategory", _price);
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		public void OnValueChanged([CallerMemberName] string name = "")
+		/// <summary>
+		/// Заполнение данных по указанным столбцам.
+		/// </summary>
+		/// <param name="data">Кортеж из имени столбца и его значения.</param>
+		public void SetData(IEnumerable<(string, object)> data)
 		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+			foreach (var d in data)
+				switch (d.Item1)
+                {
+					case "Title":
+						Title = d.Item2 as string;
+						break;
+					case "Price":
+						Price = Convert.ToDouble(d.Item2);
+						break;
+					case "Count":
+						Count = Convert.ToInt32(d.Item2);
+						break;
+					case "Prescription":
+						Prescription = Convert.ToBoolean(d.Item2);
+						break;
+					case "Reserve":
+						Reserve = Convert.ToInt32(d.Item2);
+						break;
+				}					
 		}
+
 	}
 }

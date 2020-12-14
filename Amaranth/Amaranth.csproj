@@ -24,6 +24,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -110,6 +112,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\Data\BindableBase.cs" />
+    <Compile Include="Model\Data\BindableBaseCollection[T].cs" />
+    <Compile Include="Model\Data\IData.cs" />
+    <Compile Include="Model\Data\IDataCollection.cs" />
     <Compile Include="Model\Data\Order.cs" />
     <Compile Include="Model\Data\ProductRequest.cs" />
     <Compile Include="Service\Command[T].cs" />

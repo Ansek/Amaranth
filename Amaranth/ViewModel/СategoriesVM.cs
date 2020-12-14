@@ -1,37 +1,23 @@
-﻿using System.ComponentModel;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class СategoriesVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы категорий.
+    /// </summary>
+    class СategoriesVM : BindableBase
     {
+        /// <summary>
+        /// Флаг, что продукт был получен путем выбора из списка.
+        /// </summary>
         bool _isSelect;
 
-        Category _category;
-        public Category Category
-        {
-            get => _category;
-            set { _category = value; OnValueChanged(); }
-        }
-
-        List<Category> _listСategories;
-        public List<Category> ListСategories
-        {
-            get => _listСategories;
-            set { _listСategories = value; OnValueChanged(); }
-        }
-
-        string _descriptionTitle;
-        public string DescriptionTitle
-        {
-            get => _descriptionTitle;
-            set { _descriptionTitle = value; OnValueChanged(); }
-        }
-
+        /// <summary>
+        /// Конструктор посредника для формы категорий.
+        /// </summary>
         public СategoriesVM()
         {
             _isSelect = false;
@@ -39,6 +25,39 @@ namespace Amaranth.ViewModel
             ListСategories = DataBaseSinglFacade.GetListCategory();
         }
 
+        Category _category;
+        /// <summary>
+        /// Выбранная категория.
+        /// </summary>
+        public Category Category
+        {
+            get => _category;
+            set => SetValue(ref _category, value);
+        }
+
+        List<Category> _listСategories;
+        /// <summary>
+        /// Список категорий.
+        /// </summary>
+        public List<Category> ListСategories
+        {
+            get => _listСategories;
+            set => SetValue(ref _listСategories, value);
+        }
+
+        string _descriptionTitle;
+        /// <summary>
+        /// Для хранения значения поля названия описания.
+        /// </summary>
+        public string DescriptionTitle
+        {
+            get => _descriptionTitle;
+            set => SetValue(ref _descriptionTitle, value);
+        }
+
+        /// <summary>
+        /// Установка значений выбранной категории.
+        /// </summary>
         public Command<Category> SetCategory
         {
             get => new Command<Category>((u) =>
@@ -48,6 +67,9 @@ namespace Amaranth.ViewModel
             }, (u) => u != null);
         }
 
+        /// <summary>
+        /// Создание объекта нового категории.
+        /// </summary>
         public Command Create
         {
             get => new Command(() =>
@@ -57,6 +79,9 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Добавление информации о категории в БД.
+        /// </summary>
         public Command Add
         {
             get => new Command(() =>
@@ -67,6 +92,9 @@ namespace Amaranth.ViewModel
             }, () => _category != null && !_isSelect);
         }
 
+        /// <summary>
+        /// Изменение информации о категории в БД.
+        /// </summary>
         public Command Change
         {
             get => new Command(() =>
@@ -77,6 +105,9 @@ namespace Amaranth.ViewModel
             }, () => _category != null && _isSelect);
         }
 
+        /// <summary>
+        /// Удаление информации о категории из БД.
+        /// </summary>
         public Command Delete
         {
             get => new Command(() =>
@@ -90,6 +121,9 @@ namespace Amaranth.ViewModel
             }, () => _category != null && _isSelect);
         }
 
+        /// <summary>
+        /// Добавление пункта описания.
+        /// </summary>
         public Command AddDescription
         {
             get => new Command(() =>
@@ -99,19 +133,15 @@ namespace Amaranth.ViewModel
             }, () => _category != null && _descriptionTitle != string.Empty);
         }
 
+        /// <summary>
+        /// Удаление пункта описания.
+        /// </summary>
         public Command<Description> RemoveDescription
         {
             get => new Command<Description>((desc) =>
             {
                 _category.RemoveDescription(desc);
             }, (desc) => _category != null);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

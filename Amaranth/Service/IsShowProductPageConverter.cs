@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace Amaranth.Service
 {
+    /// <summary>
+    /// Конвертер для определения типа ShowProductPage.
+    /// </summary>
     class IsShowProductPageConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

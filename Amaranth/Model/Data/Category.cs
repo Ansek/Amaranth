@@ -1,93 +1,174 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Runtime.CompilerServices;
-using System.ComponentModel;
 
 namespace Amaranth.Model.Data
 {
-	public class Category : INotifyPropertyChanged, INotifyCollectionChanged, IEnumerable<Description>
+	/// <summary>
+	/// Категория, определяет дополнительные поля для товара.
+	/// </summary>
+	public class Category : BindableBaseCollection<Description>, IData, IDataCollection
 	{
-		int _id;
-		string _title;
-		List<Description> _description;
-
+		/// <summary>
+		/// Конструктор для объекта категории.
+		/// </summary>
 		public Category()
-        {
+		{
 			_id = -1;
-			_description = new List<Description>();
 			DeletedIds = new List<int>();
 		}
 
+		/// <summary>
+		/// Копирующий конструктор объекта для категории.
+		/// </summary>
+		/// <param name="category">Объект копирования.</param>
 		public Category(Category category)
-        {
+		{
 			_id = category._id;
 			_title = category._title;
-			_description = new List<Description>(category._description);
+			_list = new List<Description>(category._list); // Поле из BindableBaseCollection
 			DeletedIds = new List<int>();
 		}
 
+		/// <summary>
+		/// Список для хранения идентификатор пунктов описания, которые требуется удалить.
+		/// </summary>
 		public List<int> DeletedIds { get; }
 
+		int _id;
+		/// <summary>
+		/// Идентификатор категории.
+		/// </summary>
 		public int Id
 		{
 			get => _id;
-			set { _id = value; OnValueChanged(); } 
+			set => SetValue(ref _id, value);
 		}
 
+		string _title;
+		/// <summary>
+		/// Заголовок категории.
+		/// </summary>
 		public string Title
 		{
 			get => _title;
-			set { _title = value; OnValueChanged(); }
+			set => SetValue(ref _title, value);
 		}
 
-		public int Count => _description.Count;
-
+		/// <summary>
+		/// Добавление пункта описания.
+		/// </summary>
+		/// <param name="title">Заголовок описания.</param>
+		/// <param name="id">Идентификатор описания</param>
 		public void AddDescription(string title, int id = -1)
 		{
-			foreach (var desc in _description)
+			// Проверка заголовка на уникальность
+			foreach (var desc in _list)
 				if (desc.Title == title)
 					throw new Exception("Имя '" + title + "' уже задано внутри Category");
 
-			_description.Add(new Description()
+			// Добавления 
+			_list.Add(new Description()
 			{
 				Id = id,
 				Title = title
 			});
 
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+			OnCollectionChanged();	// Оповещение формы об изменении
 		}
 
+		/// <summary>
+		/// Удаление пункта описания из категории.
+		/// </summary>
+		/// <param name="description">Удаляемый пункт</param>
 		public void RemoveDescription(Description description)
 		{
-			for (int i = 0; i < _description.Count; i++)
-				if (_description[i].Id == description.Id && _description[i].Title == description.Title)
-                {
-					DeletedIds.Add(_description[i].Id);
-					_description.RemoveAt(i);
-					CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+			// Поиск удаляемого пункта
+			for (int i = 0; i < _list.Count; i++)
+				if (_list[i].Id == description.Id && _list[i].Title == description.Title)
+				{
+					DeletedIds.Add(_list[i].Id);	// Отметка пункта как удаляемого
+					_list.RemoveAt(i);				// Удаление из основного списка
+					OnCollectionChanged();			// Оповещение формы об изменении
 					break;
 				}
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+		/*--- Свойства и методы для интерфейса IData ---*/
 
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+		/// <summary>
+		/// Значений первичного ключа.
+		/// </summary>
+		public object IdColumn => _id;
+
+		/// <summary>
+		/// Имя столбца значения первичного ключа.
+		/// </summary>
+		public string IdColumnName => "idCategory";
+
+		/// <summary>
+		/// Имя таблицы.
+		/// </summary>
+		public string Table => "Category";
+
+        /// <summary>
+        /// Получение данных об имени столбцах и их содержимом.
+        /// </summary>
+        /// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
+        public IEnumerable<(string, object)> GetData()
+		{
+			yield return ("Title", _title);
 		}
 
-        public IEnumerator<Description> GetEnumerator()
-        {
-			foreach (var desc in _description)
-				yield return new Description(desc);
-        }
+		/// <summary>
+		/// Заполнение данных по указанным столбцам.
+		/// </summary>
+		/// <param name="data">Кортеж из имени столбца и его значения.</param>
+		public void SetData(IEnumerable<(string, object)> data)
+		{
+			foreach (var d in data)
+				if (d.Item1 == "Title")
+					Title = d.Item2 as string;
+		}
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+		/*--- Свойства и методы для интерфейса IDataCollection ---*/
+
+		public string CollectionTable => $"CategoryDescriptions{_id}";
+
+		/// <summary>
+		/// Получение данных об элементе коллекции.
+		/// </summary>
+		/// <returns>Возвращает интерфейс на элемент.</returns>
+		public IEnumerable<IData> GetDataCollection()
+		{
+			foreach (var el in _list)
+				yield return el;
+		}
+
+		/// <summary>
+		/// Передает данные для заполнения коллекции.
+		/// </summary>
+		/// <param name="data">Возвращает интерфейс на элемент.</param>
+		public void SetDataCollection(IEnumerable<IData> data)
+		{
+			_list.Clear(); // Очистка от старых данных
+			foreach (var el in data)
+            {
+				var dest = new Description();
+				dest.SetData(el.GetData()); // Копирование полученных данных
+				_list.Add(dest);
+			}
+		}
+
+		/*--- Скрывающий метод для BindableBaseCollection ---*/
+
+		/// <summary>
+		/// Возвращает шаблон для описания данной категории.
+		/// </summary>
+		/// <returns>Перечислитель для классов описания</returns>
+		public new IEnumerator<Description> GetEnumerator()
+		{
+			foreach (var desc in _list)
+				yield return new Description(desc);
+		}
     }
 }

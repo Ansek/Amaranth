@@ -3,7 +3,7 @@
 namespace Amaranth.View
 {
     /// <summary>
-    /// Логика взаимодействия для ShowProductPage.xaml
+    /// Логика взаимодействия для формы вывода информации о товаре.
     /// </summary>
     public partial class ShowProductPage : UserControl
     {

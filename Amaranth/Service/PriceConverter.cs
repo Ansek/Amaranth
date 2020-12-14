@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace Amaranth.Service
 {
+    /// <summary>
+    /// Конвертер для объединения значений цены и количества.
+    /// </summary>
     class PriceConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -11,9 +14,9 @@ namespace Amaranth.Service
             string res = string.Empty;
             if (values != null)
             {
-                int c = System.Convert.ToInt32(values[0]);
-                double p = System.Convert.ToDouble(values[1]);
-                res = $"{c}x{p:0.00}={c*p:0.00₽}";
+                int c = System.Convert.ToInt32(values[0]);      // Количество
+                double p = System.Convert.ToDouble(values[1]);  // Цена
+                res = $"{c}x{p:0.00}={c*p:0.00₽}";              // Итоговая цена
             }
             return res;
         }

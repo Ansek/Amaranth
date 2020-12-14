@@ -5,6 +5,9 @@ using System.Collections.ObjectModel;
 
 namespace Amaranth.Service
 {
+    /// <summary>
+    /// Конвертер для преобразование списков в строку через запятую.
+    /// </summary>
     class ListToStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -13,8 +16,10 @@ namespace Amaranth.Service
             if (list != null)
             {
                 string s = string.Empty;
+                // Перебор строк
                 foreach (var str in list)
                 {
+                    // Объединение через запятую
                     if (s != string.Empty)
                         s += ", ";
                     s += str;

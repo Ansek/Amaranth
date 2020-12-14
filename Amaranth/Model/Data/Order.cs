@@ -1,96 +1,182 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Collections.Specialized;
-using System.Collections;
 
 namespace Amaranth.Model.Data
 {
-    public class Order : INotifyPropertyChanged, INotifyCollectionChanged, IEnumerable<Product>
+    /// <summary>
+    /// Хранит данные о заказе.
+    /// </summary>
+    public class Order : BindableBaseCollection<Product>, IData, IDataCollection
     {
-        int _id;
-        double _finalPrice;
-        DateTime? _creationDate, _completionDate;
-        List<Product> _products;
-
+        /// <summary>
+        /// Конструктор для объекта заказа.
+        /// </summary>
         public Order()
         {
             _id = -1;
             _finalPrice = 0;
             _completionDate = null;
-            _products = new List<Product>();
         }
 
+        int _id;
+        /// <summary>
+        /// Идентификатор заказа.
+        /// </summary>
         public int Id
         {
             get => _id;
-            set { _id = value; OnValueChanged(); }
+            set => SetValue(ref _id, value);
         }
 
+        DateTime? _creationDate;
+        /// <summary>
+        /// Дата оформления заказа.
+        /// </summary>
         public DateTime? CreationDate
         {
             get => _creationDate;
-            set { _creationDate = value; OnValueChanged(); }
+            set => SetValue(ref _creationDate, value);
         }
 
+        DateTime? _completionDate;
+        /// <summary>
+        /// Дата завершения заказа.
+        /// </summary>
         public DateTime? CompletionDate
         {
             get => _completionDate;
-            set { _completionDate = value; OnValueChanged(); }
+            set => SetValue(ref _completionDate, value);
         }
 
+        double _finalPrice;
+        /// <summary>
+        /// Для вывода итоговой стоимости заказа.
+        /// </summary>
         public double FinalPrice
         {
             get => _finalPrice;
-            set { _finalPrice = value; OnValueChanged(); }
+            set => SetValue(ref _finalPrice, value);
         }
 
+        /// <summary>
+        /// Добавления товара в список заказа.
+        /// </summary>
+        /// <param name="product">Добавляемый товар.</param>
         public void Add(Product product)
         {
-            foreach (var p in _products)
+            // Проверка, что товара нет в списке
+            foreach (var p in _list)
                 if (p.Id == product.Id)
                     return;
 
-            _products.Add(product);
+            _list.Add(product);
+            // Перерасчет итоговой суммы
             FinalPrice += product.Count * product.Price;
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+
+            OnCollectionChanged();	// Оповещение формы об изменении
         }
 
+        /// <summary>
+        /// Удаление товара из списка заказа.
+        /// </summary>
+        /// <param name="product">Удаляемый товар.</param>
         public void Delete(Product product)
         {
-            _products.Remove(product);
+            _list.Remove(product);
+            // Перерасчет итоговой суммы
             FinalPrice -= product.Count * product.Price;
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+
+            OnCollectionChanged();	// Оповещение формы об изменении
         }
 
+        /// <summary>
+        /// Изменение количества продуктов в списке.
+        /// </summary>
+        /// <param name="id">Идентификатор продукта.</param>
+        /// <param name="count">Новое значение количества.</param>
         public void ChangeCount(int id, int count)
         {
-            for (int i = 0; i < _products.Count; i++)
-                if (_products[i].Id == id)
+            // Поиск продукта с указанным идентификатором
+            for (int i = 0; i < _list.Count; i++)
+                if (_list[i].Id == id)
                 {
-                    FinalPrice += (count - _products[i].Count) * _products[i].Price;
-                    _products[i].Count = count;
+                    // Перерасчет итоговой суммы
+                    FinalPrice += (count - _list[i].Count) * _list[i].Price;
+                    // Обновление количества
+                    _list[i].Count = count;
                     break;
                 }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        /*--- Свойства и методы для интерфейса IData ---*/
 
-        public void OnValueChanged([CallerMemberName] string name = "")
+        /// <summary>
+        /// Значений первичного ключа.
+        /// </summary>
+        public object IdColumn => _id;
+
+        /// <summary>
+        /// Имя столбца значения первичного ключа.
+        /// </summary>
+        public string IdColumnName => "idOrder";
+
+        /// <summary>
+        /// Имя таблицы.
+        /// </summary>
+        public string Table => "`Order`";
+
+        /// <summary>
+        /// Получение данных об имени столбцах и их содержимом.
+        /// </summary>
+        /// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
+        public IEnumerable<(string, object)> GetData()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            yield return ("CreationDate", _creationDate);
+            yield return ("CompletionDate", _completionDate);
         }
 
-        public IEnumerator<Product> GetEnumerator()
+        /// <summary>
+        /// Заполнение данных по указанным столбцам.
+        /// </summary>
+        /// <param name="data">Кортеж из имени столбца и его значения.</param>
+        public void SetData(IEnumerable<(string, object)> data)
         {
-            return _products.GetEnumerator();
+            foreach (var d in data)
+                if (d.Item1 == "CreationDate")
+                    CreationDate = d.Item2 as DateTime?;
+                else if (d.Item1 == "CompletionDate")
+                    CompletionDate = d.Item2 as DateTime?;
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        /*--- Свойства и методы для интерфейса IDataCollection ---*/
+
+        public string CollectionTable => $"Order_Product";
+
+        /// <summary>
+        /// Получение данных об элементе коллекции.
+        /// </summary>
+        /// <returns>Возвращает интерфейс на элемент.</returns>
+        public IEnumerable<IData> GetDataCollection()
         {
-            return _products.GetEnumerator();
+            foreach (var el in _list)
+                yield return el;
         }
+
+        /// <summary>
+        /// Передает данные для заполнения коллекции.
+        /// </summary>
+        /// <param name="data">Возвращает интерфейс на элемент.</param>
+        public void SetDataCollection(IEnumerable<IData> data)
+        {
+            _list.Clear(); // Очистка от старых данных
+            Category category = null; // TO DO поиск нужной
+            foreach (var el in data)
+            {
+                var prod = new Product(category);
+                prod.SetData(el.GetData()); // Копирование полученных данных
+                _list.Add(prod);
+            }
+        }
+
     }
 }

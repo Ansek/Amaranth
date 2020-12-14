@@ -1,52 +1,33 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class ListOrdersVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы списка заказов.
+    /// </summary>
+    class ListOrdersVM : BindableBase
     {
+        /// <summary>
+        /// Задает максимальное количество отображаемых заказов в таблице.
+        /// </summary>
         int _countAll;
-        bool _onlyActive, _onlyCompleted;
 
-        Order _order;
-        public Order Order
-        {
-            get => _order;
-            set { _order = value; OnValueChanged(); }
-        }
+        /// <summary>
+        /// Флаг, показать активные заказы.
+        /// </summary>
+        bool _onlyActive;
 
-        List<Order> _listOrders;
-        public List<Order> ListOrders
-        {
-            get => _listOrders;
-            set { _listOrders = value; OnValueChanged(); }
-        }
+        /// <summary>
+        /// Флаг, показать завершенные заказы.
+        /// </summary>
+        bool _onlyCompleted;
 
-        int _currentNumber;
-        public int CurrentNumber
-        {
-            get => _currentNumber;
-            set { _currentNumber = value; OnValueChanged(); }
-        }
-
-        int _maxNumber;
-        public int MaxNumber
-        {
-            get => _maxNumber;
-            set { _maxNumber = value; OnValueChanged(); }
-        }
-
-        string _message;
-        public string Message
-        {
-            get => _message;
-            set { _message = value; OnValueChanged(); }
-        }
-
+        /// <summary>
+        /// Конструктор посредника для формы списка заказов.
+        /// </summary>
         public ListOrdersVM()
         {
             _countAll = 10;
@@ -55,7 +36,60 @@ namespace Amaranth.ViewModel
             int pos = _countAll * (_currentNumber - 1);
             ListOrders = DataBaseSinglFacade.GetListOrder(pos, _countAll);
         }
-        
+
+        Order _order;
+        /// <summary>
+        /// Текущий заказ.
+        /// </summary>
+        public Order Order
+        {
+            get => _order;
+            set => SetValue(ref _order, value);
+        }
+
+        List<Order> _listOrders;
+        /// <summary>
+        /// Список заказов.
+        /// </summary>
+        public List<Order> ListOrders
+        {
+            get => _listOrders;
+            set => SetValue(ref _listOrders, value);
+        }
+
+        int _currentNumber;
+        /// <summary>
+        /// Текущий номер страницы.
+        /// </summary>
+        public int CurrentNumber
+        {
+            get => _currentNumber;
+            set => SetValue(ref _currentNumber, value);
+        }
+
+        int _maxNumber;
+        /// <summary>
+        /// Максимальный номер страницы.
+        /// </summary>
+        public int MaxNumber
+        {
+            get => _maxNumber;
+            set => SetValue(ref _maxNumber, value);
+        }
+
+        string _message;
+        /// <summary>
+        /// Сообщение о состоянии заказа.
+        /// </summary>
+        public string Message
+        {
+            get => _message;
+            set => SetValue(ref _message, value);
+        }
+
+        /// <summary>
+        /// Обновляет список заказов.
+        /// </summary>
         public Command<int> UpdateList
         {
             get => new Command<int>((i) =>
@@ -80,6 +114,9 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Устанавливает максимальное количество отображаемых заказов в таблице.
+        /// </summary>
         public Command<int> SetCountAll
         {
             get => new Command<int>((count) =>
@@ -90,6 +127,9 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Переход на станицу назад.
+        /// </summary>
         public Command GoPrevious
         {
             get => new Command(() =>
@@ -100,6 +140,9 @@ namespace Amaranth.ViewModel
             }, () => _currentNumber != 1);
         }
 
+        /// <summary>
+        /// Переход на станицу вперед.
+        /// </summary>
         public Command GoNext
         {
             get => new Command(() =>
@@ -110,6 +153,9 @@ namespace Amaranth.ViewModel
             }, () => _currentNumber != _maxNumber);
         }
 
+        /// <summary>
+        /// Устанавливает рассматриваемый заказ.
+        /// </summary>
         public Command<Order> SetOrder
         {
             get => new Command<Order>((o) =>
@@ -122,6 +168,9 @@ namespace Amaranth.ViewModel
             }, (o) => o != null);
         }
 
+        /// <summary>
+        /// Производит отмену заказа.
+        /// </summary>
         public Command СancelOrder
         {
             get => new Command(() =>
@@ -134,13 +183,6 @@ namespace Amaranth.ViewModel
                     ListOrders = DataBaseSinglFacade.GetListOrder(pos, _countAll, _onlyActive, _onlyCompleted);
                 }
             }, () => _order != null && _order.CompletionDate == null);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

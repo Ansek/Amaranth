@@ -3,7 +3,7 @@
 namespace Amaranth.View
 {
     /// <summary>
-    /// Логика взаимодействия для OrderPage.xaml
+    /// Логика взаимодействия для формы заказа.
     /// </summary>
     public partial class OrderPage : UserControl
     {
@@ -13,6 +13,7 @@ namespace Amaranth.View
             DataContext = new ViewModel.OrderVM();
         }
 
+        // Проверка на ввод целочисленных значений
         private void TextBoxNumber(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             int i;

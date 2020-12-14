@@ -1,44 +1,58 @@
-﻿using System.ComponentModel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
 using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class ProductsVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы товаров.
+    /// </summary>
+    class ProductsVM : BindableBase
     {
+        /// <summary>
+        /// Флаг, что продукт был получен путем выбора из списка.
+        /// </summary>
         bool _isSelect;
+
+        /// <summary>
+        /// Список загруженных тегов.
+        /// </summary>
         List<string> _oldTags;
 
-        ProductInfo _product;
-        public ProductInfo Product
-        {
-            get => _product;
-            set { _product = value; OnValueChanged(); }
-        }
-
-        string _tagField;
-        public string TagField
-        {
-            get => _tagField;
-            set { _tagField = value; OnValueChanged(); }
-        }
-
-        public ObservableCollection<string> ListTags { get; }
-
-        public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;
-
-        public ObservableCollection<string> Tags => DataBaseSinglFacade.Tags;
-
+        /// <summary>
+        /// Конструктор посредника для формы товаров.
+        /// </summary>
         public ProductsVM()
         {
             _isSelect = false;
             ListTags = new ObservableCollection<string>();
         }
 
+        ProductInfo _product;
+        /// <summary>
+        /// Выбранный товар.
+        /// </summary>
+        public ProductInfo Product
+        {
+            get => _product;
+            set => SetValue(ref _product, value);
+        }
+
+        string _tagField;
+        /// <summary>
+        /// Для хранения поля ввода имени тега.
+        /// </summary>
+        public string TagField
+        {
+            get => _tagField;
+            set => SetValue(ref _tagField, value);
+        }
+
+        /// <summary>
+        /// Создание объекта нового товара.
+        /// </summary>
         public Command<Category> Create
         {
             get => new Command<Category>((c) =>
@@ -51,6 +65,9 @@ namespace Amaranth.ViewModel
             }, (c) => c != null);
         }
 
+        /// <summary>
+        /// Установка значения выбранного товара.
+        /// </summary>
         public Command<Product> SetProduct
         {
             get => new Command<Product>((p) =>
@@ -65,6 +82,9 @@ namespace Amaranth.ViewModel
             }, (p) => p != null);
         }
 
+        /// <summary>
+        /// Добавление информации о товаре в БД.
+        /// </summary>
         public Command Add
         {
             get => new Command(() =>
@@ -75,6 +95,9 @@ namespace Amaranth.ViewModel
             }, () => _product != null && !_isSelect);
         }
 
+        /// <summary>
+        /// Изменение информации о товаре в БД.
+        /// </summary>
         public Command Change
         {
             get => new Command(() =>
@@ -94,6 +117,9 @@ namespace Amaranth.ViewModel
             }, () => _product != null && _isSelect);
         }
 
+        /// <summary>
+        /// Удаление информации о товаре из БД.
+        /// </summary>
         public Command Delete
         {
             get => new Command(() =>
@@ -107,6 +133,9 @@ namespace Amaranth.ViewModel
             }, () => _product != null && _isSelect);
         }
 
+        /// <summary>
+        /// Добавление тега.
+        /// </summary>
         public Command AddTag
         {
             get => new Command(() =>
@@ -117,6 +146,9 @@ namespace Amaranth.ViewModel
             }, () => TagField != "");
         }
 
+        /// <summary>
+        /// Удаление тега.
+        /// </summary>
         public Command<string> RemoveTag
         {
             get => new Command<string>((t) =>
@@ -125,11 +157,17 @@ namespace Amaranth.ViewModel
             }, (t) => t != "");
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        /// <summary>
+        /// Активный список тегов
+        /// </summary>
+        public ObservableCollection<string> ListTags { get; }
+        /// <summary>
+        /// Список категорий.
+        /// </summary>
+        public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;
+        /// <summary>
+        /// Список тегов
+        /// </summary>
+        public ObservableCollection<string> Tags => DataBaseSinglFacade.Tags;
     }
 }

@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
 using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.View;
@@ -9,20 +7,14 @@ using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class MainWindowVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы основного окна.
+    /// </summary>
+    class MainWindowVM : BindableBase
     {
-        UserControl _page;
-
-        public ObservableCollection<UserControl> Pages { get; set; }
-
-        public UserControl CurrentPage
-        {
-            get => _page;
-            set { _page = value; OnValueChanged(); }
-        }
-
-        public User CurrentUser => Auth.CurrentUser;
-
+        /// <summary>
+        /// Констуктор посредника для формы основного окна.
+        /// </summary>
         public MainWindowVM()
         {
             MySqlAdapter mySql = new MySqlAdapter();
@@ -70,6 +62,26 @@ namespace Amaranth.ViewModel
             };
         }
 
+        /// <summary>
+        /// Задает список для вкладок на форме.
+        /// </summary>
+        public ObservableCollection<UserControl> Pages { get; set; }
+
+        UserControl _page;
+        /// <summary>
+        /// Для отображения текущей страницы.
+        /// </summary>
+        public UserControl CurrentPage
+        {
+            get => _page;
+            set { _page = value; OnValueChanged(); }
+        }
+
+        /// <summary>
+        /// Для отображения информации о текущем пользователе.
+        /// </summary>
+        public User CurrentUser => Auth.CurrentUser;
+
         public Command<UserControl> CloseInfo
         {
             get => new Command<UserControl>((p) =>
@@ -78,21 +90,20 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Вызов окна авторизации пользователя.
+        /// </summary>
         public Command SignIn
         {
             get => new Command(() => { DialogueService.ShowLoginWindow(); });
         }
 
+        /// <summary>
+        /// Сброс информации о текущем пользователе.
+        /// </summary>
         public Command SignOut
         {
             get => new Command(() => Auth.SignOut());
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

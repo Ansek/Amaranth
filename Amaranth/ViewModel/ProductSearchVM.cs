@@ -1,19 +1,35 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
 using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class ProductSearchVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы поиска товара.
+    /// </summary>
+    class ProductSearchVM : BindableBase
     {
+        /// <summary>
+        /// Задает максимальное количество отображаемых заказов в таблице.
+        /// </summary>
         int _countAll;
+
+        /// <summary>
+        /// Для хранения информации о ранее выполненном запросе. Для страниц перехода.
+        /// </summary>
         ProductRequest _oldRequest;
 
+        /// <summary>
+        /// Оповещает о намерении открыть информацию о продукте.
+        /// </summary>
+        public static event Action<Product> OpenProduct;
+
+        /// <summary>
+        /// Конструктор посредника для формы поиска товара.
+        /// </summary>
         public ProductSearchVM()
         {
             _countAll = 10;
@@ -28,50 +44,69 @@ namespace Amaranth.ViewModel
             };
         }
 
-        public static event Action<Product> OpenProduct;
-
         List<Product> _listProducts;
+        /// <summary>
+        /// Содержит список найденных товаров.
+        /// </summary>
         public List<Product> ListProducts
         {
             get => _listProducts;
-            set { _listProducts = value; OnValueChanged(); }
+            set => SetValue(ref _listProducts, value);
         }
 
         ProductRequest _request;
+        /// <summary>
+        /// Объект с параметрами запроса.
+        /// </summary>
         public ProductRequest Request
         {
             get => _request;
-            set { _request = value; OnValueChanged(); }
+            set => SetValue(ref _request, value);
         }
 
         int _currentNumber;
+        /// <summary>
+        /// Текущий номер страницы.
+        /// </summary>
         public int CurrentNumber
         {
             get => _currentNumber;
-            set { _currentNumber = value; OnValueChanged(); }
+            set => SetValue(ref _currentNumber, value);
         }
 
         int _maxNumber;
+        /// <summary>
+        /// Максимальный номер страницы.
+        /// </summary>
         public int MaxNumber
         {
             get => _maxNumber;
-            set { _maxNumber = value; OnValueChanged(); }
+            set => SetValue(ref _maxNumber, value);
         }
 
         string _tagField;
+        /// <summary>
+        /// Для хранения поля ввода имени тега.
+        /// </summary>
         public string TagField
         {
             get => _tagField;
-            set { _tagField = value; OnValueChanged(); }
+            set => SetValue(ref _tagField, value);
         }
 
         Command<Product> _setProduct;
+        /// <summary>
+        /// Установка значения выбранного товара.
+        /// </summary>
         public Command<Product> SetProduct
         {
             get => _setProduct;
-            set { _setProduct = value; OnValueChanged(); }
+            set => SetValue(ref _setProduct, value);
         }
 
+        /// <summary>
+        /// Запуск поиска товаров.
+        /// </summary>
         public Command Find
         {
             get => new Command(() =>
@@ -82,6 +117,9 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Добавление тега для поиска.
+        /// </summary>
         public Command AddTag
         {
             get => new Command(() =>
@@ -92,6 +130,9 @@ namespace Amaranth.ViewModel
             }, () => TagField != "");
         }
 
+        /// <summary>
+        /// Удаление тега.
+        /// </summary>
         public Command<string> RemoveTag
         {
             get => new Command<string>((t) =>
@@ -100,6 +141,9 @@ namespace Amaranth.ViewModel
             }, (t) => t != "");
         }
 
+        /// <summary>
+        /// Устанавливает максимальное количество отображаемых заказов в таблице.
+        /// </summary>
         public Command<int> SetCountAll
         {
             get => new Command<int>((count) =>
@@ -110,6 +154,9 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Переход на станицу назад.
+        /// </summary>
         public Command GoPrevious
         {
             get => new Command(() =>
@@ -120,6 +167,9 @@ namespace Amaranth.ViewModel
             }, () => _currentNumber != 1);
         }
 
+        /// <summary>
+        /// Переход на станицу вперед.
+        /// </summary>
         public Command GoNext
         {
             get => new Command(() =>
@@ -130,20 +180,25 @@ namespace Amaranth.ViewModel
             }, () => _currentNumber != _maxNumber);
         }
 
+        /// <summary>
+        /// Открывает страницу информации о товаре.
+        /// </summary>
         public Command<Product> OpenInfo
         {
             get => new Command<Product>((i) => OpenProduct?.Invoke(i)); 
         }
 
+        /// <summary>
+        /// Список категорий.
+        /// </summary>
         public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;
+        /// <summary>
+        /// Список заголков товара.
+        /// </summary>
         public ObservableCollection<string> ProductTitles => DataBaseSinglFacade.ProductTitles;
+        /// <summary>
+        /// Список тегов.
+        /// </summary>
         public ObservableCollection<string> Tags => DataBaseSinglFacade.Tags;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
     }
 }

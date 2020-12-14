@@ -4,7 +4,7 @@ using System.Windows.Controls;
 namespace Amaranth.View
 {
     /// <summary>
-    /// Логика взаимодействия для LoginWindow.xaml
+    /// Логика взаимодействия для формы авторизации
     /// </summary>
     public partial class LoginWindow : Window
     {
@@ -16,10 +16,11 @@ namespace Amaranth.View
             mv.ClickOk += () => DialogResult = true;
         }
 
+        //Проверка на ввод строк не больше 32 символов
         private void TextBoxlLen32(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             string t = string.Empty;
-            if (sender.GetType() == typeof(TextBox))
+            if (sender is TextBox) // Определени элемента управления
                 t = ((TextBox)sender).Text + e.Text;
             else
                 t = ((PasswordBox)sender).Password + e.Text;

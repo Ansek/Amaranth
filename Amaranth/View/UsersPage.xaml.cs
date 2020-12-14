@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace Amaranth.View
 {
     /// <summary>
-    /// Логика взаимодействия для UsersPage.xaml
+    /// Логика взаимодействия для формы пользователей.
     /// </summary>
     public partial class UsersPage : UserControl
     {
@@ -14,6 +14,7 @@ namespace Amaranth.View
             DataContext = new ViewModel.UsersVM();
         }
 
+        //Проверка на ввод строк не больше 32 символов
         private void TextBoxlLen32(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             string t = ((TextBox)sender).Text + e.Text;
@@ -21,6 +22,7 @@ namespace Amaranth.View
                 e.Handled = true;
         }
 
+        //Проверка на ввод строк не больше 64 символов с кириллицей
         private void TextBoxlLen32Rus(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             var regex = new Regex(@"^[а-яА-Я]+$");
@@ -29,6 +31,7 @@ namespace Amaranth.View
                 e.Handled = true;
         }
 
+        //Проверка на ввод строк не больше 64 символов с кириллицей
         private void TextBoxlLen64Rus(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             var regex = new Regex(@"^[а-яА-Я-]+$");

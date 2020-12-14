@@ -1,41 +1,57 @@
-﻿using System.ComponentModel;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
 using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class UsersVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы пользователей.
+    /// </summary>
+    class UsersVM : BindableBase
     {
-        bool _isSelect;
-        public bool IsSelect
-        {
-            get => _isSelect;
-            set { _isSelect = value; OnValueChanged(); }
-        }
-
-        User _user;
-        public User User
-        {
-            get => _user;
-            set { _user = value; OnValueChanged(); }
-        }
-
-        List<User> _listUsers;
-        public List<User> ListUsers
-        {
-            get => _listUsers;
-            set { _listUsers = value; OnValueChanged(); }
-        }
-
+        /// <summary>
+        /// Конструктор посредника для формы пользователей.
+        /// </summary>
         public UsersVM()
         {
             _isSelect = false;
             ListUsers = DataBaseSinglFacade.GetListUser();
         }
 
+        bool _isSelect;
+        /// <summary>
+        /// Флаг, что продукт был получен путем выбора из списка.
+        /// </summary>
+        public bool IsSelect
+        {
+            get => _isSelect;
+            set => SetValue(ref _isSelect, value);
+        }
+
+        User _user;
+        /// <summary>
+        /// Текущий пользователь.
+        /// </summary>
+        public User User
+        {
+            get => _user;
+            set => SetValue(ref _user, value);
+        }
+
+        List<User> _listUsers;
+        /// <summary>
+        /// Список пользователей.
+        /// </summary>
+        public List<User> ListUsers
+        {
+            get => _listUsers;
+            set => SetValue(ref _listUsers, value);
+        }
+
+        /// <summary>
+        /// Установка значений выбранного пользователя.
+        /// </summary>
         public Command<User> SetUser
         {
             get => new Command<User>((u) =>
@@ -45,6 +61,9 @@ namespace Amaranth.ViewModel
             }, (u) => u != null);
         }
 
+        /// <summary>
+        /// Создание объекта нового пользователя.
+        /// </summary>
         public Command Create
         {
             get => new Command(() =>
@@ -54,6 +73,9 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Добавление информации о пользователе в БД.
+        /// </summary>
         public Command Add
         {
             get => new Command(() =>
@@ -64,6 +86,9 @@ namespace Amaranth.ViewModel
             }, () => _user != null && !_isSelect);
         }
 
+        /// <summary>
+        /// Изменение информации о пользователе в БД.
+        /// </summary>
         public Command Change
         {
             get => new Command(() =>
@@ -74,6 +99,9 @@ namespace Amaranth.ViewModel
             }, () => _user != null && _isSelect);
         }
 
+        /// <summary>
+        /// Удаление информации о пользователе из БД.
+        /// </summary>
         public Command Delete
         {
             get => new Command(() =>
@@ -87,6 +115,9 @@ namespace Amaranth.ViewModel
             }, () => _user != null && _isSelect);
         }
 
+        /// <summary>
+        /// Сброс пароля для выбранного пользователя.
+        /// </summary>
         public Command ResetPassword
         {
             get => new Command(() =>
@@ -94,13 +125,6 @@ namespace Amaranth.ViewModel
                 Auth.ResetPassword(_user.Login);
                 DialogueService.ShowInformation($"Пароль для пользователя {_user.Login} был сброшен.");
             }, () => _user != null && _isSelect);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

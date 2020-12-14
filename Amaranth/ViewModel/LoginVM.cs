@@ -1,30 +1,44 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows.Controls;
-using System.Runtime.CompilerServices;
 using Amaranth.Model;
+using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class LoginVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы авторизации.
+    /// </summary>
+    class LoginVM : BindableBase
     {
+        /// <summary>
+        /// Оповещает, что нажата кнопка ОК.
+        /// </summary>
+        public event Action ClickOk;
+
         string _login;
+        /// <summary>
+        /// Логин пользователя.
+        /// </summary>
         public string Login
         {
             get => _login;
-            set { _login = value; OnValueChanged(); }
+            set => SetValue(ref _login, value);
         }
 
         bool _isFirst;
+        /// <summary>
+        /// Флаг, что будет проводиться установка пароля.
+        /// </summary>
         public bool IsFirst
         {
             get => _isFirst;
-            set { _isFirst = value; OnValueChanged(); }
+            set => SetValue(ref _isFirst, value);
         }
 
-        public event Action ClickOk;
-
+        /// <summary>
+        /// Нажатие кнопки OK.
+        /// </summary>
         public Command<PasswordBox> Ok
         {
             get => new Command<PasswordBox>((pass) =>
@@ -36,13 +50,5 @@ namespace Amaranth.ViewModel
                 ClickOk?.Invoke();
             }, (pass) => _login != string.Empty && pass.Password != string.Empty);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
     }
 }

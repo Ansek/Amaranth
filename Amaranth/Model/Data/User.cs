@@ -1,17 +1,24 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Amaranth.Model.Data
 {
-	public class User : INotifyPropertyChanged
+	/// <summary>
+	/// Хранит информацию о пользователе
+	/// </summary>
+	public class User : BindableBase, IData
 	{
-		string _login, _firstName, _lastName;
-		bool _isAdministrator;
-
+		/// <summary>
+		/// Конструктор для объекта пользователя.
+		/// </summary>
 		public User()
         {
         }
 
+		/// <summary>
+		/// Копирующий конструктор для объекта описания.
+		/// </summary>
+		/// <param name="user">Объект копирования.</param>
 		public User(User user)
         {
 			_login = user._login;
@@ -20,35 +27,97 @@ namespace Amaranth.Model.Data
 			_isAdministrator = user._isAdministrator;
 		}
 
+		string _login;
+		/// <summary>
+		/// Значение логина пользователя.
+		/// </summary>
 		public string Login
 		{
 			get => _login;
-			set { _login = value; OnValueChanged(); }
+			set => SetValue(ref _login, value);
 		}
 
+		string _firstName;
+		/// <summary>
+		/// Имя пользотеля.
+		/// </summary>
 		public string FirstName
 		{
 			get => _firstName;
-			set { _firstName = value; OnValueChanged(); }
+			set => SetValue(ref _firstName, value);
 		}
 
+        string _lastName;
+		/// <summary>
+		/// Фамилия пользователя.
+		/// </summary>
 		public string LastName
 		{
 			get => _lastName;
-			set { _lastName = value; OnValueChanged(); }
+			set => SetValue(ref _lastName, value);
 		}
 
+        bool _isAdministrator;
+		/// <summary>
+		/// Флаг, является ли данный пользователь администратором.
+		/// </summary>
 		public bool IsAdministrator
 		{
 			get => _isAdministrator;
-			set { _isAdministrator = value; OnValueChanged(); }
+			set => SetValue(ref _isAdministrator, value);
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		/*--- Свойства и методы для интерфейса IData ---*/
 
-		public void OnValueChanged([CallerMemberName] string name = "")
+		/// <summary>
+		/// Значений первичного ключа.
+		/// </summary>
+		public object IdColumn => _login;
+
+		/// <summary>
+		/// Имя столбца значения первичного ключа.
+		/// </summary>
+		public string IdColumnName => "Login";
+
+		/// <summary>
+		/// Имя таблицы.
+		/// </summary>
+		public string Table => "User";
+
+		/// <summary>
+		/// Получение данных об имени столбцах и их содержимом.
+		/// </summary>
+		/// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
+		public IEnumerable<(string, object)> GetData()
 		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+			yield return ("Login", _login);
+			yield return ("FirstName", _firstName);
+			yield return ("LastName", _lastName);
+			yield return ("IsAdministrator", _isAdministrator);
+		}
+
+		/// <summary>
+		/// Заполнение данных по указанным столбцам.
+		/// </summary>
+		/// <param name="data">Кортеж из имени столбца и его значения.</param>
+		public void SetData(IEnumerable<(string, object)> data)
+		{
+			foreach (var d in data)
+				switch (d.Item1)
+				{
+					case "Login":
+						Login = d.Item2 as string;
+						break;
+					case "FirstName":
+						FirstName = d.Item2 as string;
+						break;
+					case "LastName":
+						LastName = d.Item2 as string;
+						break;
+					case "IsAdministrator":
+						IsAdministrator = Convert.ToBoolean(d.Item2);
+						break;
+				}
 		}
 	}
 }

@@ -4,6 +4,9 @@ using System.Globalization;
 
 namespace Amaranth.Service
 {
+    /// <summary>
+    /// Конвертер для проверки, что значение на равно null.
+    /// </summary>
     class NotNullConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

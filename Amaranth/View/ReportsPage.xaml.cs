@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 namespace Amaranth.View
 {
     /// <summary>
-    /// Логика взаимодействия для ReportsPage.xaml
+    /// Логика взаимодействия для формы генерации отчётов.
     /// </summary>
     public partial class ReportsPage : UserControl
     {
@@ -14,6 +14,7 @@ namespace Amaranth.View
             DataContext = new ViewModel.ReportsVM();
         }
 
+        // Проверка на ввод целочисленных значений
         private void TextBoxNumber(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             int i;
@@ -22,6 +23,7 @@ namespace Amaranth.View
                 e.Handled = true;
         }
 
+        // Проверка на ввод вещественного вещественных значений
         private void TextBoxDouble(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             var regex = new Regex(@"^\d{1,8}(\.\d{0,2})?$");

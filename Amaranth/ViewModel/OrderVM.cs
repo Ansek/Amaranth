@@ -1,49 +1,71 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using Amaranth.Model;
+﻿using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
 
 namespace Amaranth.ViewModel
 {
-    class OrderVM : INotifyPropertyChanged
+    /// <summary>
+    /// Класс посредник для формы заказа.
+    /// </summary>
+    class OrderVM : BindableBase
     {
+        /// <summary>
+        /// Идентификатор выбранного продукта.
+        /// </summary>
         int _idProduct;
 
-        Order _order;
-        public Order Order
-        {
-            get => _order;
-            set { _order = value; OnValueChanged(); }
-        }
-
-        int _editableCount;
-        public int EditableCount
-        {
-            get => _editableCount;
-            set { if (value <= _maxCount) _editableCount = value; OnValueChanged(); }
-        }
-
-        int _maxCount;
-        public int MaxCount
-        {
-            get => _maxCount;
-            set { _maxCount = value; OnValueChanged(); }
-        }
-
-        string _message;
-        public string Message
-        {
-            get => _message;
-            set { _message = value; OnValueChanged(); }
-        }
-
+        /// <summary>
+        /// Конструктор посредника для формы заказа.
+        /// </summary>
         public OrderVM()
         {
             _order = new Order();
             Message = "Новый заказ";
         }
 
+        Order _order;
+        /// <summary>
+        /// Текущий заказ.
+        /// </summary>
+        public Order Order
+        {
+            get => _order;
+            set => SetValue(ref _order, value);
+        }
+
+        int _editableCount;
+        /// <summary>
+        /// Редактируемое значение количества.
+        /// </summary>
+        public int EditableCount
+        {
+            get => _editableCount;
+            set { if (value <= _maxCount) SetValue(ref _editableCount, value); }
+        }
+
+        int _maxCount;
+        /// <summary>
+        /// Значение максимально допустимого количества товаров.
+        /// </summary>
+        public int MaxCount
+        {
+            get => _maxCount;
+            set => SetValue(ref _maxCount, value);
+        }
+
+        string _message;
+        /// <summary>
+        /// Сообщение о состоянии заказа.
+        /// </summary>
+        public string Message
+        {
+            get => _message;
+            set => SetValue(ref _message, value);
+        }
+
+        /// <summary>
+        /// Загрузка списка товаров.
+        /// </summary>
         public Command<string> LoadOrder
         {
             get => new Command<string>((id) =>
@@ -59,6 +81,9 @@ namespace Amaranth.ViewModel
             }, (id) => { int i; return int.TryParse(id, out i); });
         }
 
+        /// <summary>
+        /// Создание нового заказа.
+        /// </summary>
         public Command Create
         {
             get => new Command(() =>
@@ -68,6 +93,9 @@ namespace Amaranth.ViewModel
             });
         }
 
+        /// <summary>
+        /// Установка значения редактируемого количества.
+        /// </summary>
         public Command<Product> SetEditableCount
         {
             get => new Command<Product>((p) =>
@@ -78,6 +106,9 @@ namespace Amaranth.ViewModel
             }, (p) => p != null);
         }
 
+        /// <summary>
+        /// Добавление товара в список заказа.
+        /// </summary>
         public Command<Product> SetProduct
         {
             get => new Command<Product>((p) =>
@@ -88,11 +119,17 @@ namespace Amaranth.ViewModel
             }, (p) => p != null);
         }
 
+        /// <summary>
+        /// Удаление товара из списка заказа.
+        /// </summary>
         public Command<Product> DeleteProduct
         {
             get => new Command<Product>((p) => Order.Delete(p), (p) => p != null);
         }
 
+        /// <summary>
+        /// Установка значения редактируемого количества.
+        /// </summary>
         public Command SetCount
         {
             get => new Command(() =>
@@ -101,6 +138,9 @@ namespace Amaranth.ViewModel
             }, () => _editableCount > 0);
         }
 
+        /// <summary>
+        /// Завершает данный заказ.
+        /// </summary>
         public Command CompleteOrder
         {
             get => new Command(() =>
@@ -113,6 +153,9 @@ namespace Amaranth.ViewModel
             }, () => _order != null && _order.CompletionDate == null);
         }
 
+        /// <summary>
+        /// Производит отмену заказа.
+        /// </summary>
         public Command СancelOrder
         {
             get => new Command(() =>
@@ -124,13 +167,6 @@ namespace Amaranth.ViewModel
                     Message = "Новый заказ";
                 }
             }, () => _order != null && _order.CompletionDate == null);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnValueChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

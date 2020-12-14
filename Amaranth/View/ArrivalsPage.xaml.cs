@@ -3,7 +3,7 @@
 namespace Amaranth.View
 {
     /// <summary>
-    /// Логика взаимодействия для ArrivalsPage.xaml
+    /// Логика взаимодействия для формы поступления товаров.
     /// </summary>
     public partial class ArrivalsPage : UserControl
     {
@@ -12,7 +12,8 @@ namespace Amaranth.View
             InitializeComponent();
             DataContext = new ViewModel.ArrivalsVM();
         }
-
+        
+        // Проверка на ввод целочисленных значений
         private void TextBoxNumber(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             int i;
