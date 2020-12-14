@@ -1,10 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using Amaranth.Model.Data;
+using System.Collections.Generic;
 using data = Amaranth.Model.Data.Data;
 
 namespace Amaranth.Model
 {
+	/// <summary>
+	/// Предоставляет доступ к управлющему классу БД.
+	/// </summary>
     public interface IDBAdapter
     {
+		/// <summary>
+		/// Добавляет запись в БД.
+		/// </summary>
+		/// <param name="data">Добавляемое значение.</param>
+		void Insert(IData data);
+
+		/// <summary>
+		/// Изменяет запись в БД.
+		/// </summary>
+		/// <param name="data">Изменяемое значение.</param>
+		void Update(IData data);
+
+		/// <summary>
+		/// Удаляет запись из БД.
+		/// </summary>
+		/// <param name="data">Удаляемое значение.</param>
+		void Delete(IData data);
+
+		// ----------------
 		int Insert(data data);
 
 		void Update(data data);

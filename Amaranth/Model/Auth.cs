@@ -48,9 +48,9 @@ namespace Amaranth.Model
 		}
 
 		/// <summary>
-		/// Установка адаптера, для доступа к БД
+		/// Установка адаптера, для доступа к БД.
 		/// </summary>
-		/// <param name="adapter"></param>
+		/// <param name="adapter">Объект адаптера.</param>
 		public static void SetAdapter(IDBAdapter adapter)
         {
 			_adapter = adapter;

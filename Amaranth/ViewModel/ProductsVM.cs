@@ -12,6 +12,11 @@ namespace Amaranth.ViewModel
     class ProductsVM : BindableBase
     {
         /// <summary>
+        /// Для доступа к функция БД.
+        /// </summary>
+        readonly DataBaseSinglFacade _db;
+
+        /// <summary>
         /// Флаг, что продукт был получен путем выбора из списка.
         /// </summary>
         bool _isSelect;
@@ -26,6 +31,7 @@ namespace Amaranth.ViewModel
         /// </summary>
         public ProductsVM()
         {
+            _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
             _isSelect = false;
             ListTags = new ObservableCollection<string>();
         }
@@ -89,8 +95,9 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                int id = DataBaseSinglFacade.Insert(_product);
-                DataBaseSinglFacade.AddTags(id, new List<string>(ListTags));
+                _db.Insert(_product);
+                //int id = 0; // TO DO 
+                //DataBaseSinglFacade.AddTags(id, new List<string>(ListTags));
                 Product = null;
             }, () => _product != null && !_isSelect);
         }
@@ -102,7 +109,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.Update(_product);
+                _db.Update(_product);
                 var list = new List<string>();
                 foreach (var t in ListTags)
                     if (!_oldTags.Contains(t))
@@ -126,7 +133,7 @@ namespace Amaranth.ViewModel
             {
                 if (DialogueService.ShowWarning("Вы действительно хотите удалить информацию о данном товаре?"))
                 {
-                    DataBaseSinglFacade.Delete(_product);
+                    _db.Delete(_product);
                     var list = new List<string>();
                     Product = null;
                 }

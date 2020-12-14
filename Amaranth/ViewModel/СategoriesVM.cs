@@ -11,6 +11,11 @@ namespace Amaranth.ViewModel
     class СategoriesVM : BindableBase
     {
         /// <summary>
+        /// Для доступа к функция БД.
+        /// </summary>
+        readonly DataBaseSinglFacade _db;
+
+        /// <summary>
         /// Флаг, что продукт был получен путем выбора из списка.
         /// </summary>
         bool _isSelect;
@@ -20,6 +25,7 @@ namespace Amaranth.ViewModel
         /// </summary>
         public СategoriesVM()
         {
+            _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
             _isSelect = false;
             _descriptionTitle = string.Empty;
             ListСategories = DataBaseSinglFacade.GetListCategory();
@@ -86,7 +92,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.Insert(_category);
+                _db.Insert(_category);
                 ListСategories = DataBaseSinglFacade.GetListCategory();
                 Category = null;
             }, () => _category != null && !_isSelect);
@@ -99,7 +105,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                DataBaseSinglFacade.Update(_category);
+                _db.Update(_category);
                 ListСategories = DataBaseSinglFacade.GetListCategory();
                 Category = null;
             }, () => _category != null && _isSelect);
@@ -114,7 +120,7 @@ namespace Amaranth.ViewModel
             {
                 if (DialogueService.ShowWarning("Вы действительно хотите удалить информацию о данной категории?"))
                 {
-                    DataBaseSinglFacade.Delete(_category);
+                    _db.Delete(_category);
                     ListСategories = DataBaseSinglFacade.GetListCategory();
                     Category = null;
                 }    

@@ -49,7 +49,8 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 _product.Count = _editableCount;
-                DataBaseSinglFacade.Update(_product, true);
+                // TO DO зделать обновление для одного поля
+                //DataBaseSinglFacade.Update(_product, true);
             }, () => _editableCount > 0);
         }
     }

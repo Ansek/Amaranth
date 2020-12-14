@@ -6,17 +6,196 @@ using data = Amaranth.Model.Data.Data;
 
 namespace Amaranth.Model
 {
+	/// <summary>
+	/// Класс паттерна Facade. Упрощает доступ объектов системы к БД.
+	/// </summary>
 	public class DataBaseSinglFacade
 	{
+		/// <summary>
+		/// Экземпляр данного класс для паттерна Singleton.
+		/// </summary>
 		static DataBaseSinglFacade _intance;
-		static IDBAdapter _adapter;
+
+		/// <summary>
+		/// Ссылка на адаптер, для доступа к БД.
+		/// </summary>
+		IDBAdapter _adapter;
+		static IDBAdapter _adapterOld;		
+
+		/// <summary>
+		/// Скрытый конструтор согласно паттерну Singleton.
+		/// </summary>
+		private DataBaseSinglFacade()
+		{
+		}
+
+		/// <summary>
+		/// Инициализация объекта паттерна Singleton.
+		/// </summary>
+		/// <returns>Объект класса авторизации.</returns>
+		public static DataBaseSinglFacade GetInstance()
+		{
+			return _intance ?? (_intance = new DataBaseSinglFacade());
+		}
+
+		/// <summary>
+		/// Установка адаптера, для доступа к БД.
+		/// </summary>
+		/// <param name="adapter">Объект адаптера.</param>
+		public void SetAdapter(IDBAdapter adapter)
+		{
+			_adapter = _adapterOld = adapter;
+			if (_categories == null)
+				GetListCategory();
+			_productTitles = new ObservableCollection<string>(_adapter.GetColumn("Title", "product"));
+			_tags = new ObservableCollection<string>(_adapter.GetColumn("Name", "tag"));
+		}
+
+		/*--- Методы для работы с товарами ---*/
+
+		/// <summary>
+		/// Добавление данных о товаре.
+		/// </summary>
+		/// <param name="product">Добавляемый товар.</param>
+		public void Insert(ProductInfo product)
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Приведение к родительскому классу для записи основных полей
+			var p = product as Product;
+			_adapter.Insert(p);
+
+			// Запись дополнительных полей
+			_adapter.Insert(product);
+		}
+
+		/// <summary>
+		/// Изменение данных о товаре.
+		/// </summary>
+		/// <param name="product">Изменяемый товар.</param>
+		public void Update(ProductInfo product)
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Приведение к родительскому классу для изменение основных полей
+			var p = product as Product;
+			_adapter.Update(p);
+
+			// Изменение дополнительных полей
+			_adapter.Update(product);
+		}
+
+		/// <summary>
+		/// Удаление данных о товаре.
+		/// </summary>
+		/// <param name="product">Удаляемый товар.</param>
+		public void Delete(ProductInfo product)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Приведение к родительскому классу для удаления основных полей
+			var p = product as Product;
+			_adapter.Delete(p);
+
+			// Удаление дополнительных полей
+			_adapter.Delete(product);
+		}
+
+		/*--- Методы для работы с категориями ---*/
+
+		/// <summary>
+		/// Добавление данных о категории.
+		/// </summary>
+		/// <param name="category">Добавляемая категория.</param>
+		public void Insert(Category category)
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Запись данных категории
+			_adapter.Insert(category);
+		}
+
+		/// <summary>
+		/// Изменение данных о категории.
+		/// </summary>
+		/// <param name="category">Изменяемая категория.</param>
+		public void Update(Category category)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Изменение данных категории
+			_adapter.Update(category);
+		}
+
+		/// <summary>
+		/// Удаление данных о категории.
+		/// </summary>
+		/// <param name="category">Удаляемая категория.</param>
+		public void Delete(Category category)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Удаление данных категории
+			_adapter.Delete(category);
+		}
+
+		/*--- Методы для работы с пользователями ---*/
+
+		/// <summary>
+		/// Добавление данных о категории.
+		/// </summary>
+		/// <param name="category">Добавляемая категория.</param>
+		public void Insert(User user)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Запись данных пользователя
+			_adapter.Insert(user);
+		}
+
+		/// <summary>
+		/// Изменение данных о категории.
+		/// </summary>
+		/// <param name="category">Изменяемая категория.</param>
+		public void Update(User user)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Изменение данных пользователя
+			_adapter.Update(user);
+		}
+
+		/// <summary>
+		/// Удаление данных о категории.
+		/// </summary>
+		/// <param name="category">Удаляемая категория.</param>
+		public void Delete(User user)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Удаление данных пользователя
+			_adapter.Delete(user);
+		}
+
+
+
+		//--------------------------------------------------------
+
+
 		static ObservableCollection<Category> _categories;
 		static ObservableCollection<string> _productTitles;
 		static ObservableCollection<string> _tags;
 
-		private DataBaseSinglFacade()
-		{
-		}
+
 
 		public static event Action ProductChanged;
 
@@ -26,23 +205,11 @@ namespace Amaranth.Model
 
 		public static ObservableCollection<string> Tags => _tags;
 
-		public static DataBaseSinglFacade GetInstance()
-		{
-			return _intance ?? (_intance = new DataBaseSinglFacade());
-		}
 
-		public static void SetAdapter(IDBAdapter adapter)
-		{
-			_adapter = adapter;
-			if (_categories == null)
-				GetListCategory();
-			_productTitles = new ObservableCollection<string>(_adapter.GetColumn("Title", "product"));
-			_tags = new ObservableCollection<string>(_adapter.GetColumn("Name", "tag"));
-		}
 
-		public static int Insert(ProductInfo product)
+		public static int InsertOld(ProductInfo product)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
@@ -53,7 +220,7 @@ namespace Amaranth.Model
 			data.Add("idCategory", product.Category.Id);
 			data.TableName = "product";
 			data.IdName = "idProduct";
-			int id = _adapter.Insert(data);
+			int id = _adapterOld.Insert(data);
 
 			data.Clear();
 			data.TableName = $"CategoryDescriptions{product.Category.Id}";
@@ -62,21 +229,21 @@ namespace Amaranth.Model
 			foreach (var d in product)
 				data.Add($"desc{d.Id}", d.Value);
 
-			_adapter.Insert(data);
+			_adapterOld.Insert(data);
 			ProductChanged?.Invoke();
 			return id;
 		}
 
-		public static void Insert(Category category)
+		public static void InsertOld(Category category)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
 			data.Add("Title", category.Title);
 			data.IdName = "idCategory";
 			data.TableName = "category";
-			int id = _adapter.Insert(data);
+			int id = _adapterOld.Insert(data);
 			int i = 1;
 			var columns = new List<string>();
 
@@ -89,16 +256,16 @@ namespace Amaranth.Model
 					data.Add("idCategory", id);
 					data.Add("Title", desc.Title);
 					data.TableName = "description";
-					_adapter.Insert(data);
+					_adapterOld.Insert(data);
 				}
 
 			string table = $"CategoryDescriptions{id}";
-			_adapter.CreateTable(table, columns);
+			_adapterOld.CreateTable(table, columns);
 		}
 
-		public static void Insert(User user)
+		public static void InsertOld(User user)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
@@ -108,12 +275,12 @@ namespace Amaranth.Model
 			data.Add("Password", "");
 			data.Add("IsAdministrator", user.IsAdministrator);
 			data.TableName = "user";
-			_adapter.Insert(data);
+			_adapterOld.Insert(data);
 		}
 
-		public static void Update(ProductInfo product, bool onlyCount = false)
+		public static void UpdateOld(ProductInfo product, bool onlyCount = false)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
@@ -128,7 +295,7 @@ namespace Amaranth.Model
 			data.TableName = "product";
 			data.IdName = "idProduct";
 			data.RecordId = product.Id;
-			_adapter.Update(data);
+			_adapterOld.Update(data);
 
 			data.Clear();
 			data.TableName = $"CategoryDescriptions{product.Category.Id}";
@@ -136,13 +303,13 @@ namespace Amaranth.Model
 			foreach (var d in product)
 				data.Add($"desc{d.Id}", d.Value);
 
-			_adapter.Update(data);
+			_adapterOld.Update(data);
 			ProductChanged?.Invoke();
 		}
 
-		public static void Update(Category category)
+		public static void UpdateOld(Category category)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
@@ -150,19 +317,19 @@ namespace Amaranth.Model
 			data.TableName = "category";
 			data.IdName = "idCategory";
 			data.RecordId = category.Id;
-			_adapter.Update(data);
+			_adapterOld.Update(data);
 
-			int i = _adapter.GetMaxValue("idDescription", "description", $"idCategory = {category.Id}") + 1;
+			int i = _adapterOld.GetMaxValue("idDescription", "description", $"idCategory = {category.Id}") + 1;
 			foreach (var desc in category)
 				if (desc.Id == -1)
 				{
 					data.Clear();
-					_adapter.AddColumn($"desc{i}", $"CategoryDescriptions{category.Id}");
+					_adapterOld.AddColumn($"desc{i}", $"CategoryDescriptions{category.Id}");
 					data.Add("idDescription", i++);
 					data.Add("idCategory", category.Id);
 					data.Add("Title", desc.Title);
 					data.TableName = "description";
-					_adapter.Insert(data);
+					_adapterOld.Insert(data);
 				}
 
 			foreach (var j in category.DeletedIds)
@@ -171,14 +338,14 @@ namespace Amaranth.Model
 				data.TableName = "description";
 				data.IdName = "idDescription";
 				data.RecordId = $"{j} AND idCategory = {category.Id}";
-				_adapter.Delete(data);
-				_adapter.DeleteColumn($"desc{j}", $"CategoryDescriptions{category.Id}");
+				_adapterOld.Delete(data);
+				_adapterOld.DeleteColumn($"desc{j}", $"CategoryDescriptions{category.Id}");
 			}
 		}
 
-		public static void Update(User user)
+		public static void UpdateOld(User user)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
@@ -188,12 +355,12 @@ namespace Amaranth.Model
 			data.TableName = "user";
 			data.IdName = "Login";
 			data.RecordId = $"'{user.Login}'";
-			_adapter.Update(data);
+			_adapterOld.Update(data);
 		}
 
-		public static void Delete(ProductInfo product)
+		public static void DeleteOld(ProductInfo product)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
@@ -201,49 +368,49 @@ namespace Amaranth.Model
 			data.RecordId = product.Id;
 
 			data.TableName = "product_tag";
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 
 			data.TableName = "product";
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 
 			data.TableName = $"CategoryDescriptions{product.Category.Id}";
 			data.IdName = "id";
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 			ProductChanged?.Invoke();
 		}
 
-		public static void Delete(Category category)
+		public static void DeleteOld(Category category)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
 			data.TableName = "description";
 			data.IdName = "idCategory";
 			data.RecordId = category.Id;
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 
 			data.TableName = "category";
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 
-			_adapter.DeleteTable($"CategoryDescriptions{category.Id}");
+			_adapterOld.DeleteTable($"CategoryDescriptions{category.Id}");
 		}
 
-		public static void Delete(User user)
+		public static void DeleteOld(User user)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
 			data.TableName = "user";
 			data.IdName = "Login";
 			data.RecordId = $"'{user.Login}'";
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 		}
 
 		public static ProductInfo LoadInfo(Product product)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var data = new data();
@@ -253,7 +420,7 @@ namespace Amaranth.Model
 			foreach (var d in product.Category)
 				data.Add($"desc{d.Id}");
 
-			_adapter.Load(ref data);
+			_adapterOld.Load(ref data);
 
 			var values = new List<string>();
 			foreach (var d in data)
@@ -324,11 +491,11 @@ namespace Amaranth.Model
 
 		public static List<Product> GetListProduct(int pos, int count, ProductRequest request)
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
 			var condition = GetCondition(request);
-			var products = _adapter.LoadList("product_view", pos, count, condition);
+			var products = _adapterOld.LoadList("product_view", pos, count, condition);
 			if (products.Count > 0)
 			{
 				var list = new List<Product>();
@@ -363,10 +530,10 @@ namespace Amaranth.Model
 
 		public static List<Category> GetListCategory()
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
-			var categories = _adapter.LoadList("category");
+			var categories = _adapterOld.LoadList("category");
 			if (categories.Count > 0)
 			{
 				var list = new List<Category>();
@@ -377,7 +544,7 @@ namespace Amaranth.Model
 						Id = Convert.ToInt32(c["idCategory"]),
 						Title = Convert.ToString(c["Title"])
 					};
-					var desc = _adapter.GetQuery("description", $"idCategory = {category.Id}");
+					var desc = _adapterOld.GetQuery("description", $"idCategory = {category.Id}");
 					foreach (var d in desc)
                     {
 						int id = Convert.ToInt32(d["idDescription"]);
@@ -394,10 +561,10 @@ namespace Amaranth.Model
 
 		public static List<User> GetListUser()
 		{
-			if (_adapter == null)
+			if (_adapterOld == null)
 				throw new Exception("Не задан адаптер для класса Auth");
 
-			var users = _adapter.LoadList("user");
+			var users = _adapterOld.LoadList("user");
 			if (users.Count > 0)
             {
 				var list = new List<User>();
@@ -424,7 +591,7 @@ namespace Amaranth.Model
 			else if(!onlyActive && onlyCompleted)
 				condition = "CompletionDate IS NOT NULL";
 
-			var orders = _adapter.LoadList("`order`", pos, count, condition);
+			var orders = _adapterOld.LoadList("`order`", pos, count, condition);
 			if (orders.Count > 0)
 			{
 				var list = new List<Order>();
@@ -456,7 +623,7 @@ namespace Amaranth.Model
 			data.IdName = "idOrder";
 			data.RecordId = id;
 
-			_adapter.Load(ref data);
+			_adapterOld.Load(ref data);
 			if (data["CreationDate"] != null)
             {
 				order = new Order()
@@ -467,7 +634,7 @@ namespace Amaranth.Model
 				if (data["CompletionDate"] != DBNull.Value)
 					order.CompletionDate = Convert.ToDateTime(data["CompletionDate"]);
 
-				var products = _adapter.GetQuery("Product p, Order_Product op", $"p.IdProduct = op.IdProduct AND op.idOrder = {id}");
+				var products = _adapterOld.GetQuery("Product p, Order_Product op", $"p.IdProduct = op.IdProduct AND op.idOrder = {id}");
 				foreach (var p in products)
 				{
 					Category category = null;
@@ -504,7 +671,7 @@ namespace Amaranth.Model
             {
 				data.Add("CreationDate", date);
 				data.Add("CompletionDate", date);
-				int id = _adapter.Insert(data);
+				int id = _adapterOld.Insert(data);
 
 				data.TableName = "order_product";
 				foreach (var p in order)
@@ -514,14 +681,14 @@ namespace Amaranth.Model
 					data.Add("idProduct", p.Id);
 					data.Add("Count", p.Count);
 					data.Add("Price", p.Price);
-					_adapter.Insert(data);
+					_adapterOld.Insert(data);
 				}
 			}
 			else
             {
 				data.RecordId = order.Id;
 				data.Add("CompletionDate", date);
-				_adapter.Update(data);
+				_adapterOld.Update(data);
 
 				data.TableName = "order_product";
 				foreach (var p in order)
@@ -530,7 +697,7 @@ namespace Amaranth.Model
 					data.Clear();
 					data.Add("Count", p.Count);
 					data.Add("Price", p.Price);
-					_adapter.Update(data);
+					_adapterOld.Update(data);
 				}
 			}
 			ProductChanged?.Invoke();
@@ -542,10 +709,10 @@ namespace Amaranth.Model
 			data.TableName = "order_product";
 			data.IdName = "idOrder";
 			data.RecordId = order.Id;
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 
 			data.TableName = "`order`";
-			_adapter.Delete(data);
+			_adapterOld.Delete(data);
 			ProductChanged?.Invoke();
 		}
 
@@ -557,19 +724,19 @@ namespace Amaranth.Model
 
 			foreach (var tag in tags)
             {
-				if (_adapter.GetRecordsCount("tag", $"Name = '{tag}'") == 0)
+				if (_adapterOld.GetRecordsCount("tag", $"Name = '{tag}'") == 0)
 				{
 					var temp = new data();
 					temp.TableName = "tag";
 					temp.Add("Name", tag);
-					_adapter.Insert(temp);
+					_adapterOld.Insert(temp);
 					Tags.Add(tag);
 				}
 
 				data.Clear();
 				data.Add("idProduct", idProduct);
 				data.Add("Tag", tag);
-				_adapter.Insert(data);
+				_adapterOld.Insert(data);
 			}
 		}
 
@@ -582,13 +749,13 @@ namespace Amaranth.Model
 			foreach (var tag in tags)
             {
 				data.RecordId = $"{idProduct} AND Tag = '{tag}'";
-				_adapter.Delete(data);
+				_adapterOld.Delete(data);
 			}
 		}
 
 		public static List<string> LoadTags(int idProduct)
 		{
-			var data = _adapter.GetQuery("product_tag", $"idProduct = {idProduct}");
+			var data = _adapterOld.GetQuery("product_tag", $"idProduct = {idProduct}");
 			var list = new List<string>();
 
 			foreach (var d in data)
@@ -599,7 +766,7 @@ namespace Amaranth.Model
 
 		public static int GetMaxCountProduct(int idProduct)
         {
-			var data = _adapter.GetQuery("product_view", $"idProduct = {idProduct}");
+			var data = _adapterOld.GetQuery("product_view", $"idProduct = {idProduct}");
 			if (data != null)
             {
 				int reserve = Convert.ToInt32(data[0]["Reserve"]);
@@ -611,7 +778,7 @@ namespace Amaranth.Model
 
 		public static void SubMaxCountProduct(int idProduct, int count)
         {
-			var data = _adapter.GetQuery("product", $"idProduct = {idProduct}");
+			var data = _adapterOld.GetQuery("product", $"idProduct = {idProduct}");
 			if (data != null)
 			{
 				int newCount = Convert.ToInt32(data[0]["Count"]) - count;
@@ -620,7 +787,7 @@ namespace Amaranth.Model
 				data[0].TableName = "product";
 				data[0].IdName = "idProduct";
 				data[0].RecordId = idProduct;
-				_adapter.Update(data[0]);
+				_adapterOld.Update(data[0]);
 				ProductChanged?.Invoke();
 			}
 		}

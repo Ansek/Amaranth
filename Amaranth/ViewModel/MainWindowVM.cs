@@ -20,8 +20,8 @@ namespace Amaranth.ViewModel
             MySqlAdapter mySql = new MySqlAdapter();
             Auth.GetInstance();
             Auth.SetAdapter(mySql);
-            DataBaseSinglFacade.GetInstance();
-            DataBaseSinglFacade.SetAdapter(mySql);
+            var db = DataBaseSinglFacade.GetInstance();
+            db.SetAdapter(mySql);
 
             Pages = new ObservableCollection<UserControl>();
             //    new OrderPage(),
