@@ -6,7 +6,7 @@ namespace Amaranth.Model.Data
 	/// <summary>
 	/// Определяет товар.
 	/// </summary>
-	public class Product : BindableBase, IData, ICollectionItem
+	public class Product : BindableBaseCollection<Tag>, IData, IDataCollection, ICollectionItem
 	{
 		/// <summary>
 		/// Конструктор для объекта товара.
@@ -29,10 +29,11 @@ namespace Amaranth.Model.Data
 			_count = product._count;
 			_reserve = product._reserve;
 			_title = product._title;
-			_priceText = product._priceText;
 			_price = product._price;
+			_priceText = product._priceText;
 			_prescription = product._prescription;
 			_category = product._category;
+			_list = product._list;
 		}
 
 		protected int _id;
@@ -62,7 +63,7 @@ namespace Amaranth.Model.Data
 		public double Price
 		{
 			get => _price;
-			set { SetValue(ref _price, value); OnValueChanged("PriceText"); }
+			set { SetValue(ref _price, value); PriceText = _price.ToString(); }
 		}
 
 		protected string _priceText;
@@ -79,7 +80,7 @@ namespace Amaranth.Model.Data
 		/// <summary>
 		/// Для хранения значения количества товаров.
 		/// </summary>
-		public int Count
+		public int CountProduct
 		{
 			get => _count;
 			set => SetValue(ref _count, value);
@@ -111,6 +112,59 @@ namespace Amaranth.Model.Data
 		/// </summary>
 		public Category Category => _category;
 
+		/// <summary>
+		/// Добавление тега.
+		/// </summary>
+		/// <param name="title">Добавляемый тег.</param>
+		public void AddTag(Tag tag)
+		{
+			// Проверка заголовка на уникальность
+			foreach (var desc in _list)
+			{
+				if (desc.Title == tag.Title)
+				{
+					// Если есть, но помечена как удаленная
+					if (desc.IsDelete)
+					{
+						desc.IsDelete = false;
+						OnCollectionChanged();  // Оповещение формы об изменении
+						return;
+					}
+					return; // Дубликат не добавляется
+				}
+			}
+			tag.IsAdd = true; // Установка флага на добавление
+
+			// Добавление тега
+			_list.Add(tag);
+
+			OnCollectionChanged();  // Оповещение формы об изменении
+		}
+
+		/// <summary>
+		/// Удаление тега.
+		/// </summary>
+		/// <param name="tag">Удаляемый тег.</param>
+		public void RemoveTag(Tag tag)
+		{
+			// Поиск удаляемого пункта
+			for (int i = 0; i < _list.Count; i++)
+				if (_list[i].Id == tag.Id && _list[i].Title == tag.Title)
+				{
+					if (_list[i].IsAdd)             // Если параметр добавлен недавно
+						_list.RemoveAt(i);
+					else
+						_list[i].IsDelete = true;   // Отметка пункта как удаляемого
+					OnCollectionChanged();          // Оповещение формы об изменении
+					break;
+				}
+		}
+
+		/// <summary>
+		/// Флаг, устанавливающий запись только значения количества
+		/// </summary>
+		public bool SaveOnlyCount { get; set; }
+
 		/*--- Свойства и методы для интерфейса IData ---*/
 
 		/// <summary>
@@ -134,11 +188,14 @@ namespace Amaranth.Model.Data
 		/// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
 		public IEnumerable<(string, object)> GetData()
 		{
-			yield return ("Title", _title);
-			yield return ("Price", _price);
+			if (!SaveOnlyCount)
+            {
+				yield return ("Title", _title);
+				yield return ("Price", _price);				
+				yield return ("Prescription", _prescription);
+				yield return ("idCategory", _category.Id);
+			}
 			yield return ("Count", _count);
-			yield return ("Prescription", _prescription);
-			yield return ("idCategory", _price);
 		}
 
 		/// <summary>
@@ -160,7 +217,7 @@ namespace Amaranth.Model.Data
 					Price = Convert.ToDouble(value);
 					break;
 				case "Count":
-					Count = Convert.ToInt32(value);
+					CountProduct = Convert.ToInt32(value);
 					break;
 				case "Prescription":
 					Prescription = Convert.ToBoolean(value);
@@ -169,6 +226,33 @@ namespace Amaranth.Model.Data
 					Reserve = (value != DBNull.Value) ? Convert.ToInt32(value) : 0;
 					break;
 			}					
+		}
+
+		/*--- Свойства и методы для интерфейса IDataCollection ---*/
+
+		public string CollectionTable => "Product_Tag";
+
+		public string IdItemName => "idTag";
+
+		/// <summary>
+		/// Получение данных об элементе коллекции.
+		/// </summary>
+		/// <returns>Возвращает интерфейс на элемент.</returns>
+		public IEnumerable<ICollectionItem> GetDataCollection()
+		{
+			for (int i = 0; i < _list.Count; i++)
+				yield return _list[i];
+		}
+
+		/// <summary>
+		/// Создает новый объект коллекции и возвращает интерфейс для заполнения.
+		/// </summary>
+		/// <returns>Объект для заполнения.</returns>
+		public ICollectionItem CreateItem()
+		{
+			var tag = new Tag();
+			_list.Add(tag);
+			return tag;
 		}
 
 		/*--- Свойства для интерфейса ICollectionItem ---*/

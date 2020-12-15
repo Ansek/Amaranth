@@ -9,6 +9,19 @@ namespace Amaranth.ViewModel
     /// </summary>
     class ArrivalsVM : BindableBase
     {
+        /// <summary>
+        /// Для доступа к функциям БД.
+        /// </summary>
+        readonly DataBaseSinglFacade _db;
+
+        /// <summary>
+        /// Конструктор посредника для формы поступления товара.
+        /// </summary>
+        public ArrivalsVM()
+        {
+            _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
+        }
+
         ProductInfo _product;
         /// <summary>
         /// Выбранный товар.
@@ -36,8 +49,8 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Product>((p) =>
             {
-                EditableCount = p.Count;
-                Product = DataBaseSinglFacade.LoadInfo(p);
+                EditableCount = p.CountProduct;
+                Product = _db.LoadInfo(p);
             }, (p) => p != null);
         }
 
@@ -48,9 +61,9 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                _product.Count = _editableCount;
-                // TO DO зделать обновление для одного поля
-                //DataBaseSinglFacade.Update(_product, true);
+                _product.CountProduct = _editableCount;
+                _product.SaveOnlyCount = true;
+                _db.Update(_product);
             }, () => _editableCount > 0);
         }
     }

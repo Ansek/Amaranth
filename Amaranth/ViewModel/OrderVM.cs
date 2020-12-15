@@ -102,7 +102,7 @@ namespace Amaranth.ViewModel
             {
                 _idProduct = p.Id;
                 MaxCount = DataBaseSinglFacade.GetMaxCountProduct(p.Id);
-                EditableCount = p.Count;
+                EditableCount = p.CountProduct;
             }, (p) => p != null);
         }
 
@@ -114,7 +114,7 @@ namespace Amaranth.ViewModel
             get => new Command<Product>((p) =>
             {
                 var product = new Product(p);
-                product.Count = 1;
+                product.CountProduct = 1;
                 Order.Add(product);
             }, (p) => p != null);
         }
@@ -147,7 +147,7 @@ namespace Amaranth.ViewModel
             {
                 DataBaseSinglFacade.CompleteOrder(_order);
                 foreach (var p in _order)
-                    DataBaseSinglFacade.SubMaxCountProduct(p.Id, p.Count);
+                    DataBaseSinglFacade.SubMaxCountProduct(p.Id, p.CountProduct);
                 Order = new Order();
                 Message = "Новый заказ";
             }, () => _order != null && _order.CompletionDate == null);

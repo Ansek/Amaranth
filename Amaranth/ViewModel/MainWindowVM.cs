@@ -13,6 +13,11 @@ namespace Amaranth.ViewModel
     class MainWindowVM : BindableBase
     {
         /// <summary>
+        /// Для доступа к функциям БД.
+        /// </summary>
+        readonly DataBaseSinglFacade _db;
+
+        /// <summary>
         /// Констуктор посредника для формы основного окна.
         /// </summary>
         public MainWindowVM()
@@ -20,16 +25,27 @@ namespace Amaranth.ViewModel
             MySqlAdapter mySql = new MySqlAdapter();
             Auth.GetInstance();
             Auth.SetAdapter(mySql);
-            var db = DataBaseSinglFacade.GetInstance();
-            db.SetAdapter(mySql);
+            _db = DataBaseSinglFacade.GetInstance();
+            _db.SetAdapter(mySql);
 
             // Привязка к событию изменения списка категорий
-            db.CategoryListChanged += () =>
+            _db.CategoryListChanged += () =>
             {
-                Categories.Clear();
-                foreach (var c in db.GetListCategory())
-                    Categories.Add(c);
+                UpdateCategories();
             };
+            UpdateCategories();
+            // Привязка к событию изменения списка тегов
+            _db.TagListChanged += () =>
+            {
+                UpdateTags();
+            };
+            UpdateTags();
+            // Привязка к событию изменения списка товаров
+            _db.ProductListChanged += () =>
+            {
+                UpdateProductTitles();
+            };
+            UpdateProductTitles();
 
             Pages = new ObservableCollection<UserControl>()
             { 
@@ -71,12 +87,30 @@ namespace Amaranth.ViewModel
             };
         }
         
+        /// <summary>
+        /// Констуктор для инициализации статических свойств.
+        /// </summary>
         static MainWindowVM()
         {
             Categories = new ObservableCollection<Category>();
+            Tags = new ObservableCollection<Tag>();
+            ProductTitles = new ObservableCollection<string>();
         }
 
+        /// <summary>
+        /// Для получение доступа к списку категорий.
+        /// </summary>
         public static ObservableCollection<Category> Categories;
+
+        /// <summary>
+        /// Для получение доступа к списку тегов.
+        /// </summary>
+        public static ObservableCollection<Tag> Tags;
+
+        /// <summary>
+        /// Для получение доступа к заголовкам продуктов.
+        /// </summary>
+        public static ObservableCollection<string> ProductTitles;
 
         /// <summary>
         /// Задает список для вкладок на форме.
@@ -120,6 +154,36 @@ namespace Amaranth.ViewModel
         public Command SignOut
         {
             get => new Command(() => Auth.SignOut());
+        }
+
+        /// <summary>
+        /// Обновление списка категорий.
+        /// </summary>
+        void UpdateCategories()
+        {
+            Categories.Clear();
+            foreach (var c in _db.GetCategoryList())
+                Categories.Add(c);
+        }
+
+        /// <summary>
+        /// Обновление списка тегов.
+        /// </summary>
+        void UpdateTags()
+        {
+            Tags.Clear();
+            foreach (var c in _db.GetTagList())
+                Tags.Add(c);
+        }
+
+        /// <summary>
+        /// Обновление списка заголовков продуктов.
+        /// </summary>
+        void UpdateProductTitles()
+        {
+            ProductTitles.Clear();
+            foreach (var t in _db.GetProductTitles())
+                ProductTitles.Add(t);
         }
     }
 }

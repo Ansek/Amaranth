@@ -119,6 +119,7 @@
     <Compile Include="Model\Data\IDataCollection.cs" />
     <Compile Include="Model\Data\Order.cs" />
     <Compile Include="Model\Data\ProductRequest.cs" />
+    <Compile Include="Model\Data\Tag.cs" />
     <Compile Include="Service\Command[T].cs" />
     <Compile Include="Service\Command.cs" />
     <Compile Include="Service\DialogueService.cs" />

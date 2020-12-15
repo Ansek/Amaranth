@@ -140,13 +140,33 @@ namespace Amaranth.Model
         public DataTable LoadTable(string table, string condition = null, int count = 0, int pos = 0)
         {
             // Составление скрипта запроса
-            if (condition != null)
+            if (condition != null && condition != string.Empty)
                 condition = $"WHERE {condition}";
             var limit = (count > 0) ? $"LIMIT {pos}, {count}" : "";
             var sql = $"SELECT * FROM {table} {condition} {limit};";
 
             //Выполнение запроса
             return LoadTable(table, sql);
+        }
+
+        /// <summary>
+        /// Загружает данные для данной записи.
+        /// </summary>
+        /// <param name="data">Объект записи.</param>
+        public void LoadData(IData data)
+        {
+            // Формирование запроса
+            var sql = $"SELECT * FROM {data.Table} WHERE {data.IdColumnName} = {data.IdColumn};";
+            //Выполнение запроса
+            var table = LoadTable(data.Table, sql);
+            // Заполнение
+            if (table.Rows.Count > 0)
+                for (int j = 0; j < table.Columns.Count; j++)
+                {
+                    var column = table.Columns[j].ColumnName;   // Получение имени столбца
+                    var value = table.Rows[0][j];               // Получение значения по этому столбцу
+                    data.SetData(column, value);                // Запись данных в объект заполнения
+                }
         }
 
         /// <summary>
@@ -314,6 +334,25 @@ namespace Amaranth.Model
         }
 
         /// <summary>
+        /// Загружает все данные заданного столбца.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="column">Имя столбца.</param>
+        /// <returns>Список значений столбца.</returns>
+        public List<string> GetColumn(string table, string column)
+        {
+            // Составление скрипта запроса
+            string sql = $"SELECT {column} FROM {table} ORDER BY {column};";
+            // Получение данных
+            var colTable = LoadTable(table, sql);
+            var list = new List<string>();
+            // Перебор значений заданной строки
+            for (int i = 0; i < colTable.Rows.Count; i++)
+                list.Add(colTable.Rows[i][0].ToString());
+            return list;
+        }
+
+        /// <summary>
         /// Выполнение запроса без получения ответа.
         /// </summary>
         /// <param name="cmd">Объект команды для выполнения запроса.</param>
@@ -351,27 +390,6 @@ namespace Amaranth.Model
             }
             // Попытка преобразования к данному типу
             return (o is T) ? (T)o : default(T);
-        }
-
-        /// <summary>
-        /// Выполнение запроса с получением нескольких значений.
-        /// </summary>
-        /// <param name="cmd">Объект команды для выполнения запроса.</param>
-        /// <returns>Возвращает объект для чтения результатов.</returns>
-        MySqlDataReader ExecuteReader(MySqlCommand cmd)
-        {
-            MySqlDataReader r;
-            //Выполнение запроса
-            _connect.Open();
-            try
-            {
-                r = cmd.ExecuteReader();
-            }
-            finally
-            {
-                _connect.Close();
-            }
-            return r;
         }
 
         /// <summary>
@@ -506,15 +524,7 @@ namespace Amaranth.Model
             return GetList(table, sql);
         }
 
-        public List<string> GetColumn(string column, string table)
-        {
-            string sql = $"SELECT {column} FROM {table} ORDER BY {column};";
-            var data = GetList(table, sql);
-            var list = new List<string>();
-            foreach (var d in data)
-                list.Add(d[column].ToString());
-            return list;
-        }
+
 
         public bool IsTableExists(string name)
         {
@@ -573,22 +583,6 @@ namespace Amaranth.Model
                 _connect.Close();
             }
         }
-
-
-        /*
-        public int GetMaxValue(string name, string table)
-        {
-            string sql = $"SELECT max({name}) FROM {table};";
-            return Convert.ToInt32(GetScalar(sql));
-        }
-
-        public int GetMaxValue(string name, string table, string condition)
-        {
-            string sql = $"SELECT max({name}) FROM {table} WHERE {condition};";
-            return Convert.ToInt32(GetScalar(sql));
-        }*/
-
-
 
         List<data> GetList(string table, string sql)
         {

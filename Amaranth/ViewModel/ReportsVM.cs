@@ -60,38 +60,25 @@ namespace Amaranth.ViewModel
         /// <summary>
         /// Добавление тега для поиска.
         /// </summary>
-        public Command AddTag
+        public Command<Tag> AddTag
         {
-            get => new Command(() =>
+            get => new Command<Tag>((tag) =>
             {
-                if (!Request.Tags.Contains(TagField))
-                    Request.Tags.Add(TagField);
+                if (!Request.Tags.Contains(tag))
+                    Request.Tags.Add(tag);
                 TagField = "";
-            }, () => TagField != "");
+            }, (tag) => tag != null);
         }
 
         /// <summary>
         /// Удаление тега.
         /// </summary>
-        public Command<string> RemoveTag
+        public Command<Tag> RemoveTag
         {
-            get => new Command<string>((t) =>
+            get => new Command<Tag>((tag) =>
             {
-                Request.Tags.Remove(t);
-            }, (t) => t != "");
+                Request.Tags.Remove(tag);
+            }, (tag) => tag != null);
         }
-
-        /// <summary>
-        /// Список категорий.
-        /// </summary>
-        public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;
-        /// <summary>
-        /// Список заголков товара.
-        /// </summary>
-        public ObservableCollection<string> ProductTitles => DataBaseSinglFacade.ProductTitles;
-        /// <summary>
-        /// Список тегов.
-        /// </summary>
-        public ObservableCollection<string> Tags => DataBaseSinglFacade.Tags;
     }
 }

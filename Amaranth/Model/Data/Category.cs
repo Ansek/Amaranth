@@ -51,10 +51,9 @@ namespace Amaranth.Model.Data
 		/// Добавление пункта описания.
 		/// </summary>
 		/// <param name="title">Заголовок описания.</param>
-		/// <param name="id">Идентификатор описания</param>
-		public void AddDescription(string title, int id = -1)
+		public void AddDescription(string title)
 		{
-			int i = 0;
+			int id = 1;
 			// Проверка заголовка на уникальность
 			foreach (var desc in _list)
             {
@@ -70,29 +69,16 @@ namespace Amaranth.Model.Data
 					throw new Exception("Имя '" + title + "' уже задано внутри Category");
 				}
 				// Определение максимального значения индекса
-				if (i < desc.Id)
-					i = desc.Id;
+				if (id < desc.Id)
+					id = desc.Id;
 			}
-			// Если идентификатор не задан
-			if (id == -1)
-            {
-				// Добавления новой записи
-				_list.Add(new Description()
-				{
-					Id = i + 1,
-					Title = title,
-					IsAdd = true
-				});
-			}				
-			else
-            {
-				// Добавления старой записи
-				_list.Add(new Description()
-				{
-					Id = id,
-					Title = title
-				});
-			}
+			// Добавления новой записи
+			_list.Add(new Description()
+			{
+				Id = id + 1,
+				Title = title,
+				IsAdd = true
+			});
 
 			OnCollectionChanged();	// Оповещение формы об изменении
 		}
@@ -190,7 +176,7 @@ namespace Amaranth.Model.Data
 
 		/*--- Свойства и методы для интерфейса IDataCollection ---*/
 
-		public string CollectionTable => $"Description";
+		public string CollectionTable => "Description";
 
         public string IdItemName => "idDescription";
 

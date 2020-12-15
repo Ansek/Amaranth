@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Amaranth.Model.Data
 {
 	/// <summary>
-	/// Определяет пункт описания в категории
+	/// Определяет пункт описания в категории.
 	/// </summary>
 	public class Description : BindableBase, ICollectionItem
 	{
@@ -44,7 +44,7 @@ namespace Amaranth.Model.Data
 
 		string _title;
 		/// <summary>
-		/// Заголовок пункт описания.
+		/// Заголовок пункта описания.
 		/// </summary>
 		public string Title
 		{

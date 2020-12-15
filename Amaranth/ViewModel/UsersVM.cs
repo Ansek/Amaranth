@@ -24,12 +24,12 @@ namespace Amaranth.ViewModel
             // Привязка к событию изменения списка пользователей
             _db.UserListChanged += () =>
             {
-                ListUsers = _db.GetListUser();  // Обновление списка
+                ListUsers = _db.GetUserList();  // Обновление списка
                 User = null;                    // Сброс текущей записи
             };
             // Устанока параметров по умолчанию
             _isSelect = false;
-            ListUsers = _db.GetListUser();
+            ListUsers = _db.GetUserList();
         }
 
         bool _isSelect;

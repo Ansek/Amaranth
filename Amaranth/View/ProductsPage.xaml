@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:sys="clr-namespace:System;assembly=mscorlib"
       xmlns:local="clr-namespace:Amaranth.View"
+      xmlns:vm="clr-namespace:Amaranth.ViewModel"
       xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
       mc:Ignorable="d" x:Name="control"
       d:DesignHeight="450" d:DesignWidth="800"
@@ -33,7 +34,7 @@
 
                 <DockPanel Margin="0, 0, 0, 20">
                     <Button Content="Новый продукт" Command="{Binding Create}" CommandParameter="{Binding SelectedItem, ElementName=list}" DockPanel.Dock="Right"/>
-                    <ComboBox x:Name="list" ItemsSource="{Binding Categories}" DisplayMemberPath="Title"/>
+                    <ComboBox x:Name="list" ItemsSource="{x:Static vm:MainWindowVM.Categories}" DisplayMemberPath="Title"/>
                 </DockPanel>
 
                 <Grid Grid.Row="1">
@@ -99,7 +100,7 @@
 
                     <Label Content="Теги" Grid.Row="4"/>
                     <StackPanel Grid.Column="1" Grid.Row="4">
-                        <ItemsControl ItemsSource="{Binding ListTags}">
+                        <ItemsControl ItemsSource="{Binding Product}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel/>
@@ -109,7 +110,7 @@
                                 <DataTemplate>
                                     <Border BorderBrush="DodgerBlue" BorderThickness="1" CornerRadius="3" Margin="1">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding }" Margin="2, 1"/>
+                                            <TextBlock Text="{Binding Title}" Margin="2, 1"/>
                                             <Button Content="-" DockPanel.Dock="Right" Padding="0" Style="{StaticResource RemoveTag}" CommandParameter="{Binding }"
                                             Command="{Binding DataContext.RemoveTag, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
                                         </StackPanel>
@@ -120,7 +121,8 @@
                         <DockPanel>
                             <Button Content="+" DockPanel.Dock="Right" Width="30" Padding="0"
                                     Command="{Binding AddTag}"/>
-                            <ComboBox Text="{Binding TagField}" ItemsSource="{Binding Tags}" x:Name="tag" IsEditable="True">
+                            <ComboBox Text="{Binding TagField}" SelectedItem="{Binding CurrentTag}" ItemsSource="{x:Static vm:MainWindowVM.Tags}"
+                                     DisplayMemberPath="Title" x:Name="tag" IsEditable="True">
                                 <ComboBox.Style>
                                     <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource baseComboBox}">
                                         <Style.Triggers>
@@ -134,7 +136,7 @@
                         </DockPanel>
                     </StackPanel>
 
-                    <ItemsControl ItemsSource="{Binding Product}" Grid.ColumnSpan="2" Grid.Row="5">
+                    <ItemsControl ItemsSource="{Binding Product.Description}" Grid.ColumnSpan="2" Grid.Row="5">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>

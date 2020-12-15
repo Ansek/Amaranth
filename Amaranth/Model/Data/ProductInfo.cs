@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Amaranth.Model.Data
 {
     /// <summary>
     /// Расширяет информацию о продукте.
     /// </summary>
-	public class ProductInfo : Product, IData, IEnumerable<Description>
-	{
+	public class ProductInfo : Product, IData
+    {
         /// <summary>
         /// Для хранения значения внешнего параметра.
         /// </summary>
@@ -29,42 +28,34 @@ namespace Amaranth.Model.Data
         /// Копирующий констуктор для объекта информации о продуктах.
         /// </summary>
         /// <param name="product">Родительский объект данного продукта.</param>
-        /// <param name="values">Набор дополнительных значений.</param>
-        public ProductInfo(Product product, List<string> values) : base(product.Category)
+        public ProductInfo(Product product) : base(product)
         {
-            _id = product.Id;
-            _title = product.Title;
-            _price = product.Price;
-            _count = product.Count;
-            _prescription = product.Prescription;
-            _values = values;
+            _values = new List<string>();
+            // Резервирование места для дополнительных значений
+            for (int i = 0; i < _category.Count; i++)
+                _values.Add(string.Empty);
         }
 
         /// <summary>
         /// Возвращает перечислитель, для вывода дополнительных значений.
         /// </summary>
-        /// <returns>Возвращает набор объектов описания.</returns>
-        public IEnumerator<Description> GetEnumerator()
+        public IEnumerable<Description> Description
         {
-            int i = 0;
-            // Получение шаблона описания из категории
-            foreach (var desc in _category)
+            get
             {
-                desc.Index = i;             // Сохранение параметра индекса для связи с _values 
-                desc.Value = _values[i];    // Передача i-го значения 
-                // Установка события для оповощения об изменении значения 
-                desc.ValueChanged += (s, j) => { _values[j] = s; };
-                yield return desc;
-                i++;
+                int i = 0;
+                // Получение шаблона описания из категории
+                foreach (var desc in _category)
+                {
+                    desc.Index = i;             // Сохранение параметра индекса для связи с _values 
+                    desc.Value = _values[i];    // Передача i-го значения 
+                                                // Установка события для оповощения об изменении значения 
+                    desc.ValueChanged += (s, j) => { _values[j] = s; };
+                    yield return desc;
+                    i++;
+                }
             }
         }
-
-        /// <summary>
-        /// Возвращает перечислитель, выполняющий перебор элементов по коллекции.
-        /// </summary>
-        /// <returns>Перечислитель, который можно использовать для итерации по коллекции.</returns>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
 
         /*--- Свойства и методы для интерфейса IData ---*/
 
@@ -89,8 +80,9 @@ namespace Amaranth.Model.Data
         /// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
         public new IEnumerable<(string, object)> GetData()
         {
-            for (int i = 0; i < _values.Count; i++)
-                 yield return ($"Desc{i}", _values[i]);
+            yield return ($"idProduct", Id);
+            foreach (var desc in Description)
+                yield return ($"Desc{desc.Id}", _values[desc.Index]);                 
         }
 
         /// <summary>
@@ -100,10 +92,10 @@ namespace Amaranth.Model.Data
         /// <param name="value">Значение столбца.</param>
         public new void SetData(string column, object value)
         {
-            for (int i = 0; i < _values.Count; i++)
-                if (column == $"Desc{i}")                    
+            foreach (var desc in Description)
+                if (column == $"Desc{desc.Id}")
                 {
-                    _values[i] = value as string;
+                    _values[desc.Index] = value as string;
                     break;
                 }
         }

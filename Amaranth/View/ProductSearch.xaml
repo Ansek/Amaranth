@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Amaranth.View"
+             xmlns:vm="clr-namespace:Amaranth.ViewModel"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              mc:Ignorable="d" x:Name="control" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -45,7 +46,7 @@
                 </Grid.RowDefinitions>
 
                 <CheckBox Content="наименованию" IsChecked="{Binding Request.CheckTitle}"/>
-                <ComboBox ItemsSource="{Binding ProductTitles}" IsEditable="True" Grid.Column="1"
+                <ComboBox ItemsSource="{x:Static vm:MainWindowVM.ProductTitles}" IsEditable="True" Grid.Column="1"
                               Text="{Binding Request.Title, UpdateSourceTrigger=PropertyChanged}"/>
                 <Expander Header="Расширенные параметры поиска" Grid.Row="1" Grid.ColumnSpan="2">
                     <Grid>
@@ -72,7 +73,7 @@
                                     <DataTemplate>
                                         <Border BorderBrush="DodgerBlue" BorderThickness="1" CornerRadius="3" Margin="1">
                                             <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding }" Margin="2, 1"/>
+                                                <TextBlock Text="{Binding Title}" Margin="2, 1"/>
                                                 <Button Content="-" DockPanel.Dock="Right" Padding="0" Style="{StaticResource RemoveTag}" CommandParameter="{Binding }"
                                             Command="{Binding DataContext.RemoveTag, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
                                             </StackPanel>
@@ -82,8 +83,9 @@
                             </ItemsControl>
                             <DockPanel>
                                 <Button Content="+" DockPanel.Dock="Right" Width="30" Padding="0"
-                                    Command="{Binding AddTag}"/>
-                                <ComboBox Text="{Binding TagField}" ItemsSource="{Binding Tags}" x:Name="tag" IsEditable="True"/>
+                                    Command="{Binding AddTag}" CommandParameter="{Binding SelectedItem, ElementName=tag}"/>
+                                <ComboBox Text="{Binding TagField}" ItemsSource="{x:Static vm:MainWindowVM.Tags}"
+                                          x:Name="tag" DisplayMemberPath="Title" IsEditable="True"/>
                             </DockPanel>
                         </StackPanel>
 
@@ -98,7 +100,7 @@
                         </DockPanel>
 
                         <CheckBox Content="категории" IsChecked="{Binding Request.CheckCategory}" Grid.Row="2"/>
-                        <ComboBox ItemsSource="{Binding Categories}" Grid.Row="2" Grid.Column="1"
+                        <ComboBox ItemsSource="{x:Static vm:MainWindowVM.Categories}" Grid.Row="2" Grid.Column="1"
                               DisplayMemberPath="Title" SelectedValuePath="Id" SelectedValue="{Binding Request.Category}"/>
                     </Grid>
                 </Expander>
@@ -122,7 +124,7 @@
                     <DataGridTextColumn.Binding>
                         <MultiBinding StringFormat="{}{0}/{1}">
                             <Binding Path="Reserve"/>
-                            <Binding Path="Count"/>
+                            <Binding Path="CountProduct"/>
                         </MultiBinding>
                     </DataGridTextColumn.Binding>
                     <DataGridTextColumn.CellStyle>

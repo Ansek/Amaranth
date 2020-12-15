@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Amaranth.View"
+      xmlns:vm="clr-namespace:Amaranth.ViewModel"       
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Tag="Отчёты">
@@ -61,7 +62,7 @@
                 </Grid.RowDefinitions>
 
                 <RadioButton Content="наименованию" IsChecked="{Binding Request.CheckTitle}"/>
-                <ComboBox ItemsSource="{Binding ProductTitles}" IsEditable="True" Grid.Column="1" 
+                <ComboBox ItemsSource="{x:Static vm:MainWindowVM.ProductTitles}" IsEditable="True" Grid.Column="1" 
                               Text="{Binding Request.Title, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <RadioButton Content="первые" IsChecked="{Binding Request.CheckRecordsCount}" Grid.Row="1"/>
@@ -92,8 +93,9 @@
                     </ItemsControl>
                     <DockPanel>
                         <Button Content="+" DockPanel.Dock="Right" Width="30" Padding="0"
-                                    Command="{Binding AddTag}"/>
-                        <ComboBox Text="{Binding TagField}" ItemsSource="{Binding Tags}" x:Name="tag" IsEditable="True"/>
+                                    Command="{Binding AddTag}" CommandParameter="{Binding SelectedItem, ElementName=tag}"/>
+                        <ComboBox Text="{Binding TagField}" ItemsSource="{x:Static vm:MainWindowVM.Tags}"
+                                  x:Name="tag" DisplayMemberPath="Title" IsEditable="True"/>
                     </DockPanel>
                 </StackPanel>
 
@@ -108,7 +110,7 @@
                 </DockPanel>
 
                 <CheckBox Content="категории" IsChecked="{Binding Request.CheckCategory}" Grid.Row="4"/>
-                <ComboBox ItemsSource="{Binding Categories}" Grid.Row="4" Grid.Column="1"
+                <ComboBox ItemsSource="{x:Static vm:MainWindowVM.Categories}" Grid.Row="4" Grid.Column="1"
                               DisplayMemberPath="Title" SelectedValuePath="Id" SelectedValue="{Binding Request.Category}"/>
             </Grid>
         </ScrollViewer>

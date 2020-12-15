@@ -10,13 +10,18 @@ namespace Amaranth.ViewModel
     class ShowProductVM : BindableBase
     {
         /// <summary>
+        /// Для доступа к функциям БД.
+        /// </summary>
+        readonly DataBaseSinglFacade _db;
+
+        /// <summary>
         /// Конструктор посредника для формы вывода информации о товаре.
         /// </summary>
         /// <param name="product">Товар, для которого выводится информация.</param>
         public ShowProductVM(Product product)
         {
-            Product = DataBaseSinglFacade.LoadInfo(product);
-            ListTags = new ObservableCollection<string>(DataBaseSinglFacade.LoadTags(Product.Id));
+            _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
+            Product = _db.LoadInfo(product);
         }
 
         ProductInfo _product;

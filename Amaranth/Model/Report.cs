@@ -22,7 +22,7 @@ namespace Amaranth.Model
 			int count = 1;
 			if (request.CheckRecordsCount)
 				count = request.RecordsCount;
-			string condition = DataBaseSinglFacade.GetCondition(request);
+			string condition = request.GetCondition();
 
 			var products = _adapter.LoadList("product_view", pos, count, condition);
 

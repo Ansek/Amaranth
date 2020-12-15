@@ -72,7 +72,7 @@ namespace Amaranth.Model.Data
             product.IsAdd = true;
             _list.Add(product);
             // Перерасчет итоговой суммы
-            FinalPrice += product.Count * product.Price;
+            FinalPrice += product.CountProduct * product.Price;
 
             OnCollectionChanged();	// Оповещение формы об изменении
         }
@@ -85,7 +85,7 @@ namespace Amaranth.Model.Data
         {
             _list.Remove(product); 
             // Перерасчет итоговой суммы
-            FinalPrice -= product.Count * product.Price;
+            FinalPrice -= product.CountProduct * product.Price;
 
             OnCollectionChanged();	// Оповещение формы об изменении
         }
@@ -102,9 +102,9 @@ namespace Amaranth.Model.Data
                 if (_list[i].Id == id)
                 {
                     // Перерасчет итоговой суммы
-                    FinalPrice += (count - _list[i].Count) * _list[i].Price;
+                    FinalPrice += (count - _list[i].CountProduct) * _list[i].Price;
                     // Обновление количества
-                    _list[i].Count = count;
+                    _list[i].CountProduct = count;
                     break;
                 }
         }

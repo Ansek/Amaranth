@@ -47,6 +47,12 @@ namespace Amaranth.Model
 		DataTable LoadTable(string table, string condition = null, int count = 0, int pos = 0);
 
 		/// <summary>
+		/// Загружает данные для данной записи.
+		/// </summary>
+		/// <param name="data">Объект записи.</param>
+		void LoadData(IData data);
+
+		/// <summary>
 		/// Обновляет сведения для элементах коллекции внешней таблицы.
 		/// </summary>
 		/// <param name="collection">Объект коллекции.</param>
@@ -86,12 +92,15 @@ namespace Amaranth.Model
 		/// <param name="table">Имя таблицы.</param>
 		void DeleteTable(string table);
 
-		///// <summary>
-		///// Получение максимального значения в таблице.
-		///// </summary>
-		///// <param name="table">Имя таблицы.</param>
-		///// <param name="column">Имя столбца.</param>
-		//int GetMaxValue(string table, string column, string condition = null); ???
+		/// <summary>
+		/// Загружает все данные заданного столбца.
+		/// </summary>
+		/// <param name="table">Имя таблицы.</param>
+		/// <param name="column">Имя столбца.</param>
+		/// <returns>Список значений столбца.</returns>
+		List<string> GetColumn(string table, string column);
+
+
 
 		// ----------------
 		int Insert(data data);
@@ -109,8 +118,6 @@ namespace Amaranth.Model
 		data GetUser(string login, string password);
 
 		List<data> GetQuery(string table, string condition);
-
-		List<string> GetColumn(string column, string table);
 
 		bool IsTableExists(string name);
 

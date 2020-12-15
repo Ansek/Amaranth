@@ -22,9 +22,9 @@ namespace Amaranth.ViewModel
         bool _isSelect;
 
         /// <summary>
-        /// Список загруженных тегов.
+        /// Содержит список новых тегов.
         /// </summary>
-        List<string> _oldTags;
+        List<Tag> _newTags;
 
         /// <summary>
         /// Конструктор посредника для формы товаров.
@@ -34,7 +34,7 @@ namespace Amaranth.ViewModel
             _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
             // Устанока параметров по умолчанию
             _isSelect = false;
-            ListTags = new ObservableCollection<string>();
+            _newTags = new List<Tag>();
         }
 
         ProductInfo _product;
@@ -57,6 +57,16 @@ namespace Amaranth.ViewModel
             set => SetValue(ref _tagField, value);
         }
 
+        Tag _currentTag;
+        /// <summary>
+        /// Для хранения текущего выбранного тега.
+        /// </summary>
+        public Tag CurrentTag
+        {
+            get => _currentTag;
+            set => SetValue(ref _currentTag, value);
+        }
+
         /// <summary>
         /// Создание объекта нового товара.
         /// </summary>
@@ -65,8 +75,6 @@ namespace Amaranth.ViewModel
             get => new Command<Category>((c) =>
             {
                 Product = new ProductInfo(c);
-                ListTags.Clear();
-                _oldTags = null;
                 _isSelect = false;
                 TagField = "";
             }, (c) => c != null);
@@ -79,11 +87,8 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Product>((p) =>
             {
-                Product = DataBaseSinglFacade.LoadInfo(p);
-                _oldTags = DataBaseSinglFacade.LoadTags(p.Id);
-                ListTags.Clear();
-                foreach (var t in _oldTags)
-                    ListTags.Add(t);
+                if (_db.IsSetAdapter)
+                    Product = _db.LoadInfo(p);
                 _isSelect = true;
                 TagField = "";
             }, (p) => p != null);
@@ -96,9 +101,9 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
+                _db.AddTags(_newTags); // Обновление списка тегов перед добавление товара
+                _newTags.Clear();
                 _db.Insert(_product);
-                //int id = 0; // TO DO 
-                //DataBaseSinglFacade.AddTags(id, new List<string>(ListTags));
                 Product = null;
             }, () => _product != null && !_isSelect);
         }
@@ -110,17 +115,8 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
+                _db.AddTags(_newTags); // Обновление списка тегов перед изменением товара
                 _db.Update(_product);
-                var list = new List<string>();
-                foreach (var t in ListTags)
-                    if (!_oldTags.Contains(t))
-                        list.Add(t);
-                DataBaseSinglFacade.AddTags(_product.Id, list);
-                list.Clear();
-                foreach (var t in _oldTags)
-                    if (!ListTags.Contains(t))
-                        list.Add(t);
-                DataBaseSinglFacade.DeleteTags(_product.Id, list);
                 Product = null;
             }, () => _product != null && _isSelect);
         }
@@ -148,8 +144,12 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                if (!ListTags.Contains(TagField))
-                    ListTags.Add(TagField);
+                if (CurrentTag == null) // Проверка, что задан новый тег
+                {
+                    CurrentTag = new Tag() { Title = TagField };
+                    _newTags.Add(CurrentTag);
+                }
+                Product.AddTag(CurrentTag);
                 TagField = "";
             }, () => TagField != "");
         }
@@ -157,25 +157,14 @@ namespace Amaranth.ViewModel
         /// <summary>
         /// Удаление тега.
         /// </summary>
-        public Command<string> RemoveTag
+        public Command<Tag> RemoveTag
         {
-            get => new Command<string>((t) =>
+            get => new Command<Tag>((tag) =>
             {
-                ListTags.Remove(t);
-            }, (t) => t != "");
+                if (_newTags.Contains(tag)) // Проверка, что тег добавлен недавно
+                    _newTags.Remove(tag);
+                Product.RemoveTag(tag);
+            }, (tag) => tag != null);
         }
-
-        /// <summary>
-        /// Активный список тегов
-        /// </summary>
-        public ObservableCollection<string> ListTags { get; }
-        /// <summary>
-        /// Список категорий.
-        /// </summary>
-        public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;
-        /// <summary>
-        /// Список тегов
-        /// </summary>
-        public ObservableCollection<string> Tags => DataBaseSinglFacade.Tags;
     }
 }

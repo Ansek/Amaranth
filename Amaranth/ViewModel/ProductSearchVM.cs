@@ -42,7 +42,7 @@ namespace Amaranth.ViewModel
             _db.ProductListChanged += () =>
             {
                 var categories = MainWindowVM.Categories;
-                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
+                ListProducts = _db.GetProductList(categories, _oldRequest, _countAll, Position);  // Обновление списка
             };
             // Устанока параметров по умолчанию
             _countAll = 10;
@@ -50,7 +50,7 @@ namespace Amaranth.ViewModel
             _maxNumber = 1;
             _request = new ProductRequest();
             _oldRequest = new ProductRequest();
-            ListProducts = _db.GetListProduct(MainWindowVM.Categories, _oldRequest, _countAll, Position);
+            ListProducts = _db.GetProductList(MainWindowVM.Categories, _oldRequest, _countAll, Position);
         }
 
         List<Product> _listProducts;
@@ -126,7 +126,7 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 var categories = MainWindowVM.Categories;
-                ListProducts = _db.GetListProduct(categories, _request, _countAll, Position);  // Обновление списка
+                ListProducts = _db.GetProductList(categories, _request, _countAll, Position);  // Обновление списка
                 _oldRequest.Copy(_request); // Копирование запроса (в случае перехода на другую страницу)
             });
         }
@@ -134,25 +134,25 @@ namespace Amaranth.ViewModel
         /// <summary>
         /// Добавление тега для поиска.
         /// </summary>
-        public Command AddTag
+        public Command<Tag> AddTag
         {
-            get => new Command(() =>
+            get => new Command<Tag>((tag) =>
             {
-                if (!Request.Tags.Contains(TagField))
-                    Request.Tags.Add(TagField);
+                if (!Request.Tags.Contains(tag))
+                    Request.Tags.Add(tag);
                 TagField = "";
-            }, () => TagField != "");
+            }, (tag) => tag != null);
         }
 
         /// <summary>
         /// Удаление тега.
         /// </summary>
-        public Command<string> RemoveTag
+        public Command<Tag> RemoveTag
         {
-            get => new Command<string>((t) =>
+            get => new Command<Tag>((tag) =>
             {
-                Request.Tags.Remove(t);
-            }, (t) => t != "");
+                Request.Tags.Remove(tag);
+            }, (tag) => tag != null);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Amaranth.ViewModel
             {
                 _countAll = count;
                 var categories = MainWindowVM.Categories;
-                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
+                ListProducts = _db.GetProductList(categories, _oldRequest, _countAll, Position);  // Обновление списка
             });
         }
 
@@ -177,7 +177,7 @@ namespace Amaranth.ViewModel
             {
                 CurrentNumber--;
                 var categories = MainWindowVM.Categories;
-                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
+                ListProducts = _db.GetProductList(categories, _oldRequest, _countAll, Position);  // Обновление списка
             }, () => _currentNumber != 1);
         }
 
@@ -190,7 +190,7 @@ namespace Amaranth.ViewModel
             {
                 CurrentNumber++;
                 var categories = MainWindowVM.Categories;
-                ListProducts = _db.GetListProduct(categories, _oldRequest, _countAll, Position);  // Обновление списка
+                ListProducts = _db.GetProductList(categories, _oldRequest, _countAll, Position);  // Обновление списка
             }, () => _currentNumber != _maxNumber);
         }
 
@@ -201,18 +201,5 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Product>((i) => OpenProduct?.Invoke(i)); 
         }
-
-        /// <summary>
-        /// Список категорий.
-        /// </summary>
-        public ObservableCollection<Category> Categories => DataBaseSinglFacade.Categories;
-        /// <summary>
-        /// Список заголков товара.
-        /// </summary>
-        public ObservableCollection<string> ProductTitles => DataBaseSinglFacade.ProductTitles;
-        /// <summary>
-        /// Список тегов.
-        /// </summary>
-        public ObservableCollection<string> Tags => DataBaseSinglFacade.Tags;
     }
 }

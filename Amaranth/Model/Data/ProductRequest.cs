@@ -16,7 +16,7 @@ namespace Amaranth.Model.Data
         public ProductRequest()
         {
             _checkTitle = true;
-            Tags = new ObservableCollection<string>();
+            Tags = new ObservableCollection<Tag>();
             _title = string.Empty;
             _fromDate = DateTime.Now;
             _fromDate = _fromDate.AddMonths(-1);
@@ -77,7 +77,7 @@ namespace Amaranth.Model.Data
         /// <summary>
         /// Список тегов.
         /// </summary>
-        public ObservableCollection<string> Tags { get; }
+        public ObservableCollection<Tag> Tags { get; }
 
         bool _checkPrice;
         /// <summary>
@@ -198,7 +198,7 @@ namespace Amaranth.Model.Data
         /// <summary>
         /// Формирует SQL-фрагмент для запроса к БД.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>SQL-фрагмент.</returns>
         public string GetCondition()
         {
             string condition = string.Empty;
@@ -211,14 +211,14 @@ namespace Amaranth.Model.Data
                 {
                     if (str != string.Empty)
                         str += " OR ";
-                    str += $"Tag = '{t}'";
+                    str += $"idTag = {t.Id}";
 
                 }
-                condition += $"(idProduct, {Tags.Count}) IN (SELECT idProduct, count(Tag) FROM product_tag WHERE {str} GROUP BY idProduct)";
+                condition += $"(idProduct, {Tags.Count}) IN (SELECT idProduct, count(idTag) FROM product_tag WHERE {str} GROUP BY idProduct)";
             }
 
             // Установка условия поиска по наименованию
-            if (_checkTitle && _title != null)
+            if (_checkTitle && _title != string.Empty)
             {
                 if (condition != string.Empty)
                     condition += " AND ";

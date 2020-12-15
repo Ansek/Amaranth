@@ -28,13 +28,13 @@ namespace Amaranth.ViewModel
             _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
             _db.CategoryListChanged += () =>
             {
-                ListСategories = _db.GetListCategory(); // Обновление списка
+                ListСategories = _db.GetCategoryList(); // Обновление списка
                 Category = null;                        // Сброс текущей записи
             };
             // Установка параметров по умолчанию
             _isSelect = false;
             _descriptionTitle = string.Empty;
-            ListСategories = _db.GetListCategory();
+            ListСategories = _db.GetCategoryList();
         }
 
         Category _category;
