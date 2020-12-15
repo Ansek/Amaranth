@@ -52,6 +52,13 @@ namespace Amaranth.Model
 
             // Выполнение запроса
             ExecuteNonQuery(cmd);
+
+            // Обновление параметра идентификатора
+            if (data.IdColumn is int)
+            {
+                int id = GetMaxValue(data.Table, data.IdColumnName);
+                data.SetData(data.IdColumnName, id);
+            }                
         }
 
         /// <summary>
@@ -102,6 +109,27 @@ namespace Amaranth.Model
         }
 
         /// <summary>
+        /// Удаление записей из БД по параметрам.
+        /// </summary>
+        /// <param name="table">Таблица, из которой будут удалены записи.</param>
+        /// <param name="column">Столбец, по которому будет проводиться проверка.</param>
+        /// <param name="value">Значение, по которому будуь удалены записи.</param>
+        public void Delete(string table, string column, object value)
+        {
+            var cmd = new MySqlCommand("", _connect);
+
+            // Формирование запроса на удаление
+            string idCmd;
+            int i = 0;
+            var paramKey = GetParamater(value, ref i, out idCmd); // Формирование параметра ключа
+            cmd.Parameters.Add(paramKey);               // Добавление параметра ключа в команду
+            cmd.CommandText = $"DELETE FROM {table} WHERE {column} = {idCmd};";
+
+            // Выполнение запроса
+            ExecuteNonQuery(cmd);
+        }
+
+        /// <summary>
         /// Загрузка данных из БД.
         /// </summary>
         /// <param name="table">Имя таблицы.</param>
@@ -119,6 +147,170 @@ namespace Amaranth.Model
 
             //Выполнение запроса
             return LoadTable(table, sql);
+        }
+
+        /// <summary>
+        /// Обновляет сведения для элементах коллекции внешней таблицы.
+        /// </summary>
+        /// <param name="collection">Объект коллекции.</param>
+        public void UpdateCollection(IDataCollection collection)
+        {
+            var cmd = new MySqlCommand("", _connect);
+            int i = 0;
+            // Перебор элементов коллекции
+            foreach (var c in collection.GetDataCollection())
+            {
+                // Если требуется добавить элемент
+                if (c.IdItem > 0 && c.IsAdd)
+                {
+                    // Формирование запроса на добавление
+                    string idCmd, columns, values;
+                    columns = values = string.Empty;
+                    foreach (var d in c.GetData())
+                    {
+                        if (columns != string.Empty) // Разделение данных по запятым
+                        {
+                            columns += ",";
+                            values += ",";
+                        }
+                        var param = GetParamater(d.Item2, ref i, out idCmd); // Формирование параметра
+                        cmd.Parameters.Add(param);  // Добавление параметра в команду
+                        columns += d.Item1;         // Формирование списка столбцов
+                        values += idCmd;            // Формирование списка значений
+                    }
+                    string idCmd1, idCmd2;
+                    var paramKey1 = GetParamater(collection.IdColumn, ref i, out idCmd1); // Формирование параметра первого ключа
+                    cmd.Parameters.Add(paramKey1);                              // Добавление параметра первого ключа в команду
+                    var paramKey2 = GetParamater(c.IdItem, ref i, out idCmd2);  // Формирование параметра второго ключа
+                    cmd.Parameters.Add(paramKey2);                              // Добавление параметра второго ключа в команду
+                    if (columns != string.Empty)
+                    {
+                        columns += ",";
+                        values += ",";
+                    }
+                    columns += $"{ collection.IdColumnName},{ collection.IdItemName}";  // Добавление ключевых параметров
+                    values += $"{idCmd1},{idCmd2}";
+                    cmd.CommandText += $"INSERT INTO {collection.CollectionTable} ({columns}) VALUES ({values});\n";
+                }
+                // Если требуется удалить элемент коллекции
+                if (c.IdItem > 0 && c.IsDelete)
+                {
+                    // Формирование запроса на удаление
+                    string idCmd1, idCmd2;
+                    var paramKey1 = GetParamater(collection.IdColumn, ref i, out idCmd1); // Формирование параметра первого ключа
+                    cmd.Parameters.Add(paramKey1);                              // Добавление параметра первого ключа в команду
+                    var paramKey2 = GetParamater(c.IdItem, ref i, out idCmd2);  // Формирование параметра второго ключа
+                    cmd.Parameters.Add(paramKey2);                              // Добавление параметра второго ключа в команду
+                    cmd.CommandText += $"DELETE FROM {collection.CollectionTable} WHERE {collection.IdColumnName} = {idCmd1} AND {collection.IdItemName} = {idCmd2};\n";
+                }    
+            }
+            // Выполнение списка составленных запросов
+            if (cmd.CommandText != string.Empty)
+                ExecuteNonQuery(cmd);
+        }
+
+        /// <summary>
+        /// Заполняет коллекцию данными из внешней таблицы.
+        /// </summary>
+        /// <param name="collection">Объект коллекции.</param>
+        public void FillCollection(IDataCollection collection)
+        {
+            var sql = $"SELECT * FROM {collection.CollectionTable} WHERE {collection.IdColumnName} = {collection.IdColumn};";
+            var table = LoadTable(collection.CollectionTable, sql);
+
+            // Перебор значений заданной строки
+            for (int i = 0; i < table.Rows.Count; i++)
+            {
+                var item = collection.CreateItem(); // Получение нового элемента коллекции для заполнения
+                for (int j = 0; j < table.Columns.Count; j++)
+                {
+                    var column = table.Columns[j].ColumnName;   // Получение имени столбца
+                    var value = table.Rows[i][j];               // Получение значения по этому столбцу
+                    item.SetData(column, value);                // Запись данных в объект заполнения
+                }
+            }
+        }
+
+        /// <summary>
+        /// Создание таблицы в БД.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="columnIdName">Имя ключевого поля.</param>
+        /// <param name="columns">Список столбцов таблицы.</param>
+        public void CreateTable(string table, string columnIdName, List<string> columns)
+        {
+            // Формирвание полей для столбцов
+            string field = string.Empty;
+            foreach (var column in columns)
+                field += $", {column} TEXT NULL";
+
+            // Формирование запроса на создание таблицы
+            string sql = $"CREATE TABLE {table} ({columnIdName} INT NOT NULL{field}, PRIMARY KEY ({columnIdName}));";
+            var cmd = new MySqlCommand(sql, _connect);
+
+            //Выполнение запроса
+            ExecuteNonQuery(cmd);
+        }
+
+        /// <summary>
+        /// Добавление столбца в таблицу.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="column">Имя столбца.</param>
+        public void AddColumn(string table, string column)
+        {
+            // Формирование запроса на добавление столбца
+            string sql = $"ALTER TABLE {table} ADD {column} TEXT NULL;";
+            var cmd = new MySqlCommand(sql, _connect);
+
+            //Выполнение запроса
+            ExecuteNonQuery(cmd);
+        }
+
+        /// <summary>
+        /// Удаление столбца из таблицы.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="column">Имя столбца.</param>
+        public void DeleteColumn(string table, string column)
+        {
+            // Формирование запроса на удаление столбца
+            string sql = $"ALTER TABLE {table} DROP COLUMN {column};";
+            var cmd = new MySqlCommand(sql, _connect);
+
+            //Выполнение запроса
+            ExecuteNonQuery(cmd);
+        }
+
+        /// <summary>
+        /// Удаление таблицы из БД.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        public void DeleteTable(string table)
+        {
+            // Формирование запроса на удаление таблицы
+            string sql = $"DROP TABLE {table};";
+            var cmd = new MySqlCommand(sql, _connect);
+
+            //Выполнение запроса
+            ExecuteNonQuery(cmd);
+        }
+
+        /// <summary>
+        /// Получение максимального значения в таблице.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="column">Имя столбца.</param>
+        public int GetMaxValue(string table, string column, string condition = null)
+        {
+            // Составление скрипта запроса
+            if (condition != null)
+                condition = $"WHERE {condition}";
+            string sql = $"SELECT max({column}) FROM {table} {condition};";
+            var cmd = new MySqlCommand(sql, _connect);
+
+            //Выполнение запроса
+            return ExecuteScalar<int>(cmd);
         }
 
         /// <summary>
@@ -348,7 +540,7 @@ namespace Amaranth.Model
             return Convert.ToInt32(GetScalar(sql));
         }
 
-        public void CreateTable(string name, List<string> columns)
+        public void CreateTableOld(string name, List<string> columns)
         {
             string field = string.Empty;
             foreach (var column in columns)
@@ -367,7 +559,7 @@ namespace Amaranth.Model
             }
         }
 
-        public void DeleteTable(string name)
+        public void DeleteTableOld(string name)
         {
             _connect.Open();
             string sql = $"DROP TABLE {name};";
@@ -382,36 +574,8 @@ namespace Amaranth.Model
             }
         }
 
-        public void AddColumn(string name, string table)
-        {
-            _connect.Open();
-            string sql = $"ALTER TABLE {table} ADD {name} TEXT NULL;";
-            var cmd = new MySqlCommand(sql, _connect);
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                _connect.Close();
-            }
-        }
 
-        public void DeleteColumn(string name, string table)
-        {
-            _connect.Open();
-            string sql = $"ALTER TABLE {table} DROP COLUMN {name};";
-            var cmd = new MySqlCommand(sql, _connect);
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                _connect.Close();
-            }
-        }
-
+        /*
         public int GetMaxValue(string name, string table)
         {
             string sql = $"SELECT max({name}) FROM {table};";
@@ -422,7 +586,7 @@ namespace Amaranth.Model
         {
             string sql = $"SELECT max({name}) FROM {table} WHERE {condition};";
             return Convert.ToInt32(GetScalar(sql));
-        }
+        }*/
 
 
 

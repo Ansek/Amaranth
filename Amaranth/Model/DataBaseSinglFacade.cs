@@ -49,7 +49,7 @@ namespace Amaranth.Model
 			if (_categories == null)
 				GetListCategory();
 			_productTitles = new ObservableCollection<string>(_adapter.GetColumn("Title", "product"));
-			_tags = new ObservableCollection<string>(_adapter.GetColumn("Name", "tag"));
+			_tags = new ObservableCollection<string>(_adapter.GetColumn("Title", "tag"));
 		}
 
 		/*--- Методы для работы с товарами ---*/
@@ -72,8 +72,8 @@ namespace Amaranth.Model
 			var p = product as Product;
 			_adapter.Insert(p);
 
-			// Запись дополнительных полей
-			_adapter.Insert(product);
+			_adapter.Insert(product);		// Запись дополнительных полей
+			ProductListChanged?.Invoke();	// Оповещение об изменении в списке товаров
 		}
 
 		/// <summary>
@@ -89,8 +89,8 @@ namespace Amaranth.Model
 			var p = product as Product;
 			_adapter.Update(p);
 
-			// Изменение дополнительных полей
-			_adapter.Update(product);
+			_adapter.Update(product);		// Изменение дополнительных полей
+			ProductListChanged?.Invoke();	// Оповещение об изменении в списке товаров
 		}
 
 		/// <summary>
@@ -105,9 +105,9 @@ namespace Amaranth.Model
 			// Приведение к родительскому классу для удаления основных полей
 			var p = product as Product;
 			_adapter.Delete(p);
-
-			// Удаление дополнительных полей
-			_adapter.Delete(product);
+						
+			_adapter.Delete(product);		// Удаление дополнительных полей
+			ProductListChanged?.Invoke();	// Оповещение об изменении в списке товаров
 		}
 
 		/// <summary>
@@ -164,8 +164,11 @@ namespace Amaranth.Model
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
-			// Запись данных категории
-			_adapter.Insert(category);
+			_adapter.Insert(category);				// Запись данных категории
+			_adapter.UpdateCollection(category);    // Обновление данных о пунктах описания товаров
+			// Добавление связанной таблицы описания
+			_adapter.CreateTable(category.DescriptionTable, "idProduct", category.GetAddColumn());
+			CategoryListChanged?.Invoke();			// Оповещение об изменении в списке категорий
 		}
 
 		/// <summary>
@@ -177,9 +180,17 @@ namespace Amaranth.Model
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 						
-			_adapter.Update(category);      // Изменение данных категории
+			_adapter.Update(category);				// Изменение данных категории
+			_adapter.UpdateCollection(category);    // Обновление данных о пунктах описания товаров
 
-			CategoryListChanged?.Invoke();  // Оповещение об изменении
+			// Добавление новых столбцов при наличии
+			foreach (var column in category.GetAddColumn())
+				_adapter.AddColumn(category.DescriptionTable, column);
+			// Удаление новых столбцов при наличии
+			foreach (var column in category.GetDeleteColumn())
+				_adapter.DeleteColumn(category.DescriptionTable, column);
+
+			CategoryListChanged?.Invoke();			// Оповещение об изменении в списке категорий
 		}
 
 		/// <summary>
@@ -190,10 +201,13 @@ namespace Amaranth.Model
 		{
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
-						
-			_adapter.Delete(category);		// Удаление данных категории
 
-			CategoryListChanged?.Invoke();  // Оповещение об изменении
+			// Удаление всех ссылок на категорию в таблице пунктов описаний
+			_adapter.Delete("Description", "idCategory", category.Id);
+			_adapter.Delete(category);          // Удаление данных категории
+			// Удаление связанной таблицы описания
+			_adapter.DeleteTable(category.DescriptionTable);    
+			CategoryListChanged?.Invoke();		// Оповещение об изменении в списке категорий
 		}
 
 		/// <summary>
@@ -214,7 +228,8 @@ namespace Amaranth.Model
 			{
 				// Создает объекта категории
 				var category = new Category();
-				FillData(category, table, i); // Копирование значений из таблицы
+				FillData(category, table, i);		// Копирование значений из таблицы
+				_adapter.FillCollection(category);	// Заполнение информацией о пунктах описания товара
 				list.Add(category);
 			}
 			return list;
@@ -237,8 +252,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 						
 			_adapter.Insert(user);		// Запись данных пользователя
-
-			UserListChanged?.Invoke();  // Оповещение об изменении
+			UserListChanged?.Invoke();  // Оповещение об изменении в списке пользователей
 		}
 
 		/// <summary>
@@ -251,8 +265,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 						
 			_adapter.Update(user);		// Изменение данных пользователя
-
-			UserListChanged?.Invoke();	// Оповещение об изменении
+			UserListChanged?.Invoke();  // Оповещение об изменении в списке пользователей
 		}
 
 		/// <summary>
@@ -265,8 +278,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
 			_adapter.Delete(user);		// Удаление данных пользователя
-
-			UserListChanged?.Invoke();	// Оповещение об изменении
+			UserListChanged?.Invoke();  // Оповещение об изменении в списке пользователей
 		}
 
 		/// <summary>
@@ -382,7 +394,7 @@ namespace Amaranth.Model
 				}
 
 			string table = $"CategoryDescriptions{id}";
-			_adapterOld.CreateTable(table, columns);
+			//_adapterOld.CreateTable(table, columns);
 		}
 
 		public static void InsertOld(User user)
@@ -441,7 +453,8 @@ namespace Amaranth.Model
 			data.RecordId = category.Id;
 			_adapterOld.Update(data);
 
-			int i = _adapterOld.GetMaxValue("idDescription", "description", $"idCategory = {category.Id}") + 1;
+			//int i = _adapterOld.GetMaxValue("idDescription", "description", $"idCategory = {category.Id}") + 1;
+			int i = -1;
 			foreach (var desc in category)
 				if (desc.Id == -1)
 				{
@@ -453,7 +466,7 @@ namespace Amaranth.Model
 					data.TableName = "description";
 					_adapterOld.Insert(data);
 				}
-
+			/*
 			foreach (var j in category.DeletedIds)
             {
 				data.Clear();
@@ -462,7 +475,7 @@ namespace Amaranth.Model
 				data.RecordId = $"{j} AND idCategory = {category.Id}";
 				_adapterOld.Delete(data);
 				_adapterOld.DeleteColumn($"desc{j}", $"CategoryDescriptions{category.Id}");
-			}
+			}*/
 		}
 
 		public static void UpdateOld(User user)

@@ -69,6 +69,7 @@ namespace Amaranth.Model.Data
                 if (p.Id == product.Id)
                     return;
 
+            product.IsAdd = true;
             _list.Add(product);
             // Перерасчет итоговой суммы
             FinalPrice += product.Count * product.Price;
@@ -82,7 +83,7 @@ namespace Amaranth.Model.Data
         /// <param name="product">Удаляемый товар.</param>
         public void Delete(Product product)
         {
-            _list.Remove(product);
+            _list.Remove(product); 
             // Перерасчет итоговой суммы
             FinalPrice -= product.Count * product.Price;
 
@@ -160,31 +161,27 @@ namespace Amaranth.Model.Data
 
         public string CollectionTable => $"Order_Product";
 
+        public string IdItemName => "idProduct";
+
         /// <summary>
         /// Получение данных об элементе коллекции.
         /// </summary>
         /// <returns>Возвращает интерфейс на элемент.</returns>
-        public IEnumerable<IData> GetDataCollection()
+        public IEnumerable<ICollectionItem> GetDataCollection()
         {
-            foreach (var el in _list)
-                yield return el;
+            for (int i = 0; i < _list.Count; i++)
+                yield return _list[i];
         }
 
         /// <summary>
-        /// Передает данные для заполнения коллекции.
+        /// Создает новый объект коллекции и возвращает интерфейс для заполнения.
         /// </summary>
-        /// <param name="data">Возвращает интерфейс на элемент.</param>
-        public void SetDataCollection(IEnumerable<IData> data)
+        /// <returns>Объект для заполнения.</returns>
+        public ICollectionItem CreateItem()
         {
-            _list.Clear(); // Очистка от старых данных
-            Category category = null; // TO DO поиск нужной
-            foreach (var el in data)
-            {
-                var prod = new Product(category);
-                //prod.SetData(el.GetData()); // Копирование полученных данных
-                _list.Add(prod);
-            }
+            var prod = new Product(new Category());
+            _list.Add(prod);
+            return prod;
         }
-
     }
 }

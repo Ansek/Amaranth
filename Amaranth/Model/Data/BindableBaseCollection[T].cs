@@ -37,12 +37,12 @@ namespace Amaranth.Model.Data
         /// Возвращает перечислитель, выполняющий перебор элементов по коллекции.
         /// </summary>
         /// <returns>Перечислитель, который можно использовать для итерации по коллекции.</returns>
-        public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+        public virtual IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
         /// <summary>
         /// Возвращает перечислитель, выполняющий перебор элементов по коллекции.
         /// </summary>
         /// <returns>Перечислитель, который можно использовать для итерации по коллекции.</returns>
-        IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

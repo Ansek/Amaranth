@@ -14,7 +14,6 @@ namespace Amaranth.Model.Data
 		public Category()
 		{
 			_id = -1;
-			DeletedIds = new List<int>();
 		}
 
 		/// <summary>
@@ -26,13 +25,7 @@ namespace Amaranth.Model.Data
 			_id = category._id;
 			_title = category._title;
 			_list = new List<Description>(category._list); // Поле из BindableBaseCollection
-			DeletedIds = new List<int>();
 		}
-
-		/// <summary>
-		/// Список для хранения идентификатор пунктов описания, которые требуется удалить.
-		/// </summary>
-		public List<int> DeletedIds { get; }
 
 		int _id;
 		/// <summary>
@@ -61,17 +54,45 @@ namespace Amaranth.Model.Data
 		/// <param name="id">Идентификатор описания</param>
 		public void AddDescription(string title, int id = -1)
 		{
+			int i = 0;
 			// Проверка заголовка на уникальность
 			foreach (var desc in _list)
+            {
 				if (desc.Title == title)
+                {
+					// Если есть, но помечена как удаленная
+					if (desc.IsDelete)
+                    {
+						desc.IsDelete = false;
+						OnCollectionChanged();  // Оповещение формы об изменении
+						return;
+					}
 					throw new Exception("Имя '" + title + "' уже задано внутри Category");
-
-			// Добавления 
-			_list.Add(new Description()
-			{
-				Id = id,
-				Title = title
-			});
+				}
+				// Определение максимального значения индекса
+				if (i < desc.Id)
+					i = desc.Id;
+			}
+			// Если идентификатор не задан
+			if (id == -1)
+            {
+				// Добавления новой записи
+				_list.Add(new Description()
+				{
+					Id = i + 1,
+					Title = title,
+					IsAdd = true
+				});
+			}				
+			else
+            {
+				// Добавления старой записи
+				_list.Add(new Description()
+				{
+					Id = id,
+					Title = title
+				});
+			}
 
 			OnCollectionChanged();	// Оповещение формы об изменении
 		}
@@ -86,11 +107,46 @@ namespace Amaranth.Model.Data
 			for (int i = 0; i < _list.Count; i++)
 				if (_list[i].Id == description.Id && _list[i].Title == description.Title)
 				{
-					DeletedIds.Add(_list[i].Id);	// Отметка пункта как удаляемого
-					_list.RemoveAt(i);				// Удаление из основного списка
+					if (_list[i].IsAdd)				// Если параметр добавлен недавно
+						_list.RemoveAt(i);
+					else
+						_list[i].IsDelete = true;	// Отметка пункта как удаляемого
 					OnCollectionChanged();			// Оповещение формы об изменении
 					break;
 				}
+		}
+
+		/// <summary>
+		/// Имя таблицы для хранения значений пунктов описания.
+		/// </summary>
+		public string DescriptionTable => $"CategoryDescriptions{_id}";
+
+		/// <summary>
+		/// Получение списка новых столбцов таблицы для хранения значений пунктов описания.
+		/// </summary>
+		/// <returns>Список добавляемых столбцов.</returns>
+		public List<string> GetAddColumn()
+        {
+			var list = new List<string>();
+			// Поиск столбцов
+			foreach (var d in _list)
+				if (d.IsAdd)
+					list.Add($"Desc{d.Id}");
+			return list;
+		}
+
+		/// <summary>
+		/// Получение списка столбцов таблицы для хранения значений пунктов описания, которые следует удалить.
+		/// </summary>
+		/// <returns>Список удаляемых столбцов.</returns>
+		public List<string> GetDeleteColumn()
+		{
+			var list = new List<string>();
+			// Поиск столбцов
+			foreach (var d in _list)
+				if (d.IsDelete)
+					list.Add($"Desc{d.Id}");
+			return list;
 		}
 
 		/*--- Свойства и методы для интерфейса IData ---*/
@@ -134,31 +190,29 @@ namespace Amaranth.Model.Data
 
 		/*--- Свойства и методы для интерфейса IDataCollection ---*/
 
-		public string CollectionTable => $"CategoryDescriptions{_id}";
+		public string CollectionTable => $"Description";
 
-		/// <summary>
-		/// Получение данных об элементе коллекции.
-		/// </summary>
-		/// <returns>Возвращает интерфейс на элемент.</returns>
-		public IEnumerable<IData> GetDataCollection()
+        public string IdItemName => "idDescription";
+
+        /// <summary>
+        /// Получение данных об элементе коллекции.
+        /// </summary>
+        /// <returns>Возвращает интерфейс на элемент.</returns>
+        public IEnumerable<ICollectionItem> GetDataCollection()
 		{
-			foreach (var el in _list)
-				yield return el;
+			for (int i = 0; i < _list.Count; i++)
+				yield return _list[i];
 		}
 
 		/// <summary>
-		/// Передает данные для заполнения коллекции.
+		/// Создает новый объект коллекции и возвращает интерфейс для заполнения.
 		/// </summary>
-		/// <param name="data">Возвращает интерфейс на элемент.</param>
-		public void SetDataCollection(IEnumerable<IData> data)
+		/// <returns>Объект для заполнения.</returns>
+		public ICollectionItem CreateItem()
 		{
-			_list.Clear(); // Очистка от старых данных
-			foreach (var el in data)
-            {
-				var dest = new Description();
-				//dest.SetData(el.GetData()); // Копирование полученных данных
-				_list.Add(dest);
-			}
+			var desc = new Description();
+			_list.Add(desc);
+			return desc;
 		}
 
 		/*--- Скрывающий метод для BindableBaseCollection ---*/
@@ -167,10 +221,11 @@ namespace Amaranth.Model.Data
 		/// Возвращает шаблон для описания данной категории.
 		/// </summary>
 		/// <returns>Перечислитель для классов описания</returns>
-		public new IEnumerator<Description> GetEnumerator()
+		public override IEnumerator<Description> GetEnumerator()
 		{
 			foreach (var desc in _list)
-				yield return new Description(desc);
+				if (!desc.IsDelete)
+					yield return new Description(desc);
 		}
     }
 }

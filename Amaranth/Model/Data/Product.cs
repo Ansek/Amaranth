@@ -6,7 +6,7 @@ namespace Amaranth.Model.Data
 	/// <summary>
 	/// Определяет товар.
 	/// </summary>
-	public class Product : BindableBase, IData
+	public class Product : BindableBase, IData, ICollectionItem
 	{
 		/// <summary>
 		/// Конструктор для объекта товара.
@@ -171,5 +171,21 @@ namespace Amaranth.Model.Data
 			}					
 		}
 
+		/*--- Свойства для интерфейса ICollectionItem ---*/
+
+		/// <summary>
+		/// Второе значение первичного ключа (составной ключ).
+		/// </summary>
+		public int IdItem => Id;
+
+		/// <summary>
+		/// Флаг для отметки добавляемого значения.
+		/// </summary>
+		public bool IsAdd { get; set; }
+
+		/// <summary>
+		/// Флаг для отметки удаляемого значения
+		/// </summary>
+		public bool IsDelete { get; set; }
 	}
 }

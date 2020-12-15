@@ -114,6 +114,7 @@
     </ApplicationDefinition>
     <Compile Include="Model\Data\BindableBase.cs" />
     <Compile Include="Model\Data\BindableBaseCollection[T].cs" />
+    <Compile Include="Model\Data\ICollectionItem.cs" />
     <Compile Include="Model\Data\IData.cs" />
     <Compile Include="Model\Data\IDataCollection.cs" />
     <Compile Include="Model\Data\Order.cs" />

@@ -6,7 +6,7 @@ namespace Amaranth.Model.Data
 	/// <summary>
 	/// Определяет пункт описания в категории
 	/// </summary>
-	public class Description : BindableBase, IData
+	public class Description : BindableBase, ICollectionItem
 	{
 		/// <summary>
 		/// Конструктор для объекта описания.
@@ -25,6 +25,8 @@ namespace Amaranth.Model.Data
 			Id = description.Id;
 			_title = description._title;
 			_value = description._value;
+			IsAdd = description.IsAdd;
+			IsDelete = description.IsDelete;
 			ValueChanged = description.ValueChanged;
 		}
 
@@ -60,22 +62,22 @@ namespace Amaranth.Model.Data
 			set { SetValue(ref _value, value); ValueChanged?.Invoke(value, Index); }
 		}
 
-		/*--- Свойства и методы для интерфейса IData ---*/
+		/*--- Свойства и методы для интерфейса ICollectionItem ---*/
 
 		/// <summary>
-		/// Значений первичного ключа.
+		/// Второе значение первичного ключа (составной ключ).
 		/// </summary>
-		public object IdColumn => Id;
+		public int IdItem => Id;
 
 		/// <summary>
-		/// Имя столбца значения первичного ключа.
+		/// Флаг для отметки добавляемого значения.
 		/// </summary>
-		public string IdColumnName => "idDescription";
+		public bool IsAdd { get; set; }
 
 		/// <summary>
-		/// Имя таблицы.
+		/// Флаг для отметки удаляемого значения
 		/// </summary>
-		public string Table => "Description";
+		public bool IsDelete { get; set; }
 
 		/// <summary>
 		/// Получение данных об имени столбцах и их содержимом.

@@ -2,8 +2,26 @@
 
 namespace Amaranth.Model.Data
 {
-    interface IDataCollection : IData
+    /// <summary>
+    /// Интерфейс контейнера для обновлении коллекции.
+    /// </summary>
+    public interface IDataCollection
     {
+        /// <summary>
+        /// Первое значение первичного ключа (составной ключ).
+        /// </summary>
+        object IdColumn { get; }
+
+        /// <summary>
+        /// Имя столбца первого значения первичного ключа (составной ключ).
+        /// </summary>
+        string IdColumnName { get; }
+
+        /// <summary>
+        /// Имя столбца второго значения первичного ключа (составной ключ).
+        /// </summary>
+        string IdItemName { get; }
+
         /// <summary>
         /// Имя таблицы для хранения коллекции.
         /// </summary>
@@ -13,12 +31,12 @@ namespace Amaranth.Model.Data
         /// Получение данных об элементе коллекции.
         /// </summary>
         /// <returns>Возвращает интерфейс на элемент.</returns>
-        IEnumerable<IData> GetDataCollection();
+        IEnumerable<ICollectionItem> GetDataCollection();
 
         /// <summary>
-        /// Передает данные для заполнения коллекции.
+        /// Создает новый объект коллекции и возвращает интерфейс для заполнения.
         /// </summary>
-        /// <param name="data">Возвращает интерфейс на элемент.</param>
-        void SetDataCollection(IEnumerable<IData> data);
+        /// <returns>Объект для заполнения.</returns>
+        ICollectionItem CreateItem();
     }
 }
