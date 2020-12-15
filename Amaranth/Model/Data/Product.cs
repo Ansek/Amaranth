@@ -80,7 +80,7 @@ namespace Amaranth.Model.Data
 		/// <summary>
 		/// Для хранения значения количества товаров.
 		/// </summary>
-		public int CountProduct
+		public int ProductCount
 		{
 			get => _count;
 			set => SetValue(ref _count, value);
@@ -161,9 +161,14 @@ namespace Amaranth.Model.Data
 		}
 
 		/// <summary>
-		/// Флаг, устанавливающий запись только значения количества
+		/// Флаг, устанавливающий запись только значения количества.
 		/// </summary>
 		public bool SaveOnlyCount { get; set; }
+
+		/// <summary>
+		/// Флаг, устанавливающий запрет на изменение стоимости товаров, при загрузке.
+		/// </summary>
+		public bool NotUpdateCost { get; set; }
 
 		/*--- Свойства и методы для интерфейса IData ---*/
 
@@ -186,7 +191,7 @@ namespace Amaranth.Model.Data
 		/// Получение данных об имени столбцах и их содержимом.
 		/// </summary>
 		/// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
-		public IEnumerable<(string, object)> GetData()
+		IEnumerable<(string, object)> IData.GetData()
 		{
 			if (!SaveOnlyCount)
             {
@@ -195,6 +200,16 @@ namespace Amaranth.Model.Data
 				yield return ("Prescription", _prescription);
 				yield return ("idCategory", _category.Id);
 			}
+			yield return ("Count", _count);
+		}
+
+		/// <summary>
+		/// Получение данных об имени столбцах и их содержимом.
+		/// </summary>
+		/// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
+		IEnumerable<(string, object)> ICollectionItem.GetData()
+        {
+			yield return ("Price", _price);
 			yield return ("Count", _count);
 		}
 
@@ -214,10 +229,12 @@ namespace Amaranth.Model.Data
 					Title = value as string;
 					break;
 				case "Price":
-					Price = Convert.ToDouble(value);
+					if (!NotUpdateCost || Price == 0)
+						Price = (value != DBNull.Value) ? Convert.ToDouble(value) : 0;
 					break;
 				case "Count":
-					CountProduct = Convert.ToInt32(value);
+					if (!NotUpdateCost)
+						ProductCount = Convert.ToInt32(value);
 					break;
 				case "Prescription":
 					Prescription = Convert.ToBoolean(value);

@@ -97,7 +97,7 @@
                                     <TextBlock Grid.Column="2" TextWrapping="Wrap" Margin="3, 0">
                                         <TextBlock.Text>
                                             <MultiBinding Converter="{StaticResource PriceConverter}">
-                                                <Binding Path="Count"/>
+                                                <Binding Path="ProductCount"/>
                                                 <Binding Path="Price"/>
                                             </MultiBinding>
                                         </TextBlock.Text>

@@ -1,7 +1,6 @@
 ﻿using System.Data;
 using System.Collections.Generic;
 using Amaranth.Model.Data;
-using data = Amaranth.Model.Data.Data;
 
 namespace Amaranth.Model
 {
@@ -100,32 +99,13 @@ namespace Amaranth.Model
 		/// <returns>Список значений столбца.</returns>
 		List<string> GetColumn(string table, string column);
 
-
-
-		// ----------------
-		int Insert(data data);
-
-		void Update(data data);
-
-		void Delete(data data);
-
-		void Load(ref data data);
-
-		List<data> LoadList(string table);
-
-		List<data> LoadList(string table, int pos, int count, string condition);
-
-		data GetUser(string login, string password);
-
-		List<data> GetQuery(string table, string condition);
-
-		bool IsTableExists(string name);
-
-		bool IsColumnExists(string name, string table);
-
-		int GetRecordsCount(string table);
-
-		int GetRecordsCount(string table, string condition);
-
+		/// <summary>
+		/// Получение значения ячейки по заданному условию.
+		/// </summary>
+		/// <param name="table">Имя таблицы.</param>
+		/// <param name="column">Имя столбца.</param>
+		/// <param name="condition">Условие поиска.</param>
+		/// <returns>Значение ячейки.</returns>
+		int GetNumber(string table, string column, string condition);
 	}
 }

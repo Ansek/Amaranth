@@ -27,7 +27,7 @@ namespace Amaranth.ViewModel
                 ListUsers = _db.GetUserList();  // Обновление списка
                 User = null;                    // Сброс текущей записи
             };
-            // Устанока параметров по умолчанию
+            // Установка параметров по умолчанию
             _isSelect = false;
             ListUsers = _db.GetUserList();
         }

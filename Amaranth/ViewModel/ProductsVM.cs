@@ -32,7 +32,7 @@ namespace Amaranth.ViewModel
         public ProductsVM()
         {
             _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
-            // Устанока параметров по умолчанию
+            // Установка параметров по умолчанию
             _isSelect = false;
             _newTags = new List<Tag>();
         }

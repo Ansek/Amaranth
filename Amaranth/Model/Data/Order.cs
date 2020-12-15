@@ -72,7 +72,7 @@ namespace Amaranth.Model.Data
             product.IsAdd = true;
             _list.Add(product);
             // Перерасчет итоговой суммы
-            FinalPrice += product.CountProduct * product.Price;
+            FinalPrice += product.ProductCount * product.Price;
 
             OnCollectionChanged();	// Оповещение формы об изменении
         }
@@ -83,9 +83,9 @@ namespace Amaranth.Model.Data
         /// <param name="product">Удаляемый товар.</param>
         public void Delete(Product product)
         {
-            _list.Remove(product); 
+            _list.Remove(product);
             // Перерасчет итоговой суммы
-            FinalPrice -= product.CountProduct * product.Price;
+            FinalPrice -= product.ProductCount * product.Price;
 
             OnCollectionChanged();	// Оповещение формы об изменении
         }
@@ -102,11 +102,22 @@ namespace Amaranth.Model.Data
                 if (_list[i].Id == id)
                 {
                     // Перерасчет итоговой суммы
-                    FinalPrice += (count - _list[i].CountProduct) * _list[i].Price;
+                    FinalPrice += (count - _list[i].ProductCount) * _list[i].Price;
                     // Обновление количества
-                    _list[i].CountProduct = count;
+                    _list[i].ProductCount = count;
                     break;
                 }
+        }
+
+        /// <summary>
+        /// Вызов перерасчета итоговой суммы.
+        /// </summary>
+        public void RecalculationConst()
+        {
+            double cost = 0;
+            foreach (var p in _list)
+                cost += p.ProductCount * p.Price;
+            FinalPrice = cost;
         }
 
         /*--- Свойства и методы для интерфейса IData ---*/

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Amaranth.Model.Data;
-using data = Amaranth.Model.Data.Data;
 
 namespace Amaranth.Model
 {
@@ -387,6 +385,162 @@ namespace Amaranth.Model
 			return list;
 		}
 
+		/*--- Методы для работы с заказами ---*/
+
+		/// <summary>
+		/// Получает сведение о заказе по его номеру.
+		/// </summary>
+		/// <param name="id">Номер заказа.</param>
+		/// <returns>Объект заказа.</returns>
+		public Order GetOrder(int id)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Получение данных о заказе
+			var table = _adapter.LoadTable("`order`", $"idOrder = {id}");
+
+			// Создает объекта заказа
+			Order order = null;
+			if (table.Rows.Count > 0)
+			{
+				order = new Order();
+				FillData(order, table, 0);			// Копирование значений из таблицы
+				_adapter.FillCollection(order);		// Заполнение информацией о продуктах
+				foreach (var product in order)
+				{
+					product.NotUpdateCost = true;   // Запрет на изменение стоимости, чтобы сохранить предущее значение
+					_adapter.LoadData(product);     // Получение информации о продуктах
+				}
+				order.RecalculationConst();			// Перерасчет итоговой суммы
+			}
+			return order;
+		}
+
+		/// <summary>
+		/// Завершает указанный заказ.
+		/// </summary>
+		/// <param name="order">Объект заказа.</param>
+		public void CompleteOrder(Order order)
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			var date = DateTime.Now;
+			// Если заказ не был создан заранее
+			if (order.CreationDate == null)
+            {
+				//Установка дат создания и завершения заказа
+				order.CreationDate = date;
+				order.CompletionDate = date;
+				// Запись в таблицах
+				_adapter.Insert(order);
+				_adapter.UpdateCollection(order);
+			}
+			else
+            {
+				// Установка даты завершения заказа
+				order.CompletionDate = date;
+				// Запись в таблицах
+				_adapter.Update(order);
+				_adapter.UpdateCollection(order);
+			}
+		}
+
+		/// <summary>
+		/// Отменяет указанный заказ.
+		/// </summary>
+		/// <param name="order">Объект заказа.</param>
+		public void CancelOrder(Order order)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Удаление всех ссылок на заказ в списке товаров
+			_adapter.Delete("Order_Product", "idOrder", order.Id);
+			_adapter.Delete(order); // Удаление данных заказа
+		}
+
+		/// <summary>
+		/// Загружает список со сведениями о товарах.
+		/// </summary>
+		/// <param name="count">Количество записей.</param>
+		/// <param name="pos">Смещение поиска.</param>
+		/// <param name="onlyActive">Флаг, показать активные заказы.</param>
+		/// <param name="onlyCompleted">Флаг, показать заверщенные заказы.</param>
+		/// <returns></returns>
+		public List<Order> GetListOrder(int count, int pos, bool onlyActive = false, bool onlyCompleted = false)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Формирование строки условия
+			var condition = string.Empty;
+			if (onlyActive && !onlyCompleted)
+				condition = "CompletionDate IS NULL";
+			else if (!onlyActive && onlyCompleted)
+				condition = "CompletionDate IS NOT NULL";
+
+			// Получение данных из таблицы заказов
+			var table = _adapter.LoadTable("`order`", condition, count, pos);
+
+			var list = new List<Order>();
+			// Разбор строк полученной таблицы
+			for (int i = 0; i < table.Rows.Count; i++)
+			{
+				// Создает объекта заказа
+				var order = new Order();
+				FillData(order, table, i);			// Копирование значений из таблицы
+				_adapter.FillCollection(order);     // Заполнение информацией о продуктах
+				foreach (var product in order)
+					_adapter.LoadData(product);		// Получение информации о продуктах
+				list.Add(order);
+			}
+			return list;
+		}
+
+		/// <summary>
+		/// Получает максимально допустимое количество для покупки товаров.
+		/// </summary>
+		/// <param name="idProduct">Идентификатор товара.</param>
+		/// <returns>Допустимое количество товаров.</returns>
+		public int GetMaxCountProduct(int idProduct)
+		{
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			int res = 0;
+			// Получение требуемых параметров для расчета
+			int reserve = _adapter.GetNumber("Product_View", "Reserve", $"idProduct = {idProduct}");
+			int count = _adapter.GetNumber("Product_View", "Count", $"idProduct = {idProduct}");
+			// Расчет значений
+			return count - reserve;
+		}
+
+		/// <summary>
+		/// Вычитает данную стоимость из стоимости в БД.
+		/// </summary>
+		/// <param name="product">Объект товара с вычитающим количеством.</param>
+		public void SubMaxCountProduct(Product product)
+        {
+			if (_adapter == null)
+				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
+
+			// Получение исходной стоимости
+			int? count = _adapter.GetNumber("Product_View", "Count", $"idProduct = {product.Id}");
+			//Если значения получены
+			if (count != null)
+            {
+				// Перерасчет 
+				product.ProductCount = (int)count - product.ProductCount;
+				// Обновление данных
+				product.SaveOnlyCount = true;
+				_adapter.Update(product);
+			}
+		}
+
+		/*--- Вспомогательные методы ---*/
+
 		/// <summary>
 		/// Заполнение данными через объект таблицы.
 		/// </summary>
@@ -401,169 +555,6 @@ namespace Amaranth.Model
 				var column = table.Columns[i].ColumnName;   // Получение имени столбца
 				var value = table.Rows[iRow][i];            // Получение значения по этому столбцу
 				data.SetData(column, value);                // Запись данных в объект заполнения
-			}
-		}
-		//--------------------------------------------------------
-
-
-	
-		public static List<Order> GetListOrder(int pos, int count, bool onlyActive = false, bool onlyCompleted = false)
-        {
-			var condition = string.Empty;
-			if (onlyActive && !onlyCompleted)
-				condition = "CompletionDate IS NULL";
-			else if(!onlyActive && onlyCompleted)
-				condition = "CompletionDate IS NOT NULL";
-
-			var orders = _adapterOld.LoadList("`order`", pos, count, condition);
-			if (orders.Count > 0)
-			{
-				var list = new List<Order>();
-				foreach (var o in orders)
-				{
-					var order = new Order()
-					{
-						Id = Convert.ToInt32(o["idOrder"]),
-						CreationDate = Convert.ToDateTime(o["CreationDate"])
-					};
-
-					if (o["CompletionDate"] != DBNull.Value)
-						order.CompletionDate = Convert.ToDateTime(o["CompletionDate"]);
-
-					list.Add(order);
-				}
-				return list;
-			}
-			return null;
-		}
-
-		public static Order GetOrder(int id)
-        {
-			Order order = null;
-			var data = new data();
-			data.Add("CreationDate");
-			data.Add("CompletionDate");
-			data.TableName = "`order`";
-			data.IdName = "idOrder";
-			data.RecordId = id;
-
-			_adapterOld.Load(ref data);
-			if (data["CreationDate"] != null)
-            {
-				order = new Order()
-				{
-					Id = id,
-					CreationDate = Convert.ToDateTime(data["CreationDate"])
-				};
-				if (data["CompletionDate"] != DBNull.Value)
-					order.CompletionDate = Convert.ToDateTime(data["CompletionDate"]);
-
-				var products = _adapterOld.GetQuery("Product p, Order_Product op", $"p.IdProduct = op.IdProduct AND op.idOrder = {id}");
-				foreach (var p in products)
-				{
-					Category category = null;
-					/*foreach (var c in _categories)
-						if (c.Id == Convert.ToInt32(p["idCategory"]))
-						{
-							category = c;
-							break;
-						}*/
-
-					double price = Convert.ToDouble((p["Price1"] == DBNull.Value) ? p["Price"] : p["Price1"]);
-
-					order.Add(new Product(category)
-					{
-						Id = Convert.ToInt32(p["idProduct"]),
-						Title = Convert.ToString(p["Title"]),
-						Price = price,
-						CountProduct = Convert.ToInt32(p["Count1"]),
-						Prescription = Convert.ToBoolean(p["Prescription"])
-					});
-				}
-			}
-			return order;
-		}
-
-		public static void CompleteOrder(Order order)
-        {
-			var data = new data();
-			data.TableName = "`order`";
-			data.IdName = "idOrder";
-			var date = DateTime.Now;
-
-			if (order.CreationDate == null)
-            {
-				data.Add("CreationDate", date);
-				data.Add("CompletionDate", date);
-				int id = _adapterOld.Insert(data);
-
-				data.TableName = "order_product";
-				foreach (var p in order)
-                {
-					data.Clear();
-					data.Add("idOrder", id);
-					data.Add("idProduct", p.Id);
-					data.Add("Count", p.CountProduct);
-					data.Add("Price", p.Price);
-					_adapterOld.Insert(data);
-				}
-			}
-			else
-            {
-				data.RecordId = order.Id;
-				data.Add("CompletionDate", date);
-				_adapterOld.Update(data);
-
-				data.TableName = "order_product";
-				foreach (var p in order)
-				{
-					data.RecordId = $"{order.Id} AND idProduct = {p.Id}";
-					data.Clear();
-					data.Add("Count", p.CountProduct);
-					data.Add("Price", p.Price);
-					_adapterOld.Update(data);
-				}
-			}
-		}
-
-		public static void CancelOrder(Order order)
-		{
-			var data = new data();
-			data.TableName = "order_product";
-			data.IdName = "idOrder";
-			data.RecordId = order.Id;
-			_adapterOld.Delete(data);
-
-			data.TableName = "`order`";
-			_adapterOld.Delete(data);
-		}
-
-
-
-		public static int GetMaxCountProduct(int idProduct)
-        {
-			var data = _adapterOld.GetQuery("product_view", $"idProduct = {idProduct}");
-			if (data != null)
-            {
-				int reserve = Convert.ToInt32(data[0]["Reserve"]);
-				int count = Convert.ToInt32(data[0]["Count"]);
-				return count - reserve;
-			}
-			return 0;
-		}
-
-		public static void SubMaxCountProduct(int idProduct, int count)
-        {
-			var data = _adapterOld.GetQuery("product", $"idProduct = {idProduct}");
-			if (data != null)
-			{
-				int newCount = Convert.ToInt32(data[0]["Count"]) - count;
-				data[0].Clear();
-				data[0].Add("Count", newCount);
-				data[0].TableName = "product";
-				data[0].IdName = "idProduct";
-				data[0].RecordId = idProduct;
-				_adapterOld.Update(data[0]);
 			}
 		}
 	}

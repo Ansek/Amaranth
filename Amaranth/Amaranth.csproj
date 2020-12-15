@@ -200,13 +200,10 @@
     <Compile Include="Model\Auth.cs" />
     <Compile Include="Model\DataBaseSinglFacade.cs" />
     <Compile Include="Model\Data\Category.cs" />
-    <Compile Include="Model\Data\Data.cs" />
     <Compile Include="Model\Data\Description.cs" />
     <Compile Include="Model\Data\Product.cs" />
     <Compile Include="Model\Data\ProductInfo.cs" />
-    <Compile Include="Model\Data\TData.cs" />
     <Compile Include="Model\Data\User.cs" />
-    <Compile Include="Model\FileService.cs" />
     <Compile Include="Model\IDBAdapter.cs" />
     <Compile Include="Model\MySqlAdapter.cs" />
     <Compile Include="Model\Report.cs" />

@@ -24,9 +24,9 @@ namespace Amaranth.Model
 				count = request.RecordsCount;
 			string condition = request.GetCondition();
 
-			var products = _adapter.LoadList("product_view", pos, count, condition);
+			var products = _adapter.LoadTable("product_view", condition, count, pos);
 
-			if (products.Count == 0)
+			if (products.Rows.Count == 0)
 				throw new Exception("Для данных параметров не было найдено ни одной записи");
 
 			object oMissing = Missing.Value;
@@ -53,23 +53,23 @@ namespace Amaranth.Model
                 Word.Paragraph oPara2;
                 object oRng = oDoc.Bookmarks.get_Item(ref oEndOfDoc).Range;
                 oPara2 = oDoc.Content.Paragraphs.Add(ref oRng);
-                oPara2.Range.Text = $"Данные для товара «{products[0]["Title"]}» \n";
+               // oPara2.Range.Text = $"Данные для товара «{products[0]["Title"]}» \n";
 				oPara2.Range.InsertParagraphAfter();
-
+/*
 				string s = string.Empty;
 				s += "Идентификатор - " + products[0]["idProduct"].ToString() + '\n';
 				s += "Заголовок - " + products[0]["Title"].ToString() + '\n';
 				s += "Цена - " + products[0]["Price"].ToString() + '\n';
 				s += "Колицество - " + products[0]["Count"].ToString() + '\n';
 				s += "По рецепту - " + products[0]["Prescription"].ToString() + '\n';
-				s += "Номер категории - " + products[0]["idCategory"].ToString() + '\n';
+				s += "Номер категории - " + products[0]["idCategory"].ToString() + '\n';*/
 
 				Word.Paragraph oPara3;
 				oPara3 = oDoc.Content.Paragraphs.Add(ref oRng);
 				oPara3.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
 				oPara3.Format.SpaceAfter = 2;
 				oPara3.Range.Font.Bold = 0;
-				oPara3.Range.Text = s;
+				//oPara3.Range.Text = s;
 				oPara3.Range.InsertParagraphAfter();
 			}
 			else
@@ -77,11 +77,11 @@ namespace Amaranth.Model
 				Word.Paragraph oPara2;
 				object oRng = oDoc.Bookmarks.get_Item(ref oEndOfDoc).Range;
 				oPara2 = oDoc.Content.Paragraphs.Add(ref oRng);
-				oPara2.Range.Text = $"Данные для {products.Count} товаров";
+				//oPara2.Range.Text = $"Данные для {products.Count} товаров";
 				oPara2.Range.InsertParagraphAfter();
-
+				
 				string s = string.Empty;
-				foreach (var p in products)
+				/*foreach (var p in products)
                 {
 					s += "Идентификатор - " + p["idProduct"].ToString() + '\n';
 					s += "Заголовок - " + p["Title"].ToString() + '\n';
@@ -89,7 +89,7 @@ namespace Amaranth.Model
 					s += "Колицество - " + p["Count"].ToString() + '\n';
 					s += "По рецепту - " + p["Prescription"].ToString() + '\n';
 					s += "Номер категории - " + p["idCategory"].ToString() + "\n\n\n";
-				}
+				}*/
 
 				Word.Paragraph oPara3;
 				oPara3 = oDoc.Content.Paragraphs.Add(ref oRng);

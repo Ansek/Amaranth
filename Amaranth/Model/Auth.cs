@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using Amaranth.Model.Data;
-using data = Amaranth.Model.Data.Data;
 
 namespace Amaranth.Model
 {
@@ -68,7 +67,7 @@ namespace Amaranth.Model
 				// Шифрование пароля
 				string hash = BCrypt.Net.BCrypt.HashPassword(password, _salt);
 				// Попытка получить объект
-				var data = _adapter.GetUser(login, hash);
+				/*var data = _adapter.GetUser(login, hash);
 				if (data != null)
 				{
 					// Получение данных
@@ -81,7 +80,7 @@ namespace Amaranth.Model
 					_intance.OnUserChanged(); // Оповещение для формы
 				}
 				else
-					throw new Exception("Пароль или логин не подходят");
+					throw new Exception("Пароль или логин не подходят");*/
 			}
 			else
 				throw new Exception("Не задан адаптер для класса Auth");
@@ -99,7 +98,7 @@ namespace Amaranth.Model
 				// Шифрование пароля
 				string hash = BCrypt.Net.BCrypt.HashPassword(password, _salt);
 				// Попытка получить объект
-				var data = _adapter.GetUser(login, "");
+				/*var data = _adapter.GetUser(login, "");
 				if (data != null)
                 {
 					// Получение данных
@@ -120,7 +119,7 @@ namespace Amaranth.Model
 					_intance.OnUserChanged(); // Оповещение для формы
 				}
 				else
-					throw new Exception("Пользователь на найден или уже ему установлен пароль");
+					throw new Exception("Пользователь на найден или уже ему установлен пароль");*/
 			}
 			else
 				throw new Exception("Не задан адаптер для класса Auth");
@@ -143,13 +142,13 @@ namespace Amaranth.Model
         {
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса Auth");
-
+			/*
 			var data = new data();
 			data.Add("Password", "");
 			data.TableName = "user";
 			data.IdName = "Login";
 			data.RecordId = $"'{login}'";
-			_adapter.Update(data);
+			_adapter.Update(data);*/
 		}
 
 		public event PropertyChangedEventHandler PropertyChanged;

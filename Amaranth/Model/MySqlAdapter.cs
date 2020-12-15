@@ -2,7 +2,6 @@
 using System.Data;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
-using data = Amaranth.Model.Data.Data;
 using Amaranth.Model.Data;
 
 namespace Amaranth.Model
@@ -330,7 +329,7 @@ namespace Amaranth.Model
             var cmd = new MySqlCommand(sql, _connect);
 
             //Выполнение запроса
-            return ExecuteScalar<int>(cmd);
+            return ExecuteScalar(cmd);
         }
 
         /// <summary>
@@ -350,6 +349,22 @@ namespace Amaranth.Model
             for (int i = 0; i < colTable.Rows.Count; i++)
                 list.Add(colTable.Rows[i][0].ToString());
             return list;
+        }
+
+        /// <summary>
+        /// Получение значения ячейки по заданному условию.
+        /// </summary>
+        /// <param name="table">Имя таблицы.</param>
+        /// <param name="column">Имя столбца.</param>
+        /// <param name="condition">Условие поиска.</param>
+        /// <returns>Значение ячейки.</returns>
+        public int GetNumber(string table, string column, string condition)
+        {
+            // Составление скрипта запроса
+            string sql = $"SELECT {column} FROM {table} WHERE {condition};";
+            var cmd = new MySqlCommand(sql, _connect);
+            // Получение значения
+            return ExecuteScalar(cmd);
         }
 
         /// <summary>
@@ -375,21 +390,23 @@ namespace Amaranth.Model
         /// </summary>
         /// <param name="cmd">Объект команды для выполнения запроса.</param>
         /// <returns>Возвращает единственный результат.</returns>
-        T ExecuteScalar<T>(MySqlCommand cmd)
+        int ExecuteScalar(MySqlCommand cmd)
         {
-            object o;
+            int i = 0;
             //Выполнение запроса
             _connect.Open();
             try
             {
-                o = cmd.ExecuteScalar();
+                object o = cmd.ExecuteScalar();
+                // Попытка преобразования 
+                if (o != DBNull.Value)
+                    i = Convert.ToInt32(o);
             }
             finally
             {
                 _connect.Close();
             }
-            // Попытка преобразования к данному типу
-            return (o is T) ? (T)o : default(T);
+            return i;
         }
 
         /// <summary>
@@ -435,199 +452,6 @@ namespace Amaranth.Model
 
             // Упаковка полученных данных
             return new MySqlParameter(name, type) { Value = value };
-        }
-
-
-
-        // ------------------------------------------------------------------------
-
-
-        public void Load(ref data data)
-        {
-            string columns = string.Empty;
-            var cmd = new MySqlCommand();
-            cmd.Connection = _connect;
-
-            foreach (var d in data)
-            {
-                if (columns != string.Empty)
-                    columns += ",";
-                columns += $"{d.Name}";
-            }
-
-            if (columns == string.Empty)
-                return;
-
-            _connect.Open();
-            cmd.CommandText = $"SELECT {columns} FROM {data.TableName} WHERE {data.IdName} = {data.RecordId};";
-            try
-            {
-                var reader = cmd.ExecuteReader();
-
-                int i = 0;
-                while (reader.Read())
-                {
-                    foreach (var d in data)
-                        data[d.Name] = reader.GetValue(i++);
-                }
-            }
-            finally
-            {
-                _connect.Close();
-            }
-        }
-
-        public data GetUser(string login, string password)
-        {
-            _connect.Open();
-            string sql = $"SELECT FirstName, LastName, IsAdministrator FROM user WHERE login = '{login}' AND password = '{password}';";
-
-            data data = null;
-            var cmd = new MySqlCommand(sql, _connect);
-
-            try
-            {
-                var reader = cmd.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    data = new data();
-                    data.Add("FirstName", reader.GetValue(0));
-                    data.Add("LastName", reader.GetValue(1));
-                    data.Add("IsAdministrator", reader.GetValue(2));
-                }
-            }
-            finally
-            {
-                _connect.Close();
-            }
-            return data;
-        }
-
-        public List<data> LoadList(string table)
-        {
-            string sql = $"SELECT * FROM {table};";
-            return GetList(table, sql);
-        }
-
-        public List<data> LoadList(string table, int pos, int count, string condition)
-        {
-            if (condition != string.Empty)
-                condition = $"WHERE {condition}";
-            string sql = $"SELECT * FROM {table} {condition} LIMIT {pos}, {count};";
-            return GetList(table, sql);
-        }
-
-        public List<data> GetQuery(string table, string condition)
-        {
-            string sql = $"SELECT * FROM {table} WHERE {condition};";
-            return GetList(table, sql);
-        }
-
-
-
-        public bool IsTableExists(string name)
-        {
-            string sql = $"SHOW TABLES FROM amaranth LIKE '{name}';";
-            return GetScalar(sql) != null;
-        }
-
-        public bool IsColumnExists(string name, string table)
-        {
-            string sql = $"SHOW COLUMNS FROM amaranth.{table} LIKE '{name}';";
-            return GetScalar(sql) != null;
-        }
-
-        public int GetRecordsCount(string table)
-        {
-            string sql = $"SELECT count(*) FROM {table};";
-            return Convert.ToInt32(GetScalar(sql));
-        }
-
-        public int GetRecordsCount(string table, string condition)
-        {
-            string sql = $"SELECT count(*) FROM {table} WHERE {condition};";
-            return Convert.ToInt32(GetScalar(sql));
-        }
-
-        public void CreateTableOld(string name, List<string> columns)
-        {
-            string field = string.Empty;
-            foreach (var column in columns)
-                field += $", {column} TEXT NULL";
-
-            _connect.Open();
-            string sql = $"CREATE TABLE {name} (id INT NOT NULL{field}, PRIMARY KEY (id));";
-            var cmd = new MySqlCommand(sql, _connect);
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                _connect.Close();
-            }
-        }
-
-        public void DeleteTableOld(string name)
-        {
-            _connect.Open();
-            string sql = $"DROP TABLE {name};";
-            var cmd = new MySqlCommand(sql, _connect);
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            finally
-            {
-                _connect.Close();
-            }
-        }
-
-        List<data> GetList(string table, string sql)
-        {
-            var ds = new DataSet();
-            var cmd = new MySqlCommand(sql, _connect);
-            var msadapter = new MySqlDataAdapter(cmd);
-            msadapter.Fill(ds, table);
-
-            List<data> list = new List<data>();
-            foreach (DataRow row in ds.Tables[table].Rows)
-            {
-                var data = new data();
-                for (int i = 0; i < ds.Tables[table].Columns.Count; i++)
-                {
-                    var col = ds.Tables[table].Columns[i].ColumnName;
-                    data.Add(col, row[i]);
-                }
-                list.Add(data);
-            }
-
-            return list;
-        }
-
-        object GetScalar(string sql)
-        {
-            _connect.Open();
-            var cmd = new MySqlCommand(sql, _connect);
-            var o = cmd.ExecuteScalar();
-            _connect.Close();
-            return o;
-        }
-
-        public int Insert(data data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Update(data data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete(data data)
-        {
-            throw new NotImplementedException();
         }
     }
 }

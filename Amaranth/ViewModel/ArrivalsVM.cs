@@ -49,7 +49,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Product>((p) =>
             {
-                EditableCount = p.CountProduct;
+                EditableCount = p.ProductCount;
                 Product = _db.LoadInfo(p);
             }, (p) => p != null);
         }
@@ -61,7 +61,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                _product.CountProduct = _editableCount;
+                _product.ProductCount = _editableCount;
                 _product.SaveOnlyCount = true;
                 _db.Update(_product);
             }, () => _editableCount > 0);

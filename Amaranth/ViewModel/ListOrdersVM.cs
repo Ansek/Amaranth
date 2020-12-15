@@ -11,6 +11,11 @@ namespace Amaranth.ViewModel
     class ListOrdersVM : BindableBase
     {
         /// <summary>
+        /// Для доступа к функциям БД.
+        /// </summary>
+        readonly DataBaseSinglFacade _db;
+
+        /// <summary>
         /// Задает максимальное количество отображаемых заказов в таблице.
         /// </summary>
         int _countAll;
@@ -30,11 +35,12 @@ namespace Amaranth.ViewModel
         /// </summary>
         public ListOrdersVM()
         {
+            _db = DataBaseSinglFacade.GetInstance(); // Получение экземпляра Singleton
+            // Установка параметров по умолчанию
             _countAll = 10;
             _currentNumber = 1;
             _maxNumber = 1;
-            int pos = _countAll * (_currentNumber - 1);
-            ListOrders = DataBaseSinglFacade.GetListOrder(pos, _countAll);
+            ListOrders = _db.GetListOrder(_countAll, Position);
         }
 
         Order _order;
@@ -77,6 +83,11 @@ namespace Amaranth.ViewModel
             set => SetValue(ref _maxNumber, value);
         }
 
+        /// <summary>
+        /// Определяет на какой позиции надо извлечь данные.
+        /// </summary>
+        public int Position => _countAll * (_currentNumber - 1);
+
         string _message;
         /// <summary>
         /// Сообщение о состоянии заказа.
@@ -109,8 +120,7 @@ namespace Amaranth.ViewModel
                         _onlyCompleted = false;
                         break;
                 }
-                int pos = _countAll * (_currentNumber - 1);
-                ListOrders = DataBaseSinglFacade.GetListOrder(pos, _countAll, _onlyActive, _onlyCompleted);
+                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             });
         }
 
@@ -122,8 +132,7 @@ namespace Amaranth.ViewModel
             get => new Command<int>((count) =>
             {
                 _countAll = count;
-                int pos = count * (_currentNumber - 1);
-                ListOrders = DataBaseSinglFacade.GetListOrder(pos, count, _onlyActive, _onlyCompleted);
+                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             });
         }
 
@@ -135,8 +144,7 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 CurrentNumber--;
-                int pos = _countAll * (_currentNumber - 1);
-                ListOrders = DataBaseSinglFacade.GetListOrder(pos, _countAll, _onlyActive, _onlyCompleted);
+                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             }, () => _currentNumber != 1);
         }
 
@@ -148,8 +156,7 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 CurrentNumber++;
-                int pos = _countAll * (_currentNumber - 1);
-                ListOrders = DataBaseSinglFacade.GetListOrder(pos, _countAll, _onlyActive, _onlyCompleted);
+                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             }, () => _currentNumber != _maxNumber);
         }
 
@@ -160,7 +167,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Order>((o) =>
             {
-                Order = DataBaseSinglFacade.GetOrder(o.Id);
+                Order = _db.GetOrder(o.Id);
                 if (_order.CompletionDate == null)
                     Message = $"Заказ от {_order.CreationDate:F}";
                 else
@@ -177,10 +184,9 @@ namespace Amaranth.ViewModel
             {
                 if (DialogueService.ShowWarning("Вы действительно хотите отменить заказ?"))
                 {
-                    DataBaseSinglFacade.CancelOrder(_order);
+                    _db.CancelOrder(_order);
                     Order = null;
-                    int pos = _countAll * (_currentNumber - 1);
-                    ListOrders = DataBaseSinglFacade.GetListOrder(pos, _countAll, _onlyActive, _onlyCompleted);
+                    _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
                 }
             }, () => _order != null && _order.CompletionDate == null);
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Amaranth.Model;
 using Amaranth.Model.Data;
 using Amaranth.Service;
@@ -44,7 +43,7 @@ namespace Amaranth.ViewModel
                 var categories = MainWindowVM.Categories;
                 ListProducts = _db.GetProductList(categories, _oldRequest, _countAll, Position);  // Обновление списка
             };
-            // Устанока параметров по умолчанию
+            // Установка параметров по умолчанию
             _countAll = 10;
             _currentNumber = 1;
             _maxNumber = 1;
