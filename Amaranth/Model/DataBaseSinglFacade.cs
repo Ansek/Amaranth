@@ -198,7 +198,12 @@ namespace Amaranth.Model
         {
 			// Добавление тегов по отдельности
 			foreach (var tag in tags)
+            {
+				bool l = tag.IsAdd;
+				tag.IsAdd = false;	// Говорим, что не помещаем во внешнюю таблицу с товарами
 				_adapter.Insert(tag);
+				tag.IsAdd = l;
+			}
 
 			if (tags.Count > 0)
 				TagListChanged?.Invoke(); // Оповещение об изменении в списке тегов

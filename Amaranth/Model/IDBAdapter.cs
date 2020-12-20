@@ -22,6 +22,16 @@ namespace Amaranth.Model
 		void Update(IData data);
 
 		/// <summary>
+		/// Обновляет поле таблицы в БД.
+		/// </summary>
+		/// <param name="table">Таблица, в которой будет обновляено данное.</param>
+		/// <param name="idColumn">Столбец идентификатора.</param>
+		/// <param name="idValue">Значение идентификатора.</param>
+		/// <param name="column">Столбец, в котором будет производиться изменение.</param>
+		/// <param name="value">Значение, которое будет записываться.</param>
+		void Update(string table, string idColumn, object idValue, string column, object value);
+
+		/// <summary>
 		/// Удаляет запись из БД.
 		/// </summary>
 		/// <param name="data">Удаляемое значение.</param>
@@ -46,10 +56,11 @@ namespace Amaranth.Model
 		DataTable LoadTable(string table, string condition = null, int count = 0, int pos = 0);
 
 		/// <summary>
-		/// Загружает данные для данной записи.
+		/// Загружает данные для данной записи по идентификатору.
 		/// </summary>
 		/// <param name="data">Объект записи.</param>
-		void LoadData(IData data);
+		/// <param name="condition">Дополнительное условие для выборки.</param>
+		void LoadData(IData data, string condition = null);
 
 		/// <summary>
 		/// Обновляет сведения для элементах коллекции внешней таблицы.

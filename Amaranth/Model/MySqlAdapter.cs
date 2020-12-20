@@ -76,13 +76,37 @@ namespace Amaranth.Model
             {
                 if (i != 0 )// Разделение данных по запятым
                     parameters += ",";
-                var param = GetParamater(d.Item2, ref i, out idCmd); // Формирование параметра
-                cmd.Parameters.Add(param);              // Добавление параметра в команду
-                parameters += $"{d.Item1} = {idCmd}";   // Указание изменяемых значений
+                var param = GetParamater(d.Item2, ref i, out idCmd);    // Формирование параметра
+                cmd.Parameters.Add(param);                              // Добавление параметра в команду
+                parameters += $"{d.Item1} = {idCmd}";                   // Указание изменяемых значений
             }
-            var paramKey = GetParamater(data.IdColumn, ref i, out idCmd); // Формирование параметра ключа
-            cmd.Parameters.Add(paramKey);               // Добавление параметра ключа в команду
+            var paramKey = GetParamater(data.IdColumn, ref i, out idCmd);   // Формирование параметра ключа
+            cmd.Parameters.Add(paramKey);                               // Добавление параметра ключа в команду
             cmd.CommandText = $"UPDATE {data.Table} SET {parameters} WHERE {data.IdColumnName} = {idCmd};";
+
+            // Выполнение запроса
+            ExecuteNonQuery(cmd);
+        }
+
+        /// <summary>
+        /// Обновляет поле таблицы в БД.
+        /// </summary>
+        /// <param name="table">Таблица, в которой будет обновляено данное.</param>
+        /// <param name="idColumn">Столбец идентификатора.</param>
+        /// <param name="idValue">Значение идентификатора.</param>
+        /// <param name="column">Столбец, в котором будет производиться изменение.</param>
+        /// <param name="value">Значение, которое будет записываться.</param>
+        public void Update(string table, string idColumn, object idValue, string column, object value)
+        {
+            var cmd = new MySqlCommand("", _connect);
+            int i = 0;
+            string idCmd, valueCmd;
+            var paramKey = GetParamater(idValue, ref i, out idCmd);         // Формирование параметра ключа
+            cmd.Parameters.Add(paramKey);                                   // Добавление параметра ключа в команду
+            var paramValue = GetParamater(value, ref i, out valueCmd);    // Формирование параметра значения
+            cmd.Parameters.Add(paramValue);                                 // Добавление параметра значения в команду
+
+            cmd.CommandText = $"UPDATE {table} SET {column} = {valueCmd} WHERE {idColumn} = {idCmd};";
 
             // Выполнение запроса
             ExecuteNonQuery(cmd);
@@ -151,11 +175,14 @@ namespace Amaranth.Model
         /// <summary>
         /// Загружает данные для данной записи.
         /// </summary>
-        /// <param name="data">Объект записи.</param>
-        public void LoadData(IData data)
+		/// <param name="data">Объект записи.</param>
+		/// <param name="condition">Дополнительное условие для выборки.</param>
+        public void LoadData(IData data, string condition = null)
         {
-            // Формирование запроса
-            var sql = $"SELECT * FROM {data.Table} WHERE {data.IdColumnName} = {data.IdColumn};";
+            // Составление скрипта запроса
+            if (condition != null && condition != string.Empty)
+                condition = $"AND {condition}";
+            var sql = $"SELECT * FROM {data.Table} WHERE {data.IdColumnName} = {data.IdColumn} {condition};";
             //Выполнение запроса
             var table = LoadTable(data.Table, sql);
             // Заполнение
