@@ -52,16 +52,7 @@ namespace Amaranth.ViewModel
             };
             UpdateProductTitles();
             // Установка списка страниц
-            Pages = new ObservableCollection<UserControl>()
-            { 
-                new OrderPage(),
-                new ProductsPage(),
-                new ReportsPage(),
-                new UsersPage(),
-                new СategoriesPage(),
-                new ArrivalsPage(),
-                new ListOrdersPage()
-            };
+            Pages = new ObservableCollection<UserControl>();
             // Привязка к событию изменения текущего пользователя
             _auth.UserChanged += () =>
             {
