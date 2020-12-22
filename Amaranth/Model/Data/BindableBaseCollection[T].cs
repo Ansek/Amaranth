@@ -10,10 +10,13 @@ namespace Amaranth.Model.Data
     public abstract class BindableBaseCollection<T> : BindableBase, INotifyCollectionChanged, IEnumerable<T>
     {
         /// <summary>
-        /// Cписок для хранения элементов.
+        /// Список для хранения элементов.
         /// </summary>
         protected List<T> _list;
 
+        /// <summary>
+        /// Конструктор абстрактного класса для контейнеров.
+        /// </summary>
         public BindableBaseCollection()
         {
             _list = new List<T>(); 
@@ -24,6 +27,9 @@ namespace Amaranth.Model.Data
         /// </summary>
         public int Count => _list.Count;
 
+        /// <summary>
+        /// Оповещает об изменении в коллекции. 
+        /// </summary>
         public event NotifyCollectionChangedEventHandler CollectionChanged;
         /// <summary>
         /// Вызов оповещения об изменении в коллекции.

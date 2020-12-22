@@ -19,10 +19,9 @@ namespace Amaranth.Model
 		/// Ссылка на адаптер, для доступа к БД.
 		/// </summary>
 		IDBAdapter _adapter;
-		static IDBAdapter _adapterOld;		
 
 		/// <summary>
-		/// Скрытый конструтор согласно паттерну Singleton.
+		/// Скрытый конструктор согласно паттерну Singleton.
 		/// </summary>
 		private DataBaseSinglFacade()
 		{
@@ -43,11 +42,11 @@ namespace Amaranth.Model
 		/// <param name="adapter">Объект адаптера.</param>
 		public void SetAdapter(IDBAdapter adapter)
 		{
-			_adapter = _adapterOld = adapter;
+			_adapter = adapter;
 		}
 
 		/// <summary>
-		/// Флаг, который определеяе установлен ли адаптер
+		/// Флаг, который определяет установлен ли адаптер
 		/// </summary>
 		public bool IsSetAdapter => _adapter != null;
 
@@ -328,9 +327,9 @@ namespace Amaranth.Model
 		public event Action UserListChanged;
 
 		/// <summary>
-		/// Добавление данных о категории.
+		/// Добавление данных о пользователе.
 		/// </summary>
-		/// <param name="category">Добавляемая категория.</param>
+		/// <param name="user">Добавляемая информация о пользователе.</param>
 		public void Insert(User user)
 		{
 			if (_adapter == null)
@@ -341,9 +340,9 @@ namespace Amaranth.Model
 		}
 
 		/// <summary>
-		/// Изменение данных о категории.
+		/// Изменение данных о пользователе.
 		/// </summary>
-		/// <param name="category">Изменяемая категория.</param>
+		/// <param name="user">Изменяемая информация о пользователе.</param>
 		public void Update(User user)
 		{
 			if (_adapter == null)
@@ -354,9 +353,9 @@ namespace Amaranth.Model
 		}
 
 		/// <summary>
-		/// Удаление данных о категории.
+		/// Удаление данных о пользователе.
 		/// </summary>
-		/// <param name="category">Удаляемая категория.</param>
+		/// <param name="user">Удаляемая информация о пользователе.</param>
 		public void Delete(User user)
 		{
 			if (_adapter == null)
@@ -472,7 +471,7 @@ namespace Amaranth.Model
 		/// <param name="count">Количество записей.</param>
 		/// <param name="pos">Смещение поиска.</param>
 		/// <param name="onlyActive">Флаг, показать активные заказы.</param>
-		/// <param name="onlyCompleted">Флаг, показать заверщенные заказы.</param>
+		/// <param name="onlyCompleted">Флаг, показать завершённые заказы.</param>
 		/// <returns></returns>
 		public List<Order> GetListOrder(int count, int pos, bool onlyActive = false, bool onlyCompleted = false)
 		{
@@ -514,7 +513,6 @@ namespace Amaranth.Model
 			if (_adapter == null)
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
-			int res = 0;
 			// Получение требуемых параметров для расчета
 			int reserve = _adapter.GetNumber("Product_View", "Reserve", $"idProduct = {idProduct}");
 			int count = _adapter.GetNumber("Product_View", "Count", $"idProduct = {idProduct}");
@@ -541,6 +539,8 @@ namespace Amaranth.Model
 				// Обновление данных
 				product.SaveOnlyCount = true;
 				_adapter.Update(product);
+				// Оповещение об изменении продукта
+				ProductListChanged?.Invoke();
 			}
 		}
 

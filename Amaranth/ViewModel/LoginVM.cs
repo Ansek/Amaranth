@@ -43,11 +43,12 @@ namespace Amaranth.ViewModel
         {
             get => new Command<PasswordBox>((pass) =>
             {
+                var auth = AuthSingl.GetInstance();
                 if (_isFirst)
-                    Auth.SignInFirst(_login, pass.Password);
+                    auth.SignInFirst(_login, pass.Password);    // Вход с установкой пароля
                 else
-                    Auth.SignIn(_login, pass.Password);
-                ClickOk?.Invoke();
+                    auth.SignIn(_login, pass.Password);         // Стандартная проверка
+                ClickOk?.Invoke();  // Оповещение, что нажата кнопка Ok
             }, (pass) => _login != string.Empty && pass.Password != string.Empty);
         }
     }

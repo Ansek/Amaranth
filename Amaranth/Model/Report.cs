@@ -1,30 +1,41 @@
 ﻿using System;
+using System.Data;
 using System.Reflection;
 using Word = Microsoft.Office.Interop.Word;
 
 namespace Amaranth.Model
 {
+	/// <summary>
+	/// Класс для генерации отчёта.
+	/// </summary>
 	public class Report
 	{
-		IDBAdapter _adapter;
+		/// <summary>
+		/// Ссылка на адаптер, для доступа к БД.
+		/// </summary>
+		readonly IDBAdapter _adapter;
 
+		/// <summary>
+		/// Конструктор класса генерации отчёта. 
+		/// </summary>
+		/// <param name="adapter">Установка адаптера, для доступа к БД.</param>
 		public Report(IDBAdapter adapter)
 		{
 			_adapter = adapter;
 		}
 
+		/// <summary>
+		/// Запуск генерации отчёта.
+		/// </summary>
+		/// <param name="request">Запрос, по которому надо получить данные для отчёта.</param>
 		public void Print(Data.ProductRequest request)
 		{
 			if (request.CheckTitle && request.Title == string.Empty)
 				throw new Exception("Не было задано наименование для товара");
 
-			int pos = 0;
-			int count = 1;
-			if (request.CheckRecordsCount)
-				count = request.RecordsCount;
 			string condition = request.GetCondition();
 
-			var products = _adapter.LoadTable("product_view", condition, count, pos);
+			var products = _adapter.LoadTable("sale_view", condition);
 
 			if (products.Rows.Count == 0)
 				throw new Exception("Для данных параметров не было найдено ни одной записи");
@@ -55,21 +66,28 @@ namespace Amaranth.Model
                 oPara2 = oDoc.Content.Paragraphs.Add(ref oRng);
                // oPara2.Range.Text = $"Данные для товара «{products[0]["Title"]}» \n";
 				oPara2.Range.InsertParagraphAfter();
-/*
+				/*
+								string s = string.Empty;
+								s += "Идентификатор - " + products[0]["idProduct"].ToString() + '\n';
+								s += "Заголовок - " + products[0]["Title"].ToString() + '\n';
+								s += "Цена - " + products[0]["Price"].ToString() + '\n';
+								s += "Колицество - " + products[0]["Count"].ToString() + '\n';
+								s += "По рецепту - " + products[0]["Prescription"].ToString() + '\n';
+								s += "Номер категории - " + products[0]["idCategory"].ToString() + '\n';*/
 				string s = string.Empty;
-				s += "Идентификатор - " + products[0]["idProduct"].ToString() + '\n';
-				s += "Заголовок - " + products[0]["Title"].ToString() + '\n';
-				s += "Цена - " + products[0]["Price"].ToString() + '\n';
-				s += "Колицество - " + products[0]["Count"].ToString() + '\n';
-				s += "По рецепту - " + products[0]["Prescription"].ToString() + '\n';
-				s += "Номер категории - " + products[0]["idCategory"].ToString() + '\n';*/
+				foreach (DataRow r in products.Rows)
+                {
+					foreach (var e in r.ItemArray)
+						s += e.ToString() + '\n';
+					s += "------------------\n";
+				}
 
 				Word.Paragraph oPara3;
 				oPara3 = oDoc.Content.Paragraphs.Add(ref oRng);
 				oPara3.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
 				oPara3.Format.SpaceAfter = 2;
 				oPara3.Range.Font.Bold = 0;
-				//oPara3.Range.Text = s;
+				oPara3.Range.Text = s;
 				oPara3.Range.InsertParagraphAfter();
 			}
 			else
@@ -80,16 +98,14 @@ namespace Amaranth.Model
 				//oPara2.Range.Text = $"Данные для {products.Count} товаров";
 				oPara2.Range.InsertParagraphAfter();
 				
+	
 				string s = string.Empty;
-				/*foreach (var p in products)
-                {
-					s += "Идентификатор - " + p["idProduct"].ToString() + '\n';
-					s += "Заголовок - " + p["Title"].ToString() + '\n';
-					s += "Цена - " + p["Price"].ToString() + '\n';
-					s += "Колицество - " + p["Count"].ToString() + '\n';
-					s += "По рецепту - " + p["Prescription"].ToString() + '\n';
-					s += "Номер категории - " + p["idCategory"].ToString() + "\n\n\n";
-				}*/
+				foreach (DataRow r in products.Rows)
+				{
+					foreach (var e in r.ItemArray)
+						s += e.ToString() + '\n';
+					s += "------------------\n";
+				}
 
 				Word.Paragraph oPara3;
 				oPara3 = oDoc.Content.Paragraphs.Add(ref oRng);
@@ -100,6 +116,24 @@ namespace Amaranth.Model
 				oPara3.Range.InsertParagraphAfter();
 			}
 			oWord.Visible = true;
+		}
+
+		/// <summary>
+		/// Печать отчёта по одному товару.
+		/// </summary>
+		/// <param name="response">Результат запроса, по которому генерится отчёт.</param>
+		private void PrintOne(DataTable response)
+        {
+
+        }
+
+		/// <summary>
+		/// Печать отчёта по нескольким товарам.
+		/// </summary>
+		/// <param name="response">Результат запроса, по которому генерится отчёт.</param>
+		private void PrintMany(DataTable response)
+		{
+
 		}
 	}
 }

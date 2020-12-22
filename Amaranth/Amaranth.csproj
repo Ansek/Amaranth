@@ -24,8 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Debug\Amaranth.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -197,7 +196,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\Auth.cs" />
+    <Compile Include="Model\AuthSingl.cs" />
     <Compile Include="Model\DataBaseSinglFacade.cs" />
     <Compile Include="Model\Data\Category.cs" />
     <Compile Include="Model\Data\Description.cs" />

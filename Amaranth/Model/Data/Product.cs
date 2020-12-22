@@ -115,7 +115,7 @@ namespace Amaranth.Model.Data
 		/// <summary>
 		/// Добавление тега.
 		/// </summary>
-		/// <param name="title">Добавляемый тег.</param>
+		/// <param name="tag">Добавляемый тег.</param>
 		public void AddTag(Tag tag)
 		{
 			// Проверка заголовка на уникальность

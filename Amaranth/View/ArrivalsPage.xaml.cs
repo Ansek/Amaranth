@@ -16,9 +16,8 @@ namespace Amaranth.View
         // Проверка на ввод целочисленных значений
         private void TextBoxNumber(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
-            int i;
             var t = ((TextBox)sender).Text + e.Text;
-            if (!int.TryParse(t, out i))
+            if (!int.TryParse(t, out int i))
                 e.Handled = true;
         }
     }

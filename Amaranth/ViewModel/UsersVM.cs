@@ -127,7 +127,8 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                Auth.ResetPassword(_user.Login);
+                var auth = AuthSingl.GetInstance();     // Получение экземпляра Singleton
+                auth.ResetPassword(_user.Login);        // Вызов очистки пароля
                 DialogueService.ShowInformation($"Пароль для пользователя {_user.Login} был сброшен.");
             }, () => _user != null && _isSelect);
         }

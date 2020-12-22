@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Amaranth.Model.Data
 {
 	/// <summary>
-	/// Хранит информацию о пользователе
+	/// Хранит информацию о пользователе.
 	/// </summary>
 	public class User : BindableBase, IData
 	{
@@ -39,7 +39,7 @@ namespace Amaranth.Model.Data
 
 		string _firstName;
 		/// <summary>
-		/// Имя пользотеля.
+		/// Имя пользователя.
 		/// </summary>
 		public string FirstName
 		{

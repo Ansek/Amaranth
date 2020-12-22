@@ -24,7 +24,7 @@ namespace Amaranth.ViewModel
         /// <summary>
         /// Для хранения информации о ранее выполненном запросе. Для страниц перехода.
         /// </summary>
-        ProductRequest _oldRequest;
+        readonly ProductRequest _oldRequest;
 
         /// <summary>
         /// Оповещает о намерении открыть информацию о продукте.
@@ -49,6 +49,7 @@ namespace Amaranth.ViewModel
             _maxNumber = 1;
             _request = new ProductRequest();
             _oldRequest = new ProductRequest();
+            // Загрузка и отображение списка товаров
             ListProducts = _db.GetProductList(MainWindowVM.Categories, _oldRequest, _countAll, Position);
         }
 
@@ -137,7 +138,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Tag>((tag) =>
             {
-                if (!Request.Tags.Contains(tag))
+                if (!Request.Tags.Contains(tag)) // Сохранение только уникальных тегов
                     Request.Tags.Add(tag);
                 TagField = "";
             }, (tag) => tag != null);

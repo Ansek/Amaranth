@@ -24,7 +24,7 @@ namespace Amaranth.ViewModel
         /// <summary>
         /// Содержит список новых тегов.
         /// </summary>
-        List<Tag> _newTags;
+        readonly List<Tag> _newTags;
 
         /// <summary>
         /// Конструктор посредника для формы товаров.
@@ -147,7 +147,7 @@ namespace Amaranth.ViewModel
                 if (CurrentTag == null) // Проверка, что задан новый тег
                 {
                     CurrentTag = new Tag() { Title = TagField };
-                    _newTags.Add(CurrentTag);
+                    _newTags.Add(CurrentTag); // Сохранение информации для последующего добавления
                 }
                 Product.AddTag(CurrentTag);
                 TagField = "";

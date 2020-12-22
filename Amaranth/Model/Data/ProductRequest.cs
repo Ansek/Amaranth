@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
-using System;
 
 namespace Amaranth.Model.Data
 {
@@ -66,7 +64,7 @@ namespace Amaranth.Model.Data
 
         bool _checkTags;
         /// <summary>
-        /// Задает флаг на проверка по тегам.
+        /// Задает флаг на проверку по тегам.
         /// </summary>
         public bool CheckTags
         {
@@ -222,7 +220,10 @@ namespace Amaranth.Model.Data
             {
                 if (condition != string.Empty)
                     condition += " AND ";
-                condition += $"Title LIKE '%{_title.Replace("'", @"\'")}%'";
+                if (_checkDateComplited)
+                    condition += $"Title = '{_title}'";       // Для отчётов требуется точный поиск
+                else
+                    condition += $"Title LIKE '%{_title.Replace("'", @"\'")}%'";    // Для поиска товаров лучше поиск на вхождение
             }
 
             // Установка условия поиска по цене
@@ -233,24 +234,35 @@ namespace Amaranth.Model.Data
                 condition += $"{_fromPrice} <= Price AND Price <= {_toPrice}";
             }
 
-            // Установка условия по проверке даты завершения
-            if (_checkDateComplited)
-            {
-                var select = $"SELECT op.idProduct FROM `order` o, order_product op " +
-                    $"WHERE o.idOrder = op.idOrder AND DATE(o.CompletionDate)" +
-                    $" BETWEEN '{_fromDate.ToString("yyyy-MM-dd")}'" +
-                    $" AND '{_toDate.ToString("yyyy-MM-dd")}' GROUP BY op.idProduct";
-                if (condition != string.Empty)
-                    condition += " AND ";
-                condition += $"idProduct IN ({select})";
-            }
-
             // Установка условия поиска по категории
             if (_checkCategory)
             {
                 if (condition != string.Empty)
                     condition += " AND ";
                 condition += $"idCategory = {_category}";
+            }
+
+            // Установка условия по проверке даты завершения
+            if (_checkDateComplited)
+            {
+                var cond = string.Empty;
+                if (_checkRecordsCount) // Если требуется ограничить количество записей
+                    cond = $"LIMIT 0, {_recordsCount}";
+
+                if (condition != string.Empty)
+                    condition += " AND ";
+
+                // Установка запроса с ограничением даты
+                condition = $"idProduct IN (" +
+                    $"SELECT idProduct " +
+                    $"FROM (SELECT idProduct, sum(Count) AS Count " +
+                    $"FROM sale_view " +
+                    $"WHERE {condition} Date " +
+                    $"BETWEEN '{_fromDate:yyyy-MM-dd}' " +
+                    $"AND '{_toDate:yyyy-MM-dd}' " +
+                    $"GROUP BY idProduct " +
+                    $"ORDER BY Count DESC " +
+                    $"{cond}) AS t)";
             }
 
             return condition;

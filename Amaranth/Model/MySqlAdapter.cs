@@ -7,19 +7,22 @@ using Amaranth.Model.Data;
 namespace Amaranth.Model
 {
     /// <summary>
-    /// Предоставляет функции для работы с СУБД MySql
+    /// Предоставляет функции для работы с СУБД MySql.
     /// </summary>
 	public class MySqlAdapter : IDBAdapter
 	{
         /// <summary>
-        /// Хранит настройки соедения
+        /// Хранит настройки соединения
         /// </summary>
-		MySqlConnection _connect;
+        readonly MySqlConnection _connect;
 
+        /// <summary>
+        /// Конструктор класса для работы с СУБД MySql.
+        /// </summary>
         public MySqlAdapter()
         {
             // Установка параметров соединия с БД
-            string param = "datasource = localhost; port = 3306; username = root; database = amaranth; password = 123";
+            string param = "datasource = localhost; port = 3306; username = root; database = amaranth; password = 1234";
             _connect = new MySqlConnection(param);
         }
 
@@ -32,7 +35,7 @@ namespace Amaranth.Model
             var cmd = new MySqlCommand("", _connect);
 
             // Формирование запроса на добавление
-            string idCmd, columns, values;
+            string columns, values;
             columns = values = string.Empty;
             int i = 0;
             foreach (var d in data.GetData())
@@ -42,7 +45,7 @@ namespace Amaranth.Model
                     columns += ",";
                     values += ",";
                 }
-                var param = GetParamater(d.Item2, ref i, out idCmd); // Формирование параметра
+                var param = GetParamater(d.Item2, ref i, out string idCmd); // Формирование параметра
                 cmd.Parameters.Add(param);  // Добавление параметра в команду
                 columns += d.Item1;         // Формирование списка столбцов
                 values += idCmd;            // Формирование списка значений
@@ -91,7 +94,7 @@ namespace Amaranth.Model
         /// <summary>
         /// Обновляет поле таблицы в БД.
         /// </summary>
-        /// <param name="table">Таблица, в которой будет обновляено данное.</param>
+        /// <param name="table">Таблица, в которой будет обновлено данное.</param>
         /// <param name="idColumn">Столбец идентификатора.</param>
         /// <param name="idValue">Значение идентификатора.</param>
         /// <param name="column">Столбец, в котором будет производиться изменение.</param>
@@ -100,11 +103,10 @@ namespace Amaranth.Model
         {
             var cmd = new MySqlCommand("", _connect);
             int i = 0;
-            string idCmd, valueCmd;
-            var paramKey = GetParamater(idValue, ref i, out idCmd);         // Формирование параметра ключа
-            cmd.Parameters.Add(paramKey);                                   // Добавление параметра ключа в команду
-            var paramValue = GetParamater(value, ref i, out valueCmd);    // Формирование параметра значения
-            cmd.Parameters.Add(paramValue);                                 // Добавление параметра значения в команду
+            var paramKey = GetParamater(idValue, ref i, out string idCmd);      // Формирование параметра ключа
+            cmd.Parameters.Add(paramKey);                                       // Добавление параметра ключа в команду
+            var paramValue = GetParamater(value, ref i, out string valueCmd);   // Формирование параметра значения
+            cmd.Parameters.Add(paramValue);                                     // Добавление параметра значения в команду
 
             cmd.CommandText = $"UPDATE {table} SET {column} = {valueCmd} WHERE {idColumn} = {idCmd};";
 
@@ -121,9 +123,8 @@ namespace Amaranth.Model
             var cmd = new MySqlCommand("", _connect);
 
             // Формирование запроса на удаление
-            string idCmd;
             int i = 0;
-            var paramKey = GetParamater(data.IdColumn, ref i, out idCmd); // Формирование параметра ключа
+            var paramKey = GetParamater(data.IdColumn, ref i, out string idCmd); // Формирование параметра ключа
             cmd.Parameters.Add(paramKey);               // Добавление параметра ключа в команду
             cmd.CommandText = $"DELETE FROM {data.Table} WHERE {data.IdColumnName} = {idCmd};";
 
@@ -136,15 +137,14 @@ namespace Amaranth.Model
         /// </summary>
         /// <param name="table">Таблица, из которой будут удалены записи.</param>
         /// <param name="column">Столбец, по которому будет проводиться проверка.</param>
-        /// <param name="value">Значение, по которому будуь удалены записи.</param>
+        /// <param name="value">Значение, по которому будут удалены записи.</param>
         public void Delete(string table, string column, object value)
         {
             var cmd = new MySqlCommand("", _connect);
 
             // Формирование запроса на удаление
-            string idCmd;
             int i = 0;
-            var paramKey = GetParamater(value, ref i, out idCmd); // Формирование параметра ключа
+            var paramKey = GetParamater(value, ref i, out string idCmd); // Формирование параметра ключа
             cmd.Parameters.Add(paramKey);               // Добавление параметра ключа в команду
             cmd.CommandText = $"DELETE FROM {table} WHERE {column} = {idCmd};";
 
@@ -196,7 +196,7 @@ namespace Amaranth.Model
         }
 
         /// <summary>
-        /// Обновляет сведения для элементах коллекции внешней таблицы.
+        /// Обновляет сведения для элементов коллекции внешней таблицы.
         /// </summary>
         /// <param name="collection">Объект коллекции.</param>
         public void UpdateCollection(IDataCollection collection)
@@ -210,7 +210,7 @@ namespace Amaranth.Model
                 if (c.IdItem > 0 && c.IsAdd)
                 {
                     // Формирование запроса на добавление
-                    string idCmd, columns, values;
+                    string columns, values;
                     columns = values = string.Empty;
                     foreach (var d in c.GetData())
                     {
@@ -219,15 +219,14 @@ namespace Amaranth.Model
                             columns += ",";
                             values += ",";
                         }
-                        var param = GetParamater(d.Item2, ref i, out idCmd); // Формирование параметра
+                        var param = GetParamater(d.Item2, ref i, out string idCmd); // Формирование параметра
                         cmd.Parameters.Add(param);  // Добавление параметра в команду
                         columns += d.Item1;         // Формирование списка столбцов
                         values += idCmd;            // Формирование списка значений
                     }
-                    string idCmd1, idCmd2;
-                    var paramKey1 = GetParamater(collection.IdColumn, ref i, out idCmd1); // Формирование параметра первого ключа
+                    var paramKey1 = GetParamater(collection.IdColumn, ref i, out string idCmd1); // Формирование параметра первого ключа
                     cmd.Parameters.Add(paramKey1);                              // Добавление параметра первого ключа в команду
-                    var paramKey2 = GetParamater(c.IdItem, ref i, out idCmd2);  // Формирование параметра второго ключа
+                    var paramKey2 = GetParamater(c.IdItem, ref i, out string idCmd2);  // Формирование параметра второго ключа
                     cmd.Parameters.Add(paramKey2);                              // Добавление параметра второго ключа в команду
                     if (columns != string.Empty)
                     {
@@ -242,11 +241,10 @@ namespace Amaranth.Model
                 if (c.IdItem > 0 && c.IsDelete)
                 {
                     // Формирование запроса на удаление
-                    string idCmd1, idCmd2;
-                    var paramKey1 = GetParamater(collection.IdColumn, ref i, out idCmd1); // Формирование параметра первого ключа
-                    cmd.Parameters.Add(paramKey1);                              // Добавление параметра первого ключа в команду
-                    var paramKey2 = GetParamater(c.IdItem, ref i, out idCmd2);  // Формирование параметра второго ключа
-                    cmd.Parameters.Add(paramKey2);                              // Добавление параметра второго ключа в команду
+                    var paramKey1 = GetParamater(collection.IdColumn, ref i, out string idCmd1); // Формирование параметра первого ключа
+                    cmd.Parameters.Add(paramKey1);                                      // Добавление параметра первого ключа в команду
+                    var paramKey2 = GetParamater(c.IdItem, ref i, out string idCmd2);   // Формирование параметра второго ключа
+                    cmd.Parameters.Add(paramKey2);                                      // Добавление параметра второго ключа в команду
                     cmd.CommandText += $"DELETE FROM {collection.CollectionTable} WHERE {collection.IdColumnName} = {idCmd1} AND {collection.IdItemName} = {idCmd2};\n";
                 }    
             }
@@ -347,6 +345,8 @@ namespace Amaranth.Model
         /// </summary>
         /// <param name="table">Имя таблицы.</param>
         /// <param name="column">Имя столбца.</param>
+        /// <param name="condition">Дополнительное условие.</param>
+        /// <returns>Максимальное значение.</returns>
         public int GetMaxValue(string table, string column, string condition = null)
         {
             // Составление скрипта запроса

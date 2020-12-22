@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 namespace Amaranth.Service
 {
     /// <summary>
-    /// Конвертер для преобразование списков в строку через запятую.
+    /// Конвертер для преобразования списков в строку через запятую.
     /// </summary>
     class ListToStringConverter : IValueConverter
     {

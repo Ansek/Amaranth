@@ -77,15 +77,15 @@ namespace Amaranth.ViewModel
         {
             get => new Command<string>((id) =>
             {
-                int i = int.Parse(id);
-                Order = _db.GetOrder(i);
-                if (_order == null)
+                int i = int.Parse(id);      // Получение идентификатора заказа
+                Order = _db.GetOrder(i);    // Загрузка информации о заказе
+                if (_order == null)         // Определение статуса
                     Message = "Заказ не был найден";
                 else if (_order.CompletionDate == null)
                     Message = $"Заказ от {_order.CreationDate:F}";
                 else
                     Message = $"Заказ был завершен {_order.CompletionDate:F}";
-            }, (id) => { int i; return int.TryParse(id, out i); });
+            }, (id) => { return int.TryParse(id, out int i); });
         }
 
         /// <summary>
@@ -107,9 +107,9 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Product>((p) =>
             {
-                _idProduct = p.Id;
-                MaxCount = _db.GetMaxCountProduct(p.Id);
-                EditableCount = p.ProductCount;
+                _idProduct = p.Id;                          // Сохранение идентификатора товара 
+                MaxCount = _db.GetMaxCountProduct(p.Id);    // Получение максимально допустимого количества товаров
+                EditableCount = p.ProductCount;             // Установка количества в поле редактирования
             }, (p) => p != null);
         }
 
@@ -120,9 +120,11 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Product>((p) =>
             {
-                var product = new Product(p);
-                product.ProductCount = 1;
-                Order.Add(product);
+                var product = new Product(p)    // Копирование информации о товаре
+                {
+                    ProductCount = 1            // Установка количества по умолчанию
+                };
+                Order.Add(product);             // Добавление в текущий заказ
             }, (p) => p != null);
         }
 
@@ -152,10 +154,10 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                _db.CompleteOrder(_order);
+                _db.CompleteOrder(_order);      // Запись о завершение
                 foreach (var p in _order)
-                    _db.SubMaxCountProduct(p);
-                Order = new Order();
+                    _db.SubMaxCountProduct(p);  // Вычитание купленного товара из списка доступных
+                Order = new Order();            // Установка шаблона нового заказа
                 Message = "Новый заказ";
             }, () => _order != null && _order.CompletionDate == null);
         }
@@ -169,8 +171,8 @@ namespace Amaranth.ViewModel
             {
                 if (DialogueService.ShowWarning("Вы действительно хотите отменить заказ?"))
                 {
-                    _db.CancelOrder(_order);
-                    Order = new Order();
+                    _db.CancelOrder(_order);    // Отмена
+                    Order = new Order();        // Установка шаблона нового заказа
                     Message = "Новый заказ";
                 }
             }, () => _order != null && _order.CompletionDate == null);

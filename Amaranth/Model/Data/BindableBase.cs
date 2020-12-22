@@ -14,13 +14,16 @@ namespace Amaranth.Model.Data
         /// <typeparam name="T"></typeparam>
         /// <param name="var">Поле, которому присваивается значение.</param>
         /// <param name="value">Переданное значение.</param>
-        /// <param name="name">Имя вызыванного свойства.</param>
+        /// <param name="name">Имя вызванного свойства.</param>
         protected void SetValue<T>(ref T var, T value, [CallerMemberName] string name = "")
         {
             var = value;
             OnValueChanged(name);
         }
 
+        /// <summary>
+        /// Оповещает об изменении значения свойства. 
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
         /// <summary>
         /// Вызов оповещения о смене значения свойства.

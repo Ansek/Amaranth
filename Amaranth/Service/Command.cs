@@ -4,7 +4,7 @@ using System.Windows.Input;
 namespace Amaranth.Service
 {
     /// <summary>
-    /// Команда для выполенения действий на форме.
+    /// Команда для выполнения действий на форме.
     /// </summary>
     public class Command : ICommand
     {
@@ -17,8 +17,8 @@ namespace Amaranth.Service
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        Action _execute;
-        Func<bool> _canExecute;
+        readonly Action _execute;
+        readonly Func<bool> _canExecute;
         /// <summary>
         /// Конструктор для объекта команды.
         /// </summary>

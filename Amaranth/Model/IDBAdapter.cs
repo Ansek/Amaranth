@@ -5,9 +5,9 @@ using Amaranth.Model.Data;
 namespace Amaranth.Model
 {
 	/// <summary>
-	/// Предоставляет доступ к управлющему классу БД.
+	/// Предоставляет доступ к управляющему классу БД.
 	/// </summary>
-    public interface IDBAdapter
+	public interface IDBAdapter
     {
 		/// <summary>
 		/// Добавляет запись в БД.
@@ -24,7 +24,7 @@ namespace Amaranth.Model
 		/// <summary>
 		/// Обновляет поле таблицы в БД.
 		/// </summary>
-		/// <param name="table">Таблица, в которой будет обновляено данное.</param>
+		/// <param name="table">Таблица, в которой будет обновлено данное.</param>
 		/// <param name="idColumn">Столбец идентификатора.</param>
 		/// <param name="idValue">Значение идентификатора.</param>
 		/// <param name="column">Столбец, в котором будет производиться изменение.</param>
@@ -42,7 +42,7 @@ namespace Amaranth.Model
 		/// </summary>
 		/// <param name="table">Таблица, из которой будут удалены записи.</param>
 		/// <param name="column">Столбец, по которому будет проводиться проверка.</param>
-		/// <param name="value">Значение, по которому будуь удалены записи.</param>
+		/// <param name="value">Значение, по которому будут удалены записи.</param>
 		void Delete(string table, string column, object value);
 
 		/// <summary>
@@ -63,7 +63,7 @@ namespace Amaranth.Model
 		void LoadData(IData data, string condition = null);
 
 		/// <summary>
-		/// Обновляет сведения для элементах коллекции внешней таблицы.
+		/// Обновляет сведения для элементов коллекции внешней таблицы.
 		/// </summary>
 		/// <param name="collection">Объект коллекции.</param>
 		void UpdateCollection(IDataCollection collection);

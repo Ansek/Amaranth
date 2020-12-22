@@ -13,7 +13,7 @@ namespace Amaranth.ViewModel
         /// <summary>
         /// Для вызова функций генерации отчёта.
         /// </summary>
-        Report _report;
+        readonly Report _report;
 
         /// <summary>
         /// Конструктор посредника для формы генерации отчётов.
@@ -21,9 +21,11 @@ namespace Amaranth.ViewModel
         public ReportsVM()
         {
             _report = new Report(new MySqlAdapter());
-            _request = new ProductRequest();
-            _request.CheckTitle = true;
-            _request.CheckDateComplited = true;
+            _request = new ProductRequest   // Установка флагов по умолчанию
+            {
+                CheckTitle = true,          // Проверка по наименованию
+                CheckDateComplited = true   // Проверка по дате завершения
+            };
         }
 
         ProductRequest _request;
@@ -64,7 +66,7 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Tag>((tag) =>
             {
-                if (!Request.Tags.Contains(tag))
+                if (!Request.Tags.Contains(tag)) // Добавление только уникальных тегов
                     Request.Tags.Add(tag);
                 TagField = "";
             }, (tag) => tag != null);

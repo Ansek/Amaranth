@@ -18,15 +18,20 @@ namespace Amaranth.ViewModel
         readonly DataBaseSinglFacade _db;
 
         /// <summary>
-        /// Констуктор посредника для формы основного окна.
+        /// Для доступа к функциям авторизации.
+        /// </summary>
+        readonly AuthSingl _auth;
+
+        /// <summary>
+        /// Конструктор посредника для формы основного окна.
         /// </summary>
         public MainWindowVM()
         {
-            MySqlAdapter mySql = new MySqlAdapter();
-            Auth.GetInstance();
-            Auth.SetAdapter(mySql);
-            _db = DataBaseSinglFacade.GetInstance();
-            _db.SetAdapter(mySql);
+            var mySql = new MySqlAdapter();             // Инициализация класса адаптера для СУБД MySql
+            _auth = AuthSingl.GetInstance();            // Получение экземпляра Singleton
+            _auth.SetAdapter(mySql);                    // Установка адаптера MySql
+            _db = DataBaseSinglFacade.GetInstance();    // Получение экземпляра Singleton        
+            _db.SetAdapter(mySql);                      // Установка адаптера MySql
 
             // Привязка к событию изменения списка категорий
             _db.CategoryListChanged += () =>
@@ -46,7 +51,7 @@ namespace Amaranth.ViewModel
                 UpdateProductTitles();
             };
             UpdateProductTitles();
-
+            // Установка списка страниц
             Pages = new ObservableCollection<UserControl>()
             { 
                 new OrderPage(),
@@ -57,11 +62,12 @@ namespace Amaranth.ViewModel
                 new ArrivalsPage(),
                 new ListOrdersPage()
             };
-            Auth.UserChanged += () =>
+            // Привязка к событию изменения текущего пользователя
+            _auth.UserChanged += () =>
             {
-                OnValueChanged("CurrentUser");
-                if (Auth.CurrentUser != null)
-                    if (Auth.CurrentUser.IsAdministrator)
+                OnValueChanged("CurrentUser");  // Обновление информации на форме
+                if (_auth.CurrentUser != null)
+                    if (_auth.CurrentUser.IsAdministrator)  // Страницы для администратора
                     { 
                         Pages.Clear();
                         Pages.Add(new ProductsPage());
@@ -71,7 +77,7 @@ namespace Amaranth.ViewModel
                         Pages.Add(new ArrivalsPage());
                         Pages.Add(new ListOrdersPage());
                     }
-                    else
+                    else                                    // Страницы для фармацепта
                     {
                         Pages.Clear();
                         Pages.Add(new OrderPage());
@@ -79,16 +85,17 @@ namespace Amaranth.ViewModel
                         Pages.Add(new ListOrdersPage());
                     }
             };
+            // Привязка к события запроса на открытие страницы
             ProductSearchVM.OpenProduct += (product) =>
             {
-                var page = new ShowProductPage(product);
-                Pages.Add(page);
-                CurrentPage = page;
+                var page = new ShowProductPage(product);    // Создание новой страницы для товара
+                Pages.Add(page);        // Добавление в список вкладок
+                CurrentPage = page;     // Отображение страницы
             };
         }
-        
+
         /// <summary>
-        /// Констуктор для инициализации статических свойств.
+        /// Конструктор для инициализации статических свойств.
         /// </summary>
         static MainWindowVM()
         {
@@ -98,17 +105,17 @@ namespace Amaranth.ViewModel
         }
 
         /// <summary>
-        /// Для получение доступа к списку категорий.
+        /// Для получения доступа к списку категорий.
         /// </summary>
         public static ObservableCollection<Category> Categories;
 
         /// <summary>
-        /// Для получение доступа к списку тегов.
+        /// Для получения доступа к списку тегов.
         /// </summary>
         public static ObservableCollection<Tag> Tags;
 
         /// <summary>
-        /// Для получение доступа к заголовкам продуктов.
+        /// Для получения доступа к заголовкам продуктов.
         /// </summary>
         public static ObservableCollection<string> ProductTitles;
 
@@ -130,7 +137,7 @@ namespace Amaranth.ViewModel
         /// <summary>
         /// Для отображения информации о текущем пользователе.
         /// </summary>
-        public User CurrentUser => Auth.CurrentUser;
+        public User CurrentUser => _auth.CurrentUser;
 
         public Command<UserControl> CloseInfo
         {
@@ -153,7 +160,7 @@ namespace Amaranth.ViewModel
         /// </summary>
         public Command SignOut
         {
-            get => new Command(() => Auth.SignOut());
+            get => new Command(() => _auth.SignOut());
         }
 
         /// <summary>
@@ -161,9 +168,9 @@ namespace Amaranth.ViewModel
         /// </summary>
         void UpdateCategories()
         {
-            Categories.Clear();
-            foreach (var c in _db.GetCategoryList())
-                Categories.Add(c);
+            Categories.Clear();                         // Очистка
+            foreach (var c in _db.GetCategoryList())    // Загрузка
+                Categories.Add(c);                      // Добавление
         }
 
         /// <summary>
@@ -171,9 +178,9 @@ namespace Amaranth.ViewModel
         /// </summary>
         void UpdateTags()
         {
-            Tags.Clear();
-            foreach (var c in _db.GetTagList())
-                Tags.Add(c);
+            Tags.Clear();                           // Очистка
+            foreach (var c in _db.GetTagList())     // Загрузка
+                Tags.Add(c);                        // Добавление
         }
 
         /// <summary>
@@ -181,9 +188,9 @@ namespace Amaranth.ViewModel
         /// </summary>
         void UpdateProductTitles()
         {
-            ProductTitles.Clear();
-            foreach (var t in _db.GetProductTitles())
-                ProductTitles.Add(t);
+            ProductTitles.Clear();                      // Очистка
+            foreach (var t in _db.GetProductTitles())   // Загрузка
+                ProductTitles.Add(t);                   // Добавление
         }
     }
 }

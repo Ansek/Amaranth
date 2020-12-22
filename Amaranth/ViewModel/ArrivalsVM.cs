@@ -49,8 +49,8 @@ namespace Amaranth.ViewModel
         {
             get => new Command<Product>((p) =>
             {
-                EditableCount = p.ProductCount;
-                Product = _db.LoadInfo(p);
+                EditableCount = p.ProductCount; // Отображение количества текущего товара в поле для редактирования
+                Product = _db.LoadInfo(p);      // Загрузка информации о выбранном товаре
             }, (p) => p != null);
         }
 
@@ -61,9 +61,9 @@ namespace Amaranth.ViewModel
         {
             get => new Command(() =>
             {
-                _product.ProductCount = _editableCount;
-                _product.SaveOnlyCount = true;
-                _db.Update(_product);
+                _product.ProductCount = _editableCount; // Установка нового значения количества покумаего товара
+                _product.SaveOnlyCount = true;          // Установка режима записи: только количество
+                _db.Update(_product);                   // Обновление информации о товаре
             }, () => _editableCount > 0);
         }
     }

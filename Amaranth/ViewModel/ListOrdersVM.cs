@@ -40,6 +40,7 @@ namespace Amaranth.ViewModel
             _countAll = 10;
             _currentNumber = 1;
             _maxNumber = 1;
+            // Загрузка и отображение списка заказов
             ListOrders = _db.GetListOrder(_countAll, Position);
         }
 
@@ -105,17 +106,18 @@ namespace Amaranth.ViewModel
         {
             get => new Command<int>((i) =>
             {
+                // Установка режима отображения списка заказов
                 switch (i)
                 {
-                    case 1:
+                    case 1: // Показать только активные заказы
                         _onlyActive = true;
                         _onlyCompleted = false;
                         break;
-                    case 2:
+                    case 2: // Показать только завершенные заказы
                         _onlyActive = false;
                         _onlyCompleted = true;
                         break;
-                    default:
+                    default: // Показать все заказы
                         _onlyActive = false;
                         _onlyCompleted = false;
                         break;
@@ -168,7 +170,7 @@ namespace Amaranth.ViewModel
             get => new Command<Order>((o) =>
             {
                 Order = _db.GetOrder(o.Id);
-                if (_order.CompletionDate == null)
+                if (_order.CompletionDate == null)  // Определяет завершен ли заказ
                     Message = $"Заказ от {_order.CreationDate:F}";
                 else
                     Message = $"Заказ был завершен {_order.CompletionDate:F}";

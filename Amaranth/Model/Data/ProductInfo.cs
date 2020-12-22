@@ -10,7 +10,7 @@ namespace Amaranth.Model.Data
         /// <summary>
         /// Для хранения значения внешнего параметра.
         /// </summary>
-        List<string> _values;
+        readonly List<string> _values;
 
         /// <summary>
         /// Конструктор для объекта информации о продуктах. 
@@ -25,7 +25,7 @@ namespace Amaranth.Model.Data
         }
 
         /// <summary>
-        /// Копирующий констуктор для объекта информации о продуктах.
+        /// Копирующий конструктор для объекта информации о продуктах.
         /// </summary>
         /// <param name="product">Родительский объект данного продукта.</param>
         public ProductInfo(Product product) : base(product)
@@ -78,7 +78,7 @@ namespace Amaranth.Model.Data
         /// Получение данных об имени столбцах и их содержимом.
         /// </summary>
         /// <returns>Возвращает кортеж из имени столбца и его значения.</returns>
-        public new IEnumerable<(string, object)> GetData()
+        public IEnumerable<(string, object)> GetData()
         {
             yield return ($"idProduct", Id);
             foreach (var desc in Description)
