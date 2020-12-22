@@ -33,16 +33,16 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <Label Content="Наименование" Grid.Row="1"/>
+            <Label Content="Наименование: " Grid.Row="1"/>
             <TextBlock Text="{Binding Product.Title}" Grid.Row="1" Grid.Column="1"/>
 
-            <Label Content="Категория" Grid.Row="2"/>
+            <Label Content="Категория: " Grid.Row="2"/>
             <TextBlock Text="{Binding Product.Category.Title}" Grid.Column="1" Grid.Row="2"/>
 
-            <Label Content="Цена" Grid.Row="3"/>
+            <Label Content="Цена: " Grid.Row="3"/>
             <TextBlock Text="{Binding Product.Price, StringFormat=0.00₽}" Grid.Column="1" Grid.Row="3"/>
 
-            <Label Content="Рецепт" Grid.Row="4"/>
+            <Label Content="Рецепт: " Grid.Row="4"/>
             <TextBlock Grid.Column="1" Grid.Row="4" VerticalAlignment="Center">
                 <TextBlock.Style>
                     <Style TargetType="{x:Type TextBlock}">
@@ -56,10 +56,10 @@
                 </TextBlock.Style>
             </TextBlock>
 
-            <Label Content="Теги" Grid.Row="5"/>
-            <TextBlock Text="{Binding ListTags, Converter={StaticResource ListToStringConverter}}" Grid.Column="1" Grid.Row="5"/>
+            <Label Content="Теги: " Grid.Row="5"/>
+            <TextBlock Text="{Binding Product, Converter={StaticResource ListToStringConverter}}" Grid.Column="1" Grid.Row="5"/>
 
-            <ItemsControl ItemsSource="{Binding Product}" Grid.ColumnSpan="2" Grid.Row="6">
+            <ItemsControl ItemsSource="{Binding Product.Description}" Grid.ColumnSpan="2" Grid.Row="6">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -67,7 +67,7 @@
                                 <ColumnDefinition Width="auto" SharedSizeGroup="Desc"/>
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            
+
                             <Label Content="{Binding Title}"/>
                             <TextBlock Text="{Binding Value}" Grid.Column="1" VerticalAlignment="Center" TextWrapping="Wrap"/>
                         </Grid>

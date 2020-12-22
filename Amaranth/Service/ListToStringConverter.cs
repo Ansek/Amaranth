@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Windows.Data;
 using System.Globalization;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using Amaranth.Model.Data;
 
 namespace Amaranth.Service
 {
@@ -12,7 +13,7 @@ namespace Amaranth.Service
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var list = (ObservableCollection<string>)value;
+            var list = (IEnumerable<Tag>)value;
             if (list != null)
             {
                 string s = string.Empty;
@@ -22,7 +23,7 @@ namespace Amaranth.Service
                     // Объединение через запятую
                     if (s != string.Empty)
                         s += ", ";
-                    s += str;
+                    s += str.Title;
                 }
                 return s;
             }

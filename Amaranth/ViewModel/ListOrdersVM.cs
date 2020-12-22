@@ -122,7 +122,7 @@ namespace Amaranth.ViewModel
                         _onlyCompleted = false;
                         break;
                 }
-                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
+                ListOrders = _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             });
         }
 
@@ -134,7 +134,7 @@ namespace Amaranth.ViewModel
             get => new Command<int>((count) =>
             {
                 _countAll = count;
-                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
+                ListOrders = _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             });
         }
 
@@ -146,7 +146,7 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 CurrentNumber--;
-                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
+                ListOrders = _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             }, () => _currentNumber != 1);
         }
 
@@ -158,7 +158,7 @@ namespace Amaranth.ViewModel
             get => new Command(() =>
             {
                 CurrentNumber++;
-                _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
+                ListOrders = _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
             }, () => _currentNumber != _maxNumber);
         }
 
@@ -188,7 +188,7 @@ namespace Amaranth.ViewModel
                 {
                     _db.CancelOrder(_order);
                     Order = null;
-                    _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
+                    ListOrders = _db.GetListOrder(_countAll, Position, _onlyActive, _onlyCompleted);
                 }
             }, () => _order != null && _order.CompletionDate == null);
         }

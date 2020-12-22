@@ -57,10 +57,10 @@ namespace Amaranth.ViewModel
             _auth.UserChanged += () =>
             {
                 OnValueChanged("CurrentUser");  // Обновление информации на форме
+                Pages.Clear();
                 if (_auth.CurrentUser != null)
                     if (_auth.CurrentUser.IsAdministrator)  // Страницы для администратора
-                    { 
-                        Pages.Clear();
+                    {
                         Pages.Add(new ProductsPage());
                         Pages.Add(new ReportsPage());
                         Pages.Add(new UsersPage());
@@ -70,7 +70,6 @@ namespace Amaranth.ViewModel
                     }
                     else                                    // Страницы для фармацепта
                     {
-                        Pages.Clear();
                         Pages.Add(new OrderPage());
                         Pages.Add(new ArrivalsPage());
                         Pages.Add(new ListOrdersPage());
