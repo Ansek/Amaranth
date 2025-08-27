@@ -7,6 +7,7 @@ namespace Amaranth.View
     /// </summary>
     public partial class ShowProductPage : UserControl
     {
+        ///
         public ShowProductPage(Model.Data.Product product)
         {
             InitializeComponent();

@@ -7,6 +7,7 @@ namespace Amaranth.View
     /// </summary>
     public partial class OrderPage : UserControl
     {
+        ///
         public OrderPage()
         {
             InitializeComponent();

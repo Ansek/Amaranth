@@ -8,6 +8,7 @@ namespace Amaranth.View
     /// </summary>
     public partial class UsersPage : UserControl
     {
+        ///
         public UsersPage()
         {
             InitializeComponent();

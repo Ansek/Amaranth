@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Amaranth.View
@@ -6,16 +7,21 @@ namespace Amaranth.View
     /// <summary>
     /// Логика взаимодействия для формы авторизации
     /// </summary>
-    public partial class LoginWindow : Window
+    public partial class ConnectionWindow : Window
     {
         ///
-        public LoginWindow()
+        public ConnectionWindow()
         {
             InitializeComponent();
-            var mv = new ViewModel.LoginVM();
-            DataContext = mv;
-            mv.ClickOk += () => DialogResult = true;
+            VM = new ViewModel.ConnectionVM();
+            DataContext = VM;
+            VM.ClickOk += () => DialogResult = true;
         }
+
+        /// <summary>
+        /// Класс-посредник с данными.
+        /// </summary>
+        public ViewModel.ConnectionVM VM { get; } 
 
         //Проверка на ввод строк не больше 32 символов
         private void TextBoxlLen32(object sender, System.Windows.Input.TextCompositionEventArgs e)
@@ -27,6 +33,12 @@ namespace Amaranth.View
                 t = ((PasswordBox)sender).Password + e.Text;
             if (t.Length > 32)
                 e.Handled = true;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!VM.IsOk)
+                Environment.Exit(0);
         }
     }
 }

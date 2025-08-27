@@ -174,10 +174,11 @@ namespace Amaranth.Model.Data
 				Title = value as string;
 		}
 
-		/*--- Свойства и методы для интерфейса IDataCollection ---*/
+        /*--- Свойства и методы для интерфейса IDataCollection ---*/
 
-		public string CollectionTable => "Description";
-
+        ///
+        public string CollectionTable => "Description";
+        ///
         public string IdItemName => "idDescription";
 
         /// <summary>

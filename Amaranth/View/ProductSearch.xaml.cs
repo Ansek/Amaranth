@@ -10,13 +10,15 @@ namespace Amaranth.View
     /// </summary>
     public partial class ProductSearch : UserControl
     {
+        ///
         public static readonly DependencyProperty SetProductProperty;
 
+        ///
         static ProductSearch()
         {
             SetProductProperty = DependencyProperty.Register("SetProduct", typeof(ICommand), typeof(ProductSearch));
         }
-
+        ///
         public ProductSearch()
         {
             InitializeComponent();            

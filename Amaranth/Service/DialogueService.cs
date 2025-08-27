@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Amaranth.View;
+using Amaranth.Model.Data;
 
 namespace Amaranth.Service
 {
@@ -8,6 +9,16 @@ namespace Amaranth.Service
     /// </summary>
     class DialogueService
     {
+        /// <summary>
+        /// Вызов окна ввода данных для MySQL.
+        /// </summary>
+        public static ConnectionData ShowConnectionWindow()
+        {
+            var view = new ConnectionWindow();
+            view.ShowDialog();
+            return view.VM.Data;
+        }
+
         /// <summary>
         /// Вызов окна для авторизации пользователя.
         /// </summary>

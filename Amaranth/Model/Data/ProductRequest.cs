@@ -256,7 +256,7 @@ namespace Amaranth.Model.Data
                 condition = $"idProduct IN (" +
                     $"SELECT idProduct " +
                     $"FROM (SELECT idProduct, sum(Count) AS Count " +
-                    $"FROM sale_view " +
+                    $"FROM SaleView " +
                     $"WHERE {condition} Date " +
                     $"BETWEEN '{_fromDate:yyyy-MM-dd}' " +
                     $"AND '{_toDate:yyyy-MM-dd}' " +

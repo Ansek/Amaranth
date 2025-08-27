@@ -128,7 +128,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
 			// Получение данных из расширенной таблицы (с полем зарезервированного количества товаров)
-			var table = _adapter.LoadTable("product_view", request.GetCondition(), count, pos);
+			var table = _adapter.LoadTable("ProductView", request.GetCondition(), count, pos);
 
 			var list = new List<Product>();
 			// Разбор строк полученной таблицы
@@ -218,7 +218,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
 			// Получение данных из таблицы категорий
-			var table = _adapter.LoadTable("tag");
+			var table = _adapter.LoadTable("Tag");
 
 			var list = new List<Tag>();
 			// Разбор строк полученной таблицы
@@ -304,7 +304,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
 			// Получение данных из таблицы категорий
-			var table = _adapter.LoadTable("category");
+			var table = _adapter.LoadTable("Category");
 
 			var list = new List<Category>();
 			// Разбор строк полученной таблицы
@@ -375,7 +375,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
 			// Получение данных из таблицы пользователей
-			var table = _adapter.LoadTable("user");
+			var table = _adapter.LoadTable("User");
 
 			var list = new List<User>();
 			// Разбор строк полученной таблицы
@@ -402,7 +402,7 @@ namespace Amaranth.Model
 				throw new Exception("Не задан адаптер для класса DataBaseSinglFacade");
 
 			// Получение данных о заказе
-			var table = _adapter.LoadTable("`order`", $"idOrder = {id}");
+			var table = _adapter.LoadTable("`Order`", $"idOrder = {id}");
 
 			// Создает объекта заказа
 			Order order = null;
@@ -486,7 +486,7 @@ namespace Amaranth.Model
 				condition = "CompletionDate IS NOT NULL";
 
 			// Получение данных из таблицы заказов
-			var table = _adapter.LoadTable("`order`", condition, count, pos);
+			var table = _adapter.LoadTable("`Order`", condition, count, pos);
 
 			var list = new List<Order>();
 			// Разбор строк полученной таблицы

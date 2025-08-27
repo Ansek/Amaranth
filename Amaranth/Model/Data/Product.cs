@@ -36,7 +36,8 @@ namespace Amaranth.Model.Data
 			_list = product._list;
 		}
 
-		protected int _id;
+        ///
+        protected int _id;
 		/// <summary>
 		/// Идентификатор товара.
 		/// </summary>
@@ -46,7 +47,8 @@ namespace Amaranth.Model.Data
 			set => SetValue(ref _id, value);
 		}
 
-		protected string _title;
+        ///
+        protected string _title;
 		/// <summary>
 		/// Заголовок товара.
 		/// </summary>
@@ -56,7 +58,8 @@ namespace Amaranth.Model.Data
 			set => SetValue(ref _title, value);
 		}
 
-		protected double _price;
+        ///
+        protected double _price;
 		/// <summary>
 		/// Цена товара.
 		/// </summary>
@@ -66,7 +69,8 @@ namespace Amaranth.Model.Data
 			set { SetValue(ref _price, value); PriceText = _price.ToString(); }
 		}
 
-		protected string _priceText;
+        ///
+        protected string _priceText;
 		/// <summary>
 		/// Значение цены для контроля ввода.
 		/// </summary>
@@ -76,7 +80,8 @@ namespace Amaranth.Model.Data
 			set { SetValue(ref _priceText, value); double.TryParse(value.Replace('.', ','), out _price); OnValueChanged("Price"); }
 		}
 
-		protected int _count;
+        ///
+        protected int _count;
 		/// <summary>
 		/// Для хранения значения количества товаров.
 		/// </summary>
@@ -86,7 +91,8 @@ namespace Amaranth.Model.Data
 			set => SetValue(ref _count, value);
 		}
 
-		protected int _reserve;
+        ///
+        protected int _reserve;
 		/// <summary>
 		/// Количество зарезервированных товаров.
 		/// </summary>
@@ -96,7 +102,8 @@ namespace Amaranth.Model.Data
 			set => SetValue(ref _reserve, value);
 		}
 
-		protected bool _prescription;
+        ///
+        protected bool _prescription;
 		/// <summary>
 		/// Флаг, выдается ли товар по рецепту.
 		/// </summary>
@@ -106,7 +113,8 @@ namespace Amaranth.Model.Data
 			set => SetValue(ref _prescription, value);
 		}
 
-		protected Category _category;
+        ///
+        protected Category _category;
 		/// <summary>
 		/// Категория товара.
 		/// </summary>
@@ -245,11 +253,12 @@ namespace Amaranth.Model.Data
 			}					
 		}
 
-		/*--- Свойства и методы для интерфейса IDataCollection ---*/
+        /*--- Свойства и методы для интерфейса IDataCollection ---*/
 
-		public string CollectionTable => "Product_Tag";
-
-		public string IdItemName => "idTag";
+        ///
+        public string CollectionTable => "Product_Tag";
+        ///
+        public string IdItemName => "idTag";
 
 		/// <summary>
 		/// Получение данных об элементе коллекции.

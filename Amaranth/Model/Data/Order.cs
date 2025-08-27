@@ -170,8 +170,10 @@ namespace Amaranth.Model.Data
 
         /*--- Свойства и методы для интерфейса IDataCollection ---*/
 
+        ///
         public string CollectionTable => $"Order_Product";
 
+        ///
         public string IdItemName => "idProduct";
 
         /// <summary>

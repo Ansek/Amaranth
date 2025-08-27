@@ -137,8 +137,10 @@ namespace Amaranth.Model
 			_adapter.Update("User", "Login", login, "Password", "");
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
-		public event Action UserChanged;
+        ///
+        public event PropertyChangedEventHandler PropertyChanged;
+        ///
+        public event Action UserChanged;
 		/// <summary>
 		/// Оповещение о смене пользователя.
 		/// </summary>

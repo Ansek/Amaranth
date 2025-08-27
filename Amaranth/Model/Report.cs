@@ -40,7 +40,7 @@ namespace Amaranth.Model
 				throw new Exception("Не было задано наименование для товара");
 
 			string condition = request.GetCondition();	// Формирование запроса информации о товарах
-			var products = _adapter.LoadTable("sale_view", condition);	// Отправка запроса
+			var products = _adapter.LoadTable("SaleView", condition);	// Отправка запроса
 
 			if (products.Rows.Count == 0)	// Если данные не были получены
 				throw new Exception("Для данных параметров не было найдено ни одной записи");

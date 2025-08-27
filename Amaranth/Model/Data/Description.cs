@@ -30,7 +30,8 @@ namespace Amaranth.Model.Data
 			ValueChanged = description.ValueChanged;
 		}
 
-		public event Action<string, int> ValueChanged;
+        ///
+        public event Action<string, int> ValueChanged;
 
 		/// <summary>
 		/// Идентификатор описания категории.

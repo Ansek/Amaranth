@@ -1,8 +1,9 @@
-﻿using System;
-using System.Data;
-using System.Collections.Generic;
+﻿using Amaranth.Model.Data;
+using Amaranth.Service;
 using MySql.Data.MySqlClient;
-using Amaranth.Model.Data;
+using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace Amaranth.Model
 {
@@ -14,16 +15,32 @@ namespace Amaranth.Model
         /// <summary>
         /// Хранит настройки соединения
         /// </summary>
-        readonly MySqlConnection _connect;
+        readonly static MySqlConnection _connect = null;
 
         /// <summary>
         /// Конструктор класса для работы с СУБД MySql.
         /// </summary>
-        public MySqlAdapter()
+        static MySqlAdapter()
         {
-            // Установка параметров соединия с БД
-            string param = "datasource = localhost; port = 3306; username = root; database = amaranth; password = 1234";
-            _connect = new MySqlConnection(param);
+            if (_connect == null)
+            {
+                while (true)
+                {
+                    try
+                    {
+                        var conn = DialogueService.ShowConnectionWindow();
+                        _connect = new MySqlConnection(conn.ToString());
+                        _connect.Open();
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        DialogueService.ShowError("Ошибка подключения: " + ex.Message);
+                    }
+                }
+                _connect.Close();
+            }
         }
 
         /// <summary>
