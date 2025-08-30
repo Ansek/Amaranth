@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="Amaranth.View.ArrivalsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Amaranth.View"
+             mc:Ignorable="d" x:Name="control"
+             d:DesignHeight="450" d:DesignWidth="800"
+             Tag="Поступление">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+
+        <local:ProductSearch Grid.RowSpan="2" SetProduct="{Binding DataContext.SetProduct, ElementName=control}"/>
+
+        <Grid Margin="5, 10" Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Наименование:" Grid.Row="1"/>
+            <TextBlock Text="{Binding Product.Title}" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1"/>
+
+            <Label Content="Категория:" Grid.Row="2"/>
+            <TextBlock Text="{Binding Product.Category.Title}" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2"/>
+
+            <Label Content="Количество" Grid.Row="3"/>
+            <DockPanel Grid.Column="1" Grid.Row="3">
+                <DockPanel.Style>
+                    <Style TargetType="{x:Type DockPanel}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Product}" Value="{x:Null}">
+                                <Setter Property="IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DockPanel.Style>
+                <Button Content="Изменить" DockPanel.Dock="Right"
+                        Command="{Binding SetCount}"/>
+                <TextBlock Text="шт." VerticalAlignment="Center" DockPanel.Dock="Right"/>
+                <TextBox Text="{Binding EditableCount, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Right"
+                         MinWidth="50" DockPanel.Dock="Right" PreviewTextInput="TextBoxNumber"/>
+            </DockPanel>
+        </Grid>      
+    </Grid>
+</UserControl>

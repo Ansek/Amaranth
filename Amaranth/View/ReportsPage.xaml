@@ -1,0 +1,121 @@
+﻿<UserControl x:Class="Amaranth.View.ReportsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Amaranth.View"
+      xmlns:vm="clr-namespace:Amaranth.ViewModel"       
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Tag="Отчёты">
+
+    <Grid Margin="10, 5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>        
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <Style TargetType="{x:Type CheckBox}">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style TargetType="{x:Type RadioButton}">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style TargetType="{x:Type TextBlock}">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+        </Grid.Resources>
+
+        <TextBlock Text="Задайте параметры поиска для генерации данных отчёта о продажах:"
+                   FontSize="20" TextWrapping="Wrap" Margin="0, 10, 0, 30" Grid.ColumnSpan="2"/>
+
+        <Label Content="Период поиска:" VerticalAlignment="Center" Grid.Row="1"/>
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Margin="10, 15">
+            <TextBlock Text="от "/>
+            <DatePicker SelectedDate="{Binding Request.FromDate}"/>
+            <TextBlock Text=" до "/>
+            <DatePicker SelectedDate="{Binding Request.ToDate}"/>
+        </StackPanel>
+
+        <Label Content="Поиск по:" Margin="0,1" Grid.Row="2"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <RadioButton Content="наименованию" IsChecked="{Binding Request.CheckTitle}"/>
+                <ComboBox ItemsSource="{x:Static vm:MainWindowVM.ProductTitles}" IsEditable="True" Grid.Column="1" 
+                              Text="{Binding Request.Title, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <RadioButton Content="первые" IsChecked="{Binding Request.CheckRecordsCount}" Grid.Row="1"/>
+                <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
+                    <TextBox Text="{Binding Request.RecordsCount}" Width="50" PreviewTextInput="TextBoxNumber"/>
+                    <TextBlock Text=" найденных записей"/>
+                </StackPanel>
+
+                <CheckBox Content="тегам" IsChecked="{Binding Request.CheckTags}" Grid.Row="2"/>
+                <StackPanel Grid.Column="1" Grid.Row="2">
+                    <ItemsControl ItemsSource="{Binding Request.Tags}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="DodgerBlue" BorderThickness="1" CornerRadius="3" Margin="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding }" Margin="2, 1"/>
+                                        <Button Content="-" DockPanel.Dock="Right" Padding="0" Style="{StaticResource RemoveTag}" CommandParameter="{Binding }"
+                                            Command="{Binding DataContext.RemoveTag, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <DockPanel>
+                        <Button Content="+" DockPanel.Dock="Right" Width="30" Padding="0"
+                                    Command="{Binding AddTag}" CommandParameter="{Binding SelectedItem, ElementName=tag}"/>
+                        <ComboBox Text="{Binding TagField}" ItemsSource="{x:Static vm:MainWindowVM.Tags}"
+                                  x:Name="tag" DisplayMemberPath="Title" IsEditable="True"/>
+                    </DockPanel>
+                </StackPanel>
+
+                <CheckBox Content="цене от" IsChecked="{Binding Request.CheckPrice}" Grid.Row="3"/>
+                <DockPanel Grid.Column="1" Grid.Row="3">
+                    <TextBox MinWidth="50" TextAlignment="Right" PreviewTextInput="TextBoxDouble"
+                                     Text="{Binding Request.FromPriceText, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text=" до "/>
+                    <TextBox MinWidth="50" TextAlignment="Right" PreviewTextInput="TextBoxDouble"
+                                     Text="{Binding Request.ToPriceText, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="₽"/>
+                </DockPanel>
+
+                <CheckBox Content="категории" IsChecked="{Binding Request.CheckCategory}" Grid.Row="4"/>
+                <ComboBox ItemsSource="{x:Static vm:MainWindowVM.Categories}" Grid.Row="4" Grid.Column="1"
+                              DisplayMemberPath="Title" SelectedValuePath="Id" SelectedValue="{Binding Request.Category}"/>
+            </Grid>
+        </ScrollViewer>
+
+        <Button Content="Сгенерировать отчёт" Command="{Binding Print}"
+                HorizontalAlignment="Right" Grid.Column="1" Grid.Row="4"/>
+    </Grid>
+</UserControl>

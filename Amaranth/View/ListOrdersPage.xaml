@@ -1,0 +1,229 @@
+﻿<UserControl x:Class="Amaranth.View.ListOrdersPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      xmlns:local="clr-namespace:Amaranth.View"
+      xmlns:s="clr-namespace:Amaranth.Service"
+      xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+      mc:Ignorable="d" x:Name="control"
+      d:DesignHeight="450" d:DesignWidth="800"
+      Tag="Список заказов">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition />
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <ListBox x:Name="menu">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBoxItem Content="Все"/>
+            <ListBoxItem Content="Активные"/>
+            <ListBoxItem Content="Завершенные"/>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction
+                        Command="{Binding DataContext.UpdateList, ElementName=control}"
+                        CommandParameter="{Binding SelectedIndex, ElementName=menu}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ListBox>
+
+        <DataGrid x:Name="table" Grid.Row="1" ItemsSource="{Binding ListOrders}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Номер заказа" Binding="{Binding Id}" Width="*">
+                    <DataGridTextColumn.CellStyle>
+                        <Style>
+                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                        </Style>
+                    </DataGridTextColumn.CellStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Дата оформления" Binding="{Binding CreationDate, StringFormat=F, ConverterCulture=RU}" Width="2*"/>
+                <DataGridTextColumn Header="Дата завершения " Binding="{Binding CompletionDate, StringFormat=F, ConverterCulture=RU}" Width="2*"/>
+            </DataGrid.Columns>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction
+                        Command="{Binding DataContext.SetOrder, ElementName=control}"
+                        CommandParameter="{Binding SelectedItem, ElementName=table}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </DataGrid>
+
+        <Grid Margin="5, 10" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Border VerticalAlignment="Center" BorderBrush="#175182" 
+                    BorderThickness="3" CornerRadius="3" Margin="2">
+                <Border.Clip>
+                    <RectangleGeometry Rect="0, 0, 127, 31" RadiusX="3" RadiusY="3"/>
+                </Border.Clip>
+                <Grid Width="120" Height="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type RadioButton}">
+                            <Setter Property="FontSize" Value="12"/>
+                            <Setter Property="TextBlock.TextAlignment" Value="Center"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                                        <ContentPresenter Content="{TemplateBinding Content}" Margin="5, 3"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter Property="Foreground" Value="PapayaWhip"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Resources>
+                    <Canvas Grid.ColumnSpan="3">
+                        <Rectangle x:Name="back" Fill="#175182" Grid.ColumnSpan="3" Margin="2,-1"
+                               Canvas.Left="-3" Width="30" Height="22"/>
+                    </Canvas>
+                    <RadioButton Content="10" IsChecked="True"
+                                 Command="{Binding SetCountAll}">
+                        <RadioButton.CommandParameter>
+                            <sys:Int32>10</sys:Int32>
+                        </RadioButton.CommandParameter>
+                        <RadioButton.Triggers>
+                            <EventTrigger RoutedEvent="RadioButton.Click">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
+                                            <DoubleAnimation To="-3" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                        </RadioButton.Triggers>
+                    </RadioButton>
+                    <RadioButton Content="25" Grid.Column="1"
+                                 Command="{Binding SetCountAll}">
+                        <RadioButton.CommandParameter>
+                            <sys:Int32>25</sys:Int32>
+                        </RadioButton.CommandParameter>
+                        <RadioButton.Triggers>
+                            <EventTrigger RoutedEvent="RadioButton.Click">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
+                                            <DoubleAnimation To="28" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                        </RadioButton.Triggers>
+                    </RadioButton>
+                    <RadioButton Content="50" Grid.Column="2"
+                                 Command="{Binding SetCountAll}">
+                        <RadioButton.CommandParameter>
+                            <sys:Int32>50</sys:Int32>
+                        </RadioButton.CommandParameter>
+                        <RadioButton.Triggers>
+                            <EventTrigger RoutedEvent="RadioButton.Click">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
+                                            <DoubleAnimation To="58" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                        </RadioButton.Triggers>
+                    </RadioButton>
+                    <RadioButton Content="100" Grid.Column="3"
+                                 Command="{Binding SetCountAll}">
+                        <RadioButton.CommandParameter>
+                            <sys:Int32>100</sys:Int32>
+                        </RadioButton.CommandParameter>
+                        <RadioButton.Triggers>
+                            <EventTrigger RoutedEvent="RadioButton.Click">
+                                <EventTrigger.Actions>
+                                    <BeginStoryboard>
+                                        <Storyboard TargetName="back" TargetProperty="(Canvas.Left)">
+                                            <DoubleAnimation To="90" Duration="0:0:0.3"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger.Actions>
+                            </EventTrigger>
+                        </RadioButton.Triggers>
+                    </RadioButton>
+                </Grid>
+            </Border>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Column="1">
+                <Button Content="&lt;&lt;" Command="{Binding GoPrevious}" DockPanel.Dock="Right" Width="30" Height="20" Padding="0, 0, 2, 3"/>
+                <TextBlock VerticalAlignment="Center" Padding="2, 0, 2, 3">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0}/{1}">
+                            <Binding Path="CurrentNumber"/>
+                            <Binding Path="MaxNumber"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <Button Content="&gt;&gt;" Command="{Binding GoNext}" DockPanel.Dock="Right" Width="30" Height="20" Padding="2, 0, 0, 3"/>
+            </StackPanel>
+        </Grid>
+
+        <DockPanel Grid.Column="1" Grid.Row="1">
+            <TextBlock Text="{Binding Message}" DockPanel.Dock="Top" Margin="3"/>
+            <TextBlock DockPanel.Dock="Bottom" Margin="3" FontWeight="Bold" FontSize="16" TextWrapping="Wrap"
+                Text="{Binding Order.FinalPrice, StringFormat=Итоговая стоимость: {0:0.00}₽}"/>
+            <GroupBox Header="Список заказа">
+                <ListBox x:Name="list" ItemsSource="{Binding Order}">
+                    <ListBox.Resources>
+                        <s:PriceConverter x:Key="PriceConverter"/>
+                    </ListBox.Resources>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170"/>
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="{Binding Title}" TextWrapping="Wrap"/>
+                                <TextBlock Grid.Column="1" TextWrapping="Wrap">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource PriceConverter}">
+                                            <Binding Path="ProductCount"/>
+                                            <Binding Path="Price"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+        </DockPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                        Grid.ColumnSpan="2" Grid.Row="2" Margin="5, 10">
+            <Button Content="Отменить" Command="{Binding СancelOrder}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
